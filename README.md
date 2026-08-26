@@ -1,18 +1,23 @@
-# PhoenixPaperWebsite
+# PhoenixPaper Website
 
-To start your Phoenix server:
+The showcase site for [PhoenixPaper](https://github.com/z7ealth/phoenix_paper): a live, running demo of every component the library ships, with usage examples and options tables for each one. This repo is not the library itself; for the component source, API docs, and `mix.exs` install instructions, go to the [phoenix_paper repo](https://github.com/z7ealth/phoenix_paper).
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Running locally
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+This app depends on `phoenix_paper` as a local path dependency (`../phoenix_paper` in `mix.exs`), so it expects a sibling checkout:
 
-Ready to run in production? Please [check our deployment guides](https://phoenix.hexdocs.pm/deployment.html).
+```
+some-parent-dir/
+├── phoenix_paper/
+└── phoenix_paper_website/   (this repo)
+```
 
-## Learn more
+With that in place:
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://phoenix.hexdocs.pm/overview.html
-* Docs: https://phoenix.hexdocs.pm
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+* Run `mix setup` to install and set up dependencies
+* Start the server with `mix phx.server` (or `iex -S mix phx.server` from IEx)
+* Visit [`localhost:4000`](http://localhost:4000): `/` is the landing page, `/components` is the full catalog
+
+`config/dev.exs` sets `reloadable_apps: [:phoenix_paper_website, :phoenix_paper]`, so editing a component in the sibling `phoenix_paper` checkout live-reloads here too, without a manual recompile.
+
+Ready to run in production? See Phoenix's own [deployment guides](https://phoenix.hexdocs.pm/deployment.html).

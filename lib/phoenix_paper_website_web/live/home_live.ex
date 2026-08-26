@@ -9,9 +9,6 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
     ~H"""
     <Layouts.landing flash={@flash}>
       <.pp_container max_width="lg" class="py-20">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">
-          PhoenixPaper
-        </p>
         <h1 class="mb-4 text-4xl font-semibold tracking-tight sm:text-5xl">
           Material Design, built for Phoenix.
         </h1>

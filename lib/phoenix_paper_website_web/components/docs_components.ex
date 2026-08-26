@@ -211,4 +211,85 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
 
   defp variant_classes("flat", "surface"),
     do: "bg-pp-surface text-pp-primary hover:bg-pp-surface/90 pp-elevation-1"
+
+  attr :class, :any, default: nil
+
+  @doc """
+  The PhoenixPaper bird mark -- inlined (not an `<img src>`) so `currentColor`
+  picks up whatever text color class is passed in `class`, the same way
+  `pp_icon` themes with the surrounding text color. Path data copied from
+  `priv/static/images/logo/phoenixpaper-mark.svg`, the source of truth --
+  update both if the mark ever changes.
+  """
+  def logo_mark(assigns) do
+    ~H"""
+    <svg viewBox="0 0 64 64" fill="none" role="img" aria-label="PhoenixPaper" class={@class}>
+      <path
+        d="M13 21c1-6 7-10 13-9 6 1 10 6 9 12-1 6-5 10-9 15-3 4-5 9-6 15-4-5-6-11-6-18 0-6 1-11-1-15Z M13 18l-7 4 7 3z M23.8 20a1.8 1.8 0 1 0-3.6 0 1.8 1.8 0 1 0 3.6 0z"
+        fill="currentColor"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M34 24c8 0 16-4 22-12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4.6"
+        stroke-linecap="round"
+      />
+      <path
+        d="M35 32c9 1 17-3 23-10"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4.6"
+        stroke-linecap="round"
+      />
+      <path
+        d="M32 41c9 1 16-2 21-9"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4.2"
+        stroke-linecap="round"
+      />
+      <path
+        d="M22 48c6 2 10 6 12 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+    </svg>
+    """
+  end
+
+  attr :size, :string, default: "md", values: ~w(sm md lg)
+  attr :class, :any, default: nil
+
+  @doc """
+  The full PhoenixPaper wordmark -- `logo_mark/1` plus "Phoenix" (on-surface
+  text) + "Paper" (primary) set as one word, no gap. Used anywhere the brand
+  needs to read as a lockup rather than just the bare mark (the sidebar
+  header, the landing page hero eyebrow).
+  """
+  def logo_lockup(assigns) do
+    ~H"""
+    <span class={["inline-flex items-center", gap_classes(@size), @class]}>
+      <.logo_mark class={["shrink-0 text-pp-primary", mark_size_classes(@size)]} />
+      <span class={text_classes(@size)}>
+        <span class="text-pp-on-surface">Phoenix</span><span class="text-pp-primary">Paper</span>
+      </span>
+    </span>
+    """
+  end
+
+  defp gap_classes("sm"), do: "gap-1.5"
+  defp gap_classes("md"), do: "gap-2"
+  defp gap_classes("lg"), do: "gap-2.5"
+
+  defp mark_size_classes("sm"), do: "size-4"
+  defp mark_size_classes("md"), do: "size-6"
+  defp mark_size_classes("lg"), do: "size-8"
+
+  defp text_classes("sm"), do: "text-xs font-medium uppercase tracking-wide"
+  defp text_classes("md"), do: "text-base font-semibold tracking-tight"
+  defp text_classes("lg"), do: "text-2xl font-semibold tracking-tight"
 end
