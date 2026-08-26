@@ -50,18 +50,14 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   default. Deriving the active swatch from an `<html>` attribute sidesteps
   that entirely -- `<html>` is never part of the diff.
 
-  ## Persistence
+  ## No persistence, by design
 
-  Choices are written to `localStorage` (key `"pp-theme"`) by the same
-  `onclick` string that applies the attribute, and re-applied to `<html>` by
-  this component's own colocated hook on `mounted()`. Since AGENTS.md
-  forbids raw `<script>` tags in templates (colocated hooks are the sanctioned
-  alternative), that restore can only happen after LiveView's JS connects --
-  not before the very first paint the way a `<head>`-level script could -- so
-  a hard reload can show a brief flash of the default theme before a
-  previously-chosen one re-applies. Live navigation within the app (the
-  common case) never hits this: the attribute already lives on `<html>` and
-  is never touched by it.
+  Choices aren't written to `localStorage` or anywhere else -- a hard reload
+  (or a fresh visit) always lands back on the site defaults (dark mode,
+  Violet primary, Indigo secondary, Teal tertiary, Zinc neutral, Sans font).
+  Within a session, though, the attribute set on `<html>` survives live
+  navigation between pages just fine (it's outside any LiveView's own DOM,
+  see above), so a choice sticks around as you browse until you reload.
   """
   use Phoenix.Component
 
@@ -177,7 +173,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
                 :for={{value, label, icon} <- @modes}
                 type="button"
                 data-pp-swatch={"mode:#{value}"}
-                onclick={mode_apply_js(value) <> persist_js("mode", value)}
+                onclick={mode_apply_js(value)}
                 class="flex items-center justify-center gap-1.5 rounded-lg border border-pp-outline/30 px-2 py-1.5 text-xs font-medium transition-colors hover:bg-pp-on-surface/5"
               >
                 <.pp_icon name={icon} class="size-3.5" />{label}
@@ -194,7 +190,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
                 data-pp-swatch={"#{group}:#{value}"}
                 title={hue_label}
                 aria-label={"#{hue_label} #{label} color"}
-                onclick={role_apply_js(attr, value, default) <> persist_js(group, value)}
+                onclick={role_apply_js(attr, value, default)}
                 style={"background-color: #{hex}"}
                 class="size-6 shrink-0 cursor-pointer rounded-full ring-1 ring-inset ring-black/10 transition-transform hover:scale-110"
               />
@@ -210,7 +206,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
                 data-pp-swatch={"neutral:#{value}"}
                 title={label}
                 aria-label={"#{label} neutral tone"}
-                onclick={neutral_apply_js(value) <> persist_js("neutral", value)}
+                onclick={neutral_apply_js(value)}
                 style={"background-color: #{hex}"}
                 class="size-6 shrink-0 cursor-pointer rounded-full ring-1 ring-inset ring-black/10 transition-transform hover:scale-110"
               />
@@ -224,7 +220,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
                 :for={{value, label, stack} <- @fonts}
                 type="button"
                 data-pp-swatch={"font:#{value}"}
-                onclick={font_apply_js(value) <> persist_js("font", value)}
+                onclick={font_apply_js(value)}
                 style={"font-family: #{stack}"}
                 class="rounded-lg border border-pp-outline/30 px-2.5 py-1.5 text-xs transition-colors hover:bg-pp-on-surface/5"
               >
@@ -238,18 +234,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
       <script :type={Phoenix.LiveView.ColocatedHook} name=".ThemeSettings">
         export default {
           mounted() {
-            try {
-              const saved = JSON.parse(localStorage.getItem("pp-theme") || "{}")
-              const root = document.documentElement
-              if (saved.mode === "light" || saved.mode === "dark") root.setAttribute("data-theme", saved.mode)
-              else if (saved.mode === "system") root.removeAttribute("data-theme")
-              if (saved.accent && saved.accent !== "violet") root.setAttribute("data-pp-accent", saved.accent)
-              if (saved.secondary && saved.secondary !== "indigo") root.setAttribute("data-pp-secondary", saved.secondary)
-              if (saved.tertiary && saved.tertiary !== "teal") root.setAttribute("data-pp-tertiary", saved.tertiary)
-              if (saved.neutral && saved.neutral !== "zinc") root.setAttribute("data-pp-neutral", saved.neutral)
-              if (saved.font && saved.font !== "sans") root.setAttribute("data-pp-font", saved.font)
-            } catch (e) {}
-
             this.checkbox = this.el.querySelector('input[type="checkbox"]')
             this.onKeydown = (e) => {
               if (e.key === "Escape" && this.checkbox.checked) this.checkbox.checked = false
@@ -287,17 +271,12 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   defp font_apply_js(value),
     do: "document.documentElement.setAttribute('data-pp-font',#{inspect(value)});"
 
-  defp persist_js(key, value) do
-    "try{var s=JSON.parse(localStorage.getItem('pp-theme')||'{}');s[#{inspect(key)}]=#{inspect(value)};localStorage.setItem('pp-theme',JSON.stringify(s));}catch(e){}"
-  end
-
   defp reset_js do
     "document.documentElement.setAttribute('data-theme','dark');" <>
       "document.documentElement.removeAttribute('data-pp-accent');" <>
       "document.documentElement.removeAttribute('data-pp-secondary');" <>
       "document.documentElement.removeAttribute('data-pp-tertiary');" <>
       "document.documentElement.removeAttribute('data-pp-neutral');" <>
-      "document.documentElement.removeAttribute('data-pp-font');" <>
-      "try{localStorage.removeItem('pp-theme');}catch(e){}"
+      "document.documentElement.removeAttribute('data-pp-font');"
   end
 end
