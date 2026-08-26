@@ -9,22 +9,36 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
     ~H"""
     <Layouts.landing flash={@flash}>
       <.pp_container max_width="lg" class="py-20">
-        <h1 class="mb-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-          Material Design, built for Phoenix.
-        </h1>
-        <p class="mb-8 max-w-2xl text-lg text-pp-on-surface/70">
-          A component library for Phoenix and Phoenix LiveView, in the spirit of
-          <span class="whitespace-nowrap text-pp-on-surface">ember-paper</span>
-          for Ember.js, styled entirely with Tailwind CSS, and shipped as a plain hex
-          dependency your app already knows how to install.
-        </p>
+        <div class="relative mb-14">
+          <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div class="pp-hero-blob pp-hero-blob-1 absolute -top-24 -left-16 size-72 bg-pp-primary" />
+            <div class="pp-hero-blob pp-hero-blob-2 absolute top-0 -right-10 size-64 bg-pp-secondary" />
+            <div class="pp-hero-blob pp-hero-blob-3 absolute -bottom-24 left-1/3 size-56 bg-pp-tertiary" />
+          </div>
 
-        <.pp_stack direction="row" spacing={:md} wrap class="mb-14">
-          <.link_button href={~p"/components"}>See Components</.link_button>
-          <.link_button href={~p"/getting-started"} variant="outlined">
-            Get Started
-          </.link_button>
-        </.pp_stack>
+          <div class="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
+            <div class="max-w-2xl">
+              <h1 class="mb-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+                Material Design, built for Phoenix.
+              </h1>
+              <p class="mb-8 max-w-2xl text-lg text-pp-on-surface/70">
+                A component library for Phoenix and Phoenix LiveView, in the spirit of
+                <span class="whitespace-nowrap text-pp-on-surface">ember-paper</span>
+                for Ember.js, styled entirely with Tailwind CSS, and shipped as a plain hex
+                dependency your app already knows how to install.
+              </p>
+
+              <.pp_stack direction="row" spacing={:md} wrap>
+                <.link_button href={~p"/components"}>See Components</.link_button>
+                <.link_button href={~p"/getting-started"} variant="outlined">
+                  Get Started
+                </.link_button>
+              </.pp_stack>
+            </div>
+
+            <.hero_mark class="hidden shrink-0 lg:block lg:size-56 xl:size-64" />
+          </div>
+        </div>
 
         <.section
           eyebrow="Quick look"

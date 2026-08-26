@@ -261,6 +261,80 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     """
   end
 
+  attr :class, :any, default: nil
+
+  @doc """
+  A big, floating, gradient-filled version of `logo_mark/1` for the landing
+  hero -- same path data, but filled with `url(#pp-hero-gradient)` instead
+  of `currentColor`, so it reads live off the current
+  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-tertiary` tokens
+  rather than a single text color. Picking a new accent/secondary/tertiary
+  in `PhoenixPaperWebsiteWeb.ThemePicker` repaints it instantly, no JS of
+  its own -- an inline `<svg>`'s `stop-color` resolves CSS custom
+  properties from the page same as any other computed style, same reason
+  `logo_mark/1` itself is inlined rather than an `<img src>`. The float/glow
+  animation lives in `assets/css/app.css`'s `.pp-hero-mark` utility.
+  """
+  def hero_mark(assigns) do
+    ~H"""
+    <svg
+      viewBox="0 0 64 64"
+      fill="none"
+      role="img"
+      aria-hidden="true"
+      class={["pp-hero-mark", @class]}
+    >
+      <defs>
+        <linearGradient
+          id="pp-hero-gradient"
+          x1="4"
+          y1="6"
+          x2="46"
+          y2="60"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stop-color="var(--color-pp-primary)" />
+          <stop offset="55%" stop-color="var(--color-pp-secondary)" />
+          <stop offset="100%" stop-color="var(--color-pp-tertiary)" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M13 21c1-6 7-10 13-9 6 1 10 6 9 12-1 6-5 10-9 15-3 4-5 9-6 15-4-5-6-11-6-18 0-6 1-11-1-15Z M13 18l-7 4 7 3z M23.8 20a1.8 1.8 0 1 0-3.6 0 1.8 1.8 0 1 0 3.6 0z"
+        fill="url(#pp-hero-gradient)"
+        fill-rule="evenodd"
+      />
+      <path
+        d="M34 24c8 0 16-4 22-12"
+        fill="none"
+        stroke="url(#pp-hero-gradient)"
+        stroke-width="4.6"
+        stroke-linecap="round"
+      />
+      <path
+        d="M35 32c9 1 17-3 23-10"
+        fill="none"
+        stroke="url(#pp-hero-gradient)"
+        stroke-width="4.6"
+        stroke-linecap="round"
+      />
+      <path
+        d="M32 41c9 1 16-2 21-9"
+        fill="none"
+        stroke="url(#pp-hero-gradient)"
+        stroke-width="4.2"
+        stroke-linecap="round"
+      />
+      <path
+        d="M22 48c6 2 10 6 12 12"
+        fill="none"
+        stroke="url(#pp-hero-gradient)"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+    </svg>
+    """
+  end
+
   attr :size, :string, default: "md", values: ~w(sm md lg)
   attr :class, :any, default: nil
 

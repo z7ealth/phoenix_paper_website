@@ -432,4 +432,66 @@ body {
   color: var(--color-pp-on-primary);
 }
 
+/*
+ * Landing hero glow (HomeLive) -- three slow-drifting blurred blobs, one
+ * per brand color, plus a floating glow on the big gradient bird mark
+ * (DocsComponents.hero_mark/1). Colors are plain bg-pp-primary/secondary/
+ * tertiary Tailwind utilities on the blob elements themselves (not baked
+ * into this CSS), and the mark's own fill is `url(#pp-hero-gradient)`
+ * referencing --color-pp-primary/secondary/tertiary directly -- so both
+ * react live to PhoenixPaperWebsiteWeb.ThemePicker with zero JS of their
+ * own, the same "derive from the current CSS custom property" approach
+ * the theme picker's own active-swatch rings already use.
+ */
+.pp-hero-blob {
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.25;
+}
+[data-theme="dark"] .pp-hero-blob {
+  opacity: 0.4;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .pp-hero-blob {
+    opacity: 0.4;
+  }
+}
+.pp-hero-blob-1 {
+  animation: pp-hero-blob-1 14s ease-in-out infinite;
+}
+.pp-hero-blob-2 {
+  animation: pp-hero-blob-2 18s ease-in-out infinite;
+}
+.pp-hero-blob-3 {
+  animation: pp-hero-blob-3 16s ease-in-out infinite;
+}
+@keyframes pp-hero-blob-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 5%) scale(1.1); }
+}
+@keyframes pp-hero-blob-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, 4%) scale(1.12); }
+}
+@keyframes pp-hero-blob-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -5%) scale(1.06); }
+}
+
+.pp-hero-mark {
+  animation: pp-hero-float 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 44px color-mix(in srgb, var(--color-pp-primary) 45%, transparent));
+}
+@keyframes pp-hero-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-18px) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-hero-blob,
+  .pp-hero-mark {
+    animation: none;
+  }
+}
+
 /* This file is for your main application CSS */
