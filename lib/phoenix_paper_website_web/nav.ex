@@ -1,5 +1,9 @@
 defmodule PhoenixPaperWebsiteWeb.Nav do
-  @moduledoc "The sidebar/drawer navigation structure shared by every page, via `Layouts.app`."
+  @moduledoc """
+  The sidebar/drawer navigation structure shared by every page, via
+  `Layouts.app`. Categories mirror phoenix_paper's own `dev.exs` catalog
+  nav groups exactly, for consistency with upstream.
+  """
 
   def sections do
     [
@@ -15,57 +19,69 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
           }
         ]
       },
-      %{
-        title: "Components",
-        items: component_items()
-      }
+      %{title: "Components", items: component_items()}
     ]
   end
 
-  @doc "The five component category pages, also used to build the /components index grid."
+  @doc "The eight component category pages, also used to build the /components index grid."
   def component_items do
     [
       %{
-        id: :buttons,
-        label: "Buttons",
-        path: "/components/buttons",
+        id: :actions,
+        label: "Actions",
+        path: "/components/actions",
         icon: "hero-cursor-arrow-rays",
-        blurb: "Button, ButtonGroup, ToggleButton, Fab"
+        blurb: "Button, ButtonGroup, Fab, ToggleButton"
       },
       %{
         id: :forms,
         label: "Forms",
         path: "/components/forms",
         icon: "hero-pencil-square",
-        blurb: "Input, NumberField, Select, Slider, Autocomplete, TransferList"
-      },
-      %{
-        id: :selection,
-        label: "Selection Controls",
-        path: "/components/selection",
-        icon: "hero-check-circle",
-        blurb: "Checkbox, Switch, RadioGroup, Rating"
+        blurb:
+          "Input, Select, NumberField, Checkbox, Switch, ThemeToggle, RadioGroup, Slider, Rating, Autocomplete, TransferList"
       },
       %{
         id: :navigation,
         label: "Navigation",
         path: "/components/navigation",
         icon: "hero-bars-3-bottom-left",
-        blurb: "Navbar, Drawer, List, ListItem, ListSubheader, Divider"
-      },
-      %{
-        id: :surfaces,
-        label: "Surfaces",
-        path: "/components/surfaces",
-        icon: "hero-rectangle-group",
-        blurb: "Card, Elevation, Shape"
+        blurb: "AppBar, Drawer, Tabs, Breadcrumbs, List"
       },
       %{
         id: :layout,
         label: "Layout",
         path: "/components/layout",
         icon: "hero-squares-plus",
-        blurb: "Box, Container, Stack, Grid, GridItem, ImageList, ImageListItem"
+        blurb: "Box, Container, Stack, Grid, GridItem, Divider"
+      },
+      %{
+        id: :data_display,
+        label: "Data Display",
+        path: "/components/data-display",
+        icon: "hero-rectangle-group",
+        blurb: "Card, Badge, Chip, Tooltip, Icon, ImageList, Table"
+      },
+      %{
+        id: :surfaces,
+        label: "Surfaces",
+        path: "/components/surfaces",
+        icon: "hero-square-3-stack-3d",
+        blurb: "Paper, Typography, Accordion"
+      },
+      %{
+        id: :feedback,
+        label: "Feedback",
+        path: "/components/feedback",
+        icon: "hero-chat-bubble-left-right",
+        blurb: "Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar"
+      },
+      %{
+        id: :helpers,
+        label: "Helpers",
+        path: "/components/helpers",
+        icon: "hero-wrench-screwdriver",
+        blurb: "Ripple, Elevation, Shape, Theming"
       }
     ]
   end

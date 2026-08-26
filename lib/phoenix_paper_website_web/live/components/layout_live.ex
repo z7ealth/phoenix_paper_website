@@ -1,23 +1,8 @@
 defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
-  @tiles [
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjM2Y1MWI1Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSAxPC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 1"},
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjZmY0MDgxIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iIzAwMDAwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSAyPC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 2"},
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMDA5Njg4Ii8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSAzPC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 3"},
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjZDMyZjJmIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSA0PC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 4"},
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjNWM2YmMwIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSA1PC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 5"},
-    {"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjMjZhNjlhIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMjE1IiBmb250LWZhbWlseT0idWktc2Fucy1zZXJpZixzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGlsZSA2PC90ZXh0Pgo8L3N2Zz4=",
-     "Tile 6"}
-  ]
-
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "Layout", tiles: @tiles)}
+    {:ok, assign(socket, :page_title, "Layout")}
   end
 
   def render(assigns) do
@@ -27,32 +12,41 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Layout</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Box, PhoenixPaper.Container, PhoenixPaper.Stack, PhoenixPaper.Grid /
-          PhoenixPaper.GridItem, and PhoenixPaper.ImageList / PhoenixPaper.ImageListItem —
-          Tailwind-native layout primitives in the spirit of MUI's Layout category. Every
-          page on this site, including this one, is built out of them.
+          PhoenixPaper.Box, Container, Stack, Grid / GridItem, and Divider — Tailwind-native
+          layout primitives in the spirit of MUI's Layout category. Every page on this site,
+          including this one, is built out of them.
         </p>
 
         <.section
           title="Box"
-          description="A bare div (or span, via tag) that exists purely to hold a class -- no visual style of its own, and the only component with no paperize attribute, since there's no skin to strip."
+          description="A bare div/span/pre that exists purely to hold a class — no visual style of its own, and the only component with no paperize attr at all, since there's no skin to strip."
+          props={[{"tag", "div | span | pre (default: div)"}]}
+          code={box_code()}
         >
           <.demo_group label="Preview">
             <.pp_box class="rounded-lg bg-pp-primary/10 p-4 text-sm text-pp-primary">
-              pp_box tag="div" (default)
+              tag="div" (default)
             </.pp_box>
             <.pp_box
               tag="span"
               class="rounded-full bg-pp-secondary/10 px-4 py-2 text-sm text-pp-secondary"
             >
-              pp_box tag="span"
+              tag="span"
+            </.pp_box>
+            <.pp_box tag="pre" class="rounded-lg bg-pp-tertiary/10 p-4 text-xs text-pp-tertiary">
+              tag="pre", whitespace preserved.
             </.pp_box>
           </.demo_group>
         </.section>
 
         <.section
           title="Container"
-          description="A centered, width-constrained content wrapper. This very page's content sits inside one (max_width=lg) -- here it is again, nested, at two other widths."
+          description="A centered, width-constrained content wrapper. This very page's content sits inside one (max_width=lg) — here it is again, nested, at two other widths."
+          props={[
+            {"max_width", "sm | md | lg | xl | 2xl | full (default: lg)"},
+            {"paperize", "boolean (default: true)"}
+          ]}
+          code={container_code()}
         >
           <.demo_group label="max_width comparison" class="flex-col items-stretch">
             <div class="rounded-lg border border-dashed border-pp-outline/30 p-2">
@@ -76,7 +70,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
         <.section
           title="Stack"
-          description="A one-dimensional flex layout -- row or column, with consistent spacing between children. The bordered canvas around every demo on this site is a pp_stack."
+          description="A one-dimensional flex layout — row or column, with consistent spacing between children. No divider slot to auto-interleave (a stateless component only gets one opaque inner_block) — add a Divider yourself where you want one. The bordered canvas around every demo on this site is a pp_stack."
+          props={[
+            {"direction", "row | column (default: column)"},
+            {"spacing", "a Spacing token, :none | :xs | :sm | :md | :lg | :xl | :2xl (default: :md)"},
+            {"wrap", "boolean (default: false)"}
+          ]}
+          code={stack_code()}
         >
           <.demo_group label="direction: row">
             <.pp_stack direction="row" spacing={:sm}>
@@ -97,7 +97,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
         <.section
           title="Grid & GridItem"
-          description="A 12-column CSS grid container, paired with GridItem for each column-spanning child. GridItem's md attribute overrides its span at the md: breakpoint and up."
+          description="A 12-column CSS grid container, paired with GridItem for each column-spanning child. GridItem's md attribute overrides its span at the md: breakpoint and up — the only responsive breakpoint supported, since every value has to be a literal Tailwind class."
+          props={[
+            {"pp_grid spacing", "a Spacing token (default: :md)"},
+            {"pp_grid_item span", "1-12 (default: 12)"},
+            {"pp_grid_item md", "1-12, overrides span at md: and up (default: nil, no override)"}
+          ]}
+          code={grid_code()}
         >
           <.demo_group label="Even thirds" class="flex-col items-stretch">
             <.pp_grid spacing={:sm}>
@@ -120,22 +126,72 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
         </.section>
 
         <.section
-          title="Image List"
-          description="A grid gallery of images with an optional title/subtitle overlay bar -- the standard variant (masonry/quilted/woven aren't implemented). Tiles below are generated placeholder SVGs, not real photos."
+          title="Divider"
+          description="A thin separator line, most often used between sections of a List."
+          props={[
+            {"inset",
+             "boolean — indent past a leading icon/avatar column instead of spanning full width (default: false)"}
+          ]}
+          code={divider_code()}
         >
-          <.demo_group label="cols=3" class="flex-col items-stretch">
-            <.pp_image_list cols={3} spacing={:sm}>
-              <.pp_image_list_item
-                :for={{src, label} <- @tiles}
-                src={src}
-                title={label}
-                subtitle="Placeholder"
-              />
-            </.pp_image_list>
+          <.demo_group label="Variants" class="flex-col items-stretch gap-4">
+            <span class="text-sm">Above</span>
+            <.pp_divider />
+            <span class="text-sm">Below</span>
           </.demo_group>
         </.section>
       </.pp_container>
     </Layouts.app>
+    """
+  end
+
+  defp box_code do
+    """
+    <.pp_box class="rounded-lg bg-pp-surface-variant p-4">A div (default).</.pp_box>
+    <.pp_box tag="span" class="rounded bg-pp-surface-variant px-2 py-1">A span.</.pp_box>
+    <.pp_box tag="pre" class="rounded-lg bg-pp-surface-variant p-4">A pre, whitespace preserved.</.pp_box>\
+    """
+  end
+
+  defp container_code do
+    """
+    <.pp_container max_width="sm">
+      Narrower content.
+    </.pp_container>
+
+    <.pp_container :for={width <- ~w(sm md lg xl 2xl full)} max_width={width} class="mb-2">
+      {width}
+    </.pp_container>\
+    """
+  end
+
+  defp stack_code do
+    """
+    <.pp_stack direction="row" spacing={:sm}>
+      <.pp_button>Save</.pp_button>
+      <.pp_button variant="outlined">Cancel</.pp_button>
+    </.pp_stack>
+
+    <.pp_stack direction="column" spacing={:sm}>
+      <.pp_button>Save</.pp_button>
+      <.pp_button variant="outlined">Cancel</.pp_button>
+    </.pp_stack>\
+    """
+  end
+
+  defp grid_code do
+    """
+    <.pp_grid>
+      <.pp_grid_item span={12} md={4}>Sidebar</.pp_grid_item>
+      <.pp_grid_item span={12} md={8}>Content</.pp_grid_item>
+    </.pp_grid>\
+    """
+  end
+
+  defp divider_code do
+    """
+    <.pp_divider />
+    <.pp_divider inset />\
     """
   end
 

@@ -21,6 +21,13 @@
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";
 
+/* Syntax highlighting theme for the component pages' code snippets, applied
+   by highlight.js (see the ".Highlight" colocated hook in
+   DocsComponents.code/1). Installed via `npm install highlight.js --prefix
+   assets`. A dark code panel regardless of the page's own light/dark theme
+   is the usual convention for highlighted code blocks. */
+@import "../node_modules/highlight.js/styles/atom-one-dark.css";
+
 /* daisyUI Tailwind Plugin. */
 @plugin "daisyui/packages/bundle/daisyui" {
   themes: false;

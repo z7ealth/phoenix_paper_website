@@ -47,24 +47,24 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
         >
           <.pp_grid spacing={:md}>
             <.pp_grid_item span={12} md={6}>
-              <div class="h-full rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6">
-                <h3 class="mb-2 text-sm font-semibold">paperize: true (default)</h3>
+              <.pp_card class="h-full">
+                <:title>paperize: true (default)</:title>
                 <p class="text-sm text-pp-on-surface/70">
                   Renders with PhoenixPaper's Material Design classes — color, elevation,
                   shape, typography. Your own class attribute still merges on top, last
                   conflicting utility wins.
                 </p>
-              </div>
+              </.pp_card>
             </.pp_grid_item>
             <.pp_grid_item span={12} md={6}>
-              <div class="h-full rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6">
-                <h3 class="mb-2 text-sm font-semibold">paperize: false</h3>
+              <.pp_card class="h-full">
+                <:title>paperize: false</:title>
                 <p class="text-sm text-pp-on-surface/70">
                   Drops every built-in class. Only your own class and any DOM structure
                   needed for the component to function (like a checkbox's hidden input)
                   survive — a clean slate to skin yourself.
                 </p>
-              </div>
+              </.pp_card>
             </.pp_grid_item>
           </.pp_grid>
         </.section>
@@ -94,31 +94,15 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
 
         <.section
           title="What's on the roadmap"
-          description="This showcase covers every component PhoenixPaper ships today. A few classic Material building blocks aren't implemented yet:"
+          description="This showcase covers nearly every component PhoenixPaper ships today. One classic Material building block isn't implemented yet:"
         >
           <.pp_stack direction="row" spacing={:sm} wrap>
-            <span
-              :for={
-                item <- [
-                  "Dialog",
-                  "Menu",
-                  "Tabs",
-                  "Tooltip",
-                  "Snackbar",
-                  "Progress indicators",
-                  "Chips",
-                  "Accordion"
-                ]
-              }
-              class="rounded-full border border-pp-outline/25 px-3 py-1 text-xs text-pp-on-surface/60"
-            >
-              {item}
-            </span>
+            <.pp_chip :for={item <- ["Menu"]} variant="outlined">{item}</.pp_chip>
           </.pp_stack>
         </.section>
 
         <.pp_box class="flex justify-end">
-          <.link_button href={~p"/components/buttons"}>Browse the components</.link_button>
+          <.link_button href={~p"/components"}>Browse the components</.link_button>
         </.pp_box>
       </.pp_container>
     </Layouts.app>

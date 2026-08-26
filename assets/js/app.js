@@ -25,6 +25,15 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/phoenix_paper_website"
 import topbar from "../vendor/topbar"
 
+// Syntax highlighting for the component pages' code snippets (see the
+// ".Highlight" colocated hook in DocsComponents.code/1). Registered here,
+// once, and exposed on `window` so every instance of that hook can reuse the
+// same core + language grammar instead of re-registering it per snippet.
+import hljs from "highlight.js/lib/core"
+import elixir from "highlight.js/lib/languages/elixir"
+hljs.registerLanguage("elixir", elixir)
+window.hljs = hljs
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,

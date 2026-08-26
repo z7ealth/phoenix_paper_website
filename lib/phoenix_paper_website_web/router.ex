@@ -21,12 +21,14 @@ defmodule PhoenixPaperWebsiteWeb.Router do
       live "/", HomeLive
       live "/getting-started", GettingStartedLive
       live "/components", Components.IndexLive
-      live "/components/buttons", Components.ButtonsLive
+      live "/components/actions", Components.ActionsLive
       live "/components/forms", Components.FormsLive
-      live "/components/selection", Components.SelectionLive
       live "/components/navigation", Components.NavigationLive
-      live "/components/surfaces", Components.SurfacesLive
       live "/components/layout", Components.LayoutLive
+      live "/components/data-display", Components.DataDisplayLive
+      live "/components/surfaces", Components.SurfacesLive
+      live "/components/feedback", Components.FeedbackLive
+      live "/components/helpers", Components.HelpersLive
     end
   end
 

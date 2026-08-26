@@ -87,8 +87,8 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-secondary/10 text-pp-secondary">
                 <.pp_icon name="hero-bolt" />
               </.pp_box>
-              <:title>Mostly zero JavaScript</:title>
-              Checkboxes, switches, radios, ratings, and the drawer's mobile toggle are all
+              <:title>CSS-only interactions</:title>
+              Checkboxes, radios, ratings, accordions, and the drawer's mobile toggle are all
               pure CSS — <code class="text-xs">peer-checked:</code>
               and <code class="text-xs">has-[:checked]:</code>
               tricks, no client JS shipped for them at all.
