@@ -72,13 +72,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Avatar"
-          description="A user's profile picture, initials, or icon, in the spirit of MUI's Avatar. No src falls back to the :inner_block slot (initials or an icon); no :inner_block either falls back further, to a generic person icon. A broken image also falls back to the same slot underneath it — a small vanilla onerror, no JS hook, no LiveView round-trip."
+          description="A user's profile picture, initials, or icon, in the spirit of MUI's Avatar. No src falls back to the :inner_block slot (initials or an icon); no :inner_block either falls back further, to a generic person icon. A broken image also falls back to the same slot underneath it: a small vanilla onerror, no JS hook, no LiveView round-trip."
           props={[
-            {"src / alt", "an image, with alt text (default: nil — falls back to :inner_block)"},
+            {"src / alt", "an image, with alt text (default: nil, falls back to :inner_block)"},
             {"variant", "circular | rounded | square (default: circular)"},
             {"size", "small | medium | large (default: medium)"},
-            {":inner_block",
-             "initials or an icon — shown with no src, or if the image fails to load"},
+            {":inner_block", "initials or an icon: shown with no src, or if the image fails to load"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={avatar_code()}
@@ -106,14 +105,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           title="Badge"
           description="A small count/status indicator overlapping the corner of its child, in the spirit of MUI's Badge."
           props={[
-            {"content", "badge content — a number or short string (default: nil)"},
+            {"content", "badge content: a number or short string (default: nil)"},
             {"max", "caps a numeric content at max+, e.g. 99+ (default: 99)"},
             {"show_zero", "show the badge when content is the integer 0 (default: false)"},
             {"variant", "standard | dot (default: standard)"},
             {"color",
              "primary | secondary | tertiary | error | success | warning | info (default: error)"},
             {"overlap",
-             "rectangular | circular — pulls the badge inward onto a circular child (default: rectangular)"},
+             "rectangular | circular, pulls the badge inward onto a circular child (default: rectangular)"},
             {"anchor_origin", "which corner (default: top-right)"},
             {"invisible", "force-hide the badge (default: false)"}
           ]}
@@ -178,9 +177,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Tooltip"
-          description="A short text label shown on hover/focus, in the spirit of MUI's Tooltip. Pure CSS (group-hover/group-focus-within) — no JS, no collision detection/auto-flip."
+          description="A short text label shown on hover/focus, in the spirit of MUI's Tooltip. Pure CSS (group-hover/group-focus-within): no JS, no collision detection/auto-flip."
           props={[
-            {"title", "the tooltip text — nil or \"\" disables the tooltip (default: nil)"},
+            {"title", "the tooltip text: nil or \"\" disables the tooltip (default: nil)"},
             {"placement", "top | bottom | left | right (default: top)"},
             {"arrow", "a small triangle pointing at the trigger (default: false)"}
           ]}
@@ -201,11 +200,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Icon"
-          description="Just renders the app's existing heroicon classes — no bundled icon set, no extra dependency."
+          description="Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency."
           props={[
             {"name", "a heroicon class, e.g. \"hero-check\" (required)"},
-            {"paperize",
-             "boolean — only affects default sizing, not which icon shows (default: true)"}
+            {"paperize", "boolean, only affects default sizing, not which icon shows (default: true)"}
           ]}
           code={icon_code()}
         >
@@ -219,7 +217,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Image List"
-          description="A grid gallery of images, in the spirit of MUI's ImageList (the standard variant — masonry/quilted/woven aren't implemented). Tiles below are generated placeholder SVGs, not real photos."
+          description="A grid gallery of images, in the spirit of MUI's ImageList (the standard variant; masonry/quilted/woven aren't implemented). Tiles below are generated placeholder SVGs, not real photos."
           props={[
             {"pp_image_list cols", "1-6 (default: 3)"},
             {"pp_image_list_item src / alt", "the image"},
@@ -239,7 +237,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Table"
-          description="A family of small components — Table, TableContainer, TableHead, TableBody, TableRow, TableCell, TableFooter — composed by hand like MUI's own Table parts. dense/sticky_header/striped cascade to descendant cells via CSS, not a prop threaded through every cell."
+          description="A family of small components: Table, TableContainer, TableHead, TableBody, TableRow, TableCell, TableFooter, composed by hand like MUI's own Table parts. dense/sticky_header/striped cascade to descendant cells via CSS, not a prop threaded through every cell."
           props={[
             {"pp_table dense / sticky_header",
              "tighter cell padding / pins the header while scrolling"},
@@ -248,7 +246,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {"pp_table_cell variant", "head (th) | body (td, default)"},
             {"pp_table_cell align", "left | center | right"},
             {"pp_table_cell sortable / sort_direction",
-             "a clickable header arrow — wire your own phx-click, presentation only"}
+             "a clickable header arrow: wire your own phx-click, presentation only"}
           ]}
           code={table_code()}
         >

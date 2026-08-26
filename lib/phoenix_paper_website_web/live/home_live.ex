@@ -15,7 +15,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <p class="mb-8 max-w-2xl text-lg text-pp-on-surface/70">
           A component library for Phoenix and Phoenix LiveView, in the spirit of
           <span class="text-pp-on-surface">ember-paper</span>
-          for Ember.js — styled entirely with Tailwind CSS, and shipped as a plain hex
+          for Ember.js, styled entirely with Tailwind CSS, and shipped as a plain hex
           dependency your app already knows how to install.
         </p>
 
@@ -29,7 +29,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <.section
           eyebrow="Quick look"
           title="Every component, live"
-          description="Nothing on this page is a screenshot — everything below is a real PhoenixPaper component, rendered live by this LiveView."
+          description="Nothing on this page is a screenshot: everything below is a real PhoenixPaper component, rendered live by this LiveView."
         >
           <.pp_stack spacing={:lg}>
             <.demo_group label="Try it">
@@ -74,8 +74,8 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_box>
               <:title>Tailwind-native theming</:title>
               Colors are Tailwind v4 theme tokens, namespaced <code class="text-xs">pp-</code>
-              so they never collide with daisyUI — this site ships both, side by side. Try the
-              theme picker in the top right corner — color mode, primary accent, neutral tone,
+              so they never collide with daisyUI; this site ships both, side by side. Try the
+              theme picker in the top right corner: color mode, primary accent, neutral tone,
               and font are all live.
             </.pp_card>
           </.pp_grid_item>
@@ -87,7 +87,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_box>
               <:title>CSS-only interactions</:title>
               Checkboxes, radios, ratings, accordions, and the drawer's mobile toggle are all
-              pure CSS — <code class="text-xs">peer-checked:</code>
+              pure CSS: <code class="text-xs">peer-checked:</code>
               and <code class="text-xs">has-[:checked]:</code>
               tricks, no client JS shipped for them at all.
             </.pp_card>
@@ -100,7 +100,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_box>
               <:title>The paperize escape hatch</:title>
               Every component accepts a <code class="text-xs">paperize</code>
-              attribute. Turn it off and every built-in class disappears — only your own
+              attribute. Turn it off and every built-in class disappears; only your own
               <code class="text-xs">class</code>
               renders, no fighting the library's CSS.
             </.pp_card>
@@ -115,7 +115,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               Form components accept a <code class="text-xs">field</code>
               from <code class="text-xs">to_form/2</code>
               the same way this app's own <code class="text-xs">core_components.ex</code>
-              inputs do — no new form abstraction to learn.
+              inputs do: no new form abstraction to learn.
             </.pp_card>
           </.pp_grid_item>
         </.pp_grid>
@@ -129,7 +129,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
           <.pp_box>
             <h2 class="text-xl font-semibold">Ready to look around?</h2>
             <p class="text-pp-on-primary/80">
-              Buttons, forms, selection controls, navigation, and surfaces — all in one place.
+              Buttons, forms, selection controls, navigation, and surfaces, all in one place.
             </p>
           </.pp_box>
           <.link_button href={~p"/components"} variant="flat" color="surface" class="shrink-0">

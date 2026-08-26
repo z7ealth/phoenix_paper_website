@@ -17,12 +17,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="App Bar"
-          description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore — just a floating theme toggle instead — so here it is on its own."
+          description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore (just a floating theme toggle instead), so here it is on its own."
           props={[
             {"color", "primary | secondary | tertiary | surface | transparent (default: primary)"},
-            {"elevation", "resting elevation, 0-24 (default: 4) — ignored for color=\"transparent\""},
+            {"elevation", "resting elevation, 0-24 (default: 4), ignored for color=\"transparent\""},
             {"position", "static | relative | sticky | fixed | absolute (default: static)"},
-            {"variant", "regular | dense (default: regular) — dense shrinks the toolbar row"},
+            {"variant", "regular | dense (default: regular), dense shrinks the toolbar row"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={app_bar_code()}
@@ -61,7 +61,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           </.demo_group>
           <p class="text-sm text-pp-on-surface/60">
             Pitfall: a Button's text/icon color is always the brand color (text-pp-primary by
-            default) regardless of what it's sitting on — drop one onto a same-colored app bar
+            default) regardless of what it's sitting on: drop one onto a same-colored app bar
             with no override and it's not just low contrast, it's the exact same color as the
             background. The demo above overrides with text-pp-on-primary explicitly.
           </p>
@@ -69,14 +69,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="Drawer"
-          description="A vertical navigation panel, persistent on large screens and toggled by a mobile drawer below that breakpoint — pure CSS via a hidden checkbox, no JS."
+          description="A vertical navigation panel, persistent on large screens and toggled by a mobile drawer below that breakpoint: pure CSS via a hidden checkbox, no JS."
           props={[
-            {"id", "required — builds the mobile toggle checkbox's id as \"\#{id}-toggle\""},
+            {"id", "required: builds the mobile toggle checkbox's id as \"\#{id}-toggle\""},
             {"color",
-             "primary | secondary | tertiary | surface (default: surface) — also restyles nested List/ListItem for contrast"},
+             "primary | secondary | tertiary | surface (default: surface), also restyles nested List/ListItem for contrast"},
             {"paperize", "boolean (default: true)"},
             {"pp_drawer_toggle for=",
-             "a hamburger label pointing at the given drawer's id — works from anywhere on the page"}
+             "a hamburger label pointing at the given drawer's id; works from anywhere on the page"}
           ]}
           code={drawer_code()}
         >
@@ -84,30 +84,30 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             elevation={0}
             class="border border-pp-outline/15 p-6 text-sm text-pp-on-surface/70"
           >
-            The sidebar on the left of this very page is pp_drawer — every link in it is a
+            The sidebar on the left of this very page is pp_drawer: every link in it is a
             pp_list_item using navigate, highlighted active on whichever page you're on (real
             LiveView navigation, no full page reload). Its mobile toggle is pure CSS: pp_drawer
             renders a visually hidden checkbox, and pp_drawer_toggle is just a label wired to
-            that checkbox's id, so it can live anywhere on the page — no JavaScript required.
+            that checkbox's id, so it can live anywhere on the page, no JavaScript required.
             color also reaches into nested List/ListItem/ListSubheader/Divider so a colored
-            drawer stays readable, not just a style mismatch (see the App Bar pitfall above —
+            drawer stays readable, not just a style mismatch (see the App Bar pitfall above;
             the same "same color on same color" trap applies to an active item's highlight).
           </.pp_paper>
         </.section>
 
         <.section
           title="Tabs"
-          description="Tabs/Tab/TabPanel switch entirely client-side via Phoenix.LiveView.JS commands fired on click — no server round-trip, no sliding indicator animation (that needs a real layout measurement JS commands can't do)."
+          description="Tabs/Tab/TabPanel switch entirely client-side via Phoenix.LiveView.JS commands fired on click: no server round-trip, no sliding indicator animation (that needs a real layout measurement JS commands can't do)."
           props={[
-            {"pp_tabs id", "required — shared with every Tab/TabPanel in the group"},
+            {"pp_tabs id", "required: shared with every Tab/TabPanel in the group"},
             {"pp_tabs orientation", "horizontal | vertical (default: horizontal)"},
             {"pp_tabs variant",
-             "standard | scrollable | full_width (default: standard) — horizontal only"},
+             "standard | scrollable | full_width (default: standard), horizontal only"},
             {"pp_tab id / value",
              "id matches the parent Tabs; value must be unique within the group"},
-            {"pp_tab default_selected", "boolean — initial selection, uncontrolled (default: false)"},
+            {"pp_tab default_selected", "boolean, initial selection, uncontrolled (default: false)"},
             {"pp_tab color",
-             "primary | secondary | tertiary | error (default: primary) — set per Tab, doesn't cascade"},
+             "primary | secondary | tertiary | error (default: primary), set per Tab, doesn't cascade"},
             {"pp_tab :icon", "optional leading icon slot"},
             {"pp_tab disabled / ripple / paperize", "same as Button"},
             {"pp_tab_panel id / value", "must match the corresponding Tab exactly"}
@@ -170,12 +170,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="Breadcrumbs"
-          description="A breadcrumb trail with a separator auto-inserted between :item slots. An item renders as a link when it has href/navigate/patch, or plain current-page text otherwise — whichever item you leave without a link is the current page, same convention as ListItem."
+          description="A breadcrumb trail with a separator auto-inserted between :item slots. An item renders as a link when it has href/navigate/patch, or plain current-page text otherwise: whichever item you leave without a link is the current page, same convention as ListItem."
           props={[
             {"pp_breadcrumbs :item href/navigate/patch",
              "makes that item a link; omit all three for the current page"},
             {"pp_breadcrumbs :separator",
-             "a slot, not a string — can hold an icon; defaults to \"/\""},
+             "a slot, not a string: can hold an icon; defaults to \"/\""},
             {"max_items", "collapse into an expandable ellipsis beyond this many items (default: 8)"},
             {"items_before_collapse / items_after_collapse",
              "collapsed slice sizes (default: 1 / 1)"},
@@ -201,7 +201,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           </.demo_group>
 
           <.demo_group
-            label="max_items={3} — click the ellipsis to expand"
+            label="max_items={3}: click the ellipsis to expand"
             class="flex-col items-start"
           >
             <.pp_breadcrumbs max_items={3}>
@@ -216,7 +216,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="List"
-          description="A vertical stack of list items, with optional sub-headers to group them. Renders items as links, buttons, or plain rows depending on their own attrs — a linked item ripples on click by default, just like Button. Click Home or Inbox below to see it."
+          description="A vertical stack of list items, with optional sub-headers to group them. Renders items as links, buttons, or plain rows depending on their own attrs: a linked item ripples on click by default, just like Button. Click Home or Inbox below to see it."
           props={[
             {"pp_list", "the container, role=\"list\""},
             {"pp_list_item href/navigate/patch", "makes it a link; active/disabled/ripple as usual"},

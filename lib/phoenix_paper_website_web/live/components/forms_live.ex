@@ -25,14 +25,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"type", "any input type, e.g. text | email | password (default: text)"},
             {"variant", "outlined | filled | standard (default: outlined)"},
             {"color",
-             "primary | secondary | tertiary | error (default: primary) — focus/label accent"},
+             "primary | secondary | tertiary | error (default: primary), focus/label accent"},
             {"size", "medium | small (default: medium)"},
-            {"shape", "corner radius token (default: :sm) — ignored for variant=\"standard\""},
+            {"shape", "corner radius token (default: :sm), ignored for variant=\"standard\""},
             {"multiline / rows", "renders a textarea instead of an input"},
             {"start_adornment / end_adornment",
              "slots for prefix/suffix content, e.g. an icon or unit"},
-            {"field", "a Phoenix.HTML.FormField from to_form/2 — sets name/id/value for you"},
-            {"errors", "list of error strings — switches to the error color, hides helper_text"},
+            {"field", "a Phoenix.HTML.FormField from to_form/2: sets name/id/value for you"},
+            {"errors", "list of error strings: switches to the error color, hides helper_text"},
             {"helper_text", "shown below the field when there are no errors"},
             {"disabled", "boolean (default: false)"},
             {"paperize", "boolean (default: true)"}
@@ -117,7 +117,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Number Field"
-          description="A numeric input with increment/decrement stepper buttons — plain onclick JS calling stepUp()/stepDown(), no JS hook."
+          description="A numeric input with increment/decrement stepper buttons: plain onclick JS calling stepUp()/stepDown(), no JS hook."
           props={[
             {"min / max / step", "passed straight to the underlying input type=\"number\""},
             {"variant / shape / field / errors / helper_text", "same as Input"},
@@ -143,10 +143,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
           description="Includes the hidden-input trick so an unchecked box still submits false."
           props={[
             {"checked", "boolean (default: nil, meaning unchecked)"},
-            {"field", "a Phoenix.HTML.FormField — sets name/id/checked for you"},
+            {"field", "a Phoenix.HTML.FormField: sets name/id/checked for you"},
             {"label", "text next to the box"},
             {"disabled", "boolean (default: false)"},
-            {"ripple", "boolean — the ripple effect on click/tap (default: false)"},
+            {"ripple", "boolean, the ripple effect on click/tap (default: false)"},
             {"paperize", "false renders a bare native checkbox, no hidden input"}
           ]}
           code={checkbox_code()}
@@ -175,10 +175,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Theme Toggle"
-          description="A light/dark mode toggle built on top of Switch's own markup (sun/moon icons live inside the sliding thumb). Wired with a small vanilla onclick that flips data-theme on the target element, computing the effective theme itself rather than trusting the checkbox — no server round-trip needed."
+          description="A light/dark mode toggle built on top of Switch's own markup (sun/moon icons live inside the sliding thumb). Wired with a small vanilla onclick that flips data-theme on the target element, computing the effective theme itself rather than trusting the checkbox, no server round-trip needed."
           props={[
             {"label", "text next to the switch (default: \"Dark mode\"), nil for icon-only"},
-            {"default_checked", "boolean — initial visual state, uncontrolled (default: false)"},
+            {"default_checked", "boolean, initial visual state, uncontrolled (default: false)"},
             {"target", "CSS selector for the element to toggle data-theme on (default: \"html\")"},
             {"on_toggle",
              "extra JS commands run before the built-in flip, e.g. to persist server-side"},
@@ -199,7 +199,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
           <p class="text-sm text-pp-on-surface/60">
             This site's own toggle in the top-right corner is this exact component. It doesn't
             persist across a full page reload by default (that's what on_toggle is for, e.g.
-            JS.push to save the choice server-side) — within a session, LiveView's own
+            JS.push to save the choice server-side); within a session, LiveView's own
             navigate-based routing keeps it in place as you move between pages, and it already
             falls back to the OS/browser's color-scheme preference with zero clicks, via CSS.
           </p>
@@ -212,7 +212,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"options", "list of {label, value} tuples, or plain values"},
             {"value", "the currently selected value"},
             {"label", "the group's legend"},
-            {"ripple", "boolean — the ripple effect on click/tap (default: false)"},
+            {"ripple", "boolean, the ripple effect on click/tap (default: false)"},
             {"field / disabled / paperize", "same as other form controls"}
           ]}
           code={radio_group_code()}
@@ -236,7 +236,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"color", "primary | secondary | tertiary | error (default: primary)"},
             {"size", "medium | small (default: medium)"},
             {"orientation", "horizontal | vertical (default: horizontal)"},
-            {"track", "normal | none | inverted (default: normal) — ignored for range sliders"},
+            {"track", "normal | none | inverted (default: normal), ignored for range sliders"},
             {"marks", "true (tick every step), a list of values, or a list of {value, label} tuples"},
             {"label", "shown above the slider with the current value"},
             {"field / disabled / paperize", "same as other form controls"}
@@ -311,12 +311,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Rating"
-          description="A row of radio inputs with a pure-CSS hover/checked fill effect — hovering star 3 highlights stars 1-3, no JS."
+          description="A row of radio inputs with a pure-CSS hover/checked fill effect: hovering star 3 highlights stars 1-3, no JS."
           props={[
             {"value", "integer, the current/selected rating (default: 0)"},
             {"max", "number of stars (default: 5)"},
             {"readonly",
-             "boolean — renders fixed filled/unfilled spans instead of inputs (default: false)"},
+             "boolean, renders fixed filled/unfilled spans instead of inputs (default: false)"},
             {"field / disabled / paperize", "same as other form controls"}
           ]}
           code={rating_code()}
@@ -335,7 +335,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
         <.section
           live_component
           title="Autocomplete"
-          description="A text field with a filtered dropdown, filtered entirely server-side over phx-change/phx-debounce. Unlike everything above, this needs interactive state, so it's a Phoenix.LiveComponent — fully live on this page, since it's a real LiveView. Type to filter."
+          description="A text field with a filtered dropdown, filtered entirely server-side over phx-change/phx-debounce. Unlike everything above, this needs interactive state, so it's a Phoenix.LiveComponent, fully live on this page, since it's a real LiveView. Type to filter."
           props={[
             {"options", "list of {label, value} tuples, or plain values"},
             {"value / name / label / placeholder", "same intent as Input"},
@@ -360,9 +360,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
         <.section
           live_component
           title="Transfer List"
-          description="Two list boxes with buttons to move checked items between them, state managed entirely inside the component. Also a Phoenix.LiveComponent — try checking a permission and moving it across."
+          description="Two list boxes with buttons to move checked items between them, state managed entirely inside the component. Also a Phoenix.LiveComponent: try checking a permission and moving it across."
           props={[
-            {"items", "the starting list — everything begins on the left"},
+            {"items", "the starting list: everything begins on the left"},
             {"left_label / right_label", "column headers (default: \"Available\" / \"Selected\")"}
           ]}
           code={transfer_list_code()}

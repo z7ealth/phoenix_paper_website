@@ -12,14 +12,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Layout</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Box, Container, Stack, Grid / GridItem, and Divider — Tailwind-native
+          PhoenixPaper.Box, Container, Stack, Grid / GridItem, and Divider: Tailwind-native
           layout primitives in the spirit of MUI's Layout category. Every page on this site,
           including this one, is built out of them.
         </p>
 
         <.section
           title="Box"
-          description="A bare div/span/pre that exists purely to hold a class — no visual style of its own, and the only component with no paperize attr at all, since there's no skin to strip."
+          description="A bare div/span/pre that exists purely to hold a class: no visual style of its own, and the only component with no paperize attr at all, since there's no skin to strip."
           props={[{"tag", "div | span | pre (default: div)"}]}
           code={box_code()}
         >
@@ -41,7 +41,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
         <.section
           title="Container"
-          description="A centered, width-constrained content wrapper. This very page's content sits inside one (max_width=lg) — here it is again, nested, at two other widths."
+          description="A centered, width-constrained content wrapper. This very page's content sits inside one (max_width=lg); here it is again, nested, at two other widths."
           props={[
             {"max_width", "sm | md | lg | xl | 2xl | full (default: lg)"},
             {"paperize", "boolean (default: true)"}
@@ -70,7 +70,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
         <.section
           title="Stack"
-          description="A one-dimensional flex layout — row or column, with consistent spacing between children. No divider slot to auto-interleave (a stateless component only gets one opaque inner_block) — add a Divider yourself where you want one. The bordered canvas around every demo on this site is a pp_stack."
+          description="A one-dimensional flex layout: row or column, with consistent spacing between children. No divider slot to auto-interleave (a stateless component only gets one opaque inner_block); add a Divider yourself where you want one. The bordered canvas around every demo on this site is a pp_stack."
           props={[
             {"direction", "row | column (default: column)"},
             {"spacing", "a Spacing token, :none | :xs | :sm | :md | :lg | :xl | :2xl (default: :md)"},
@@ -97,7 +97,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
         <.section
           title="Grid & GridItem"
-          description="A 12-column CSS grid container, paired with GridItem for each column-spanning child. GridItem's md attribute overrides its span at the md: breakpoint and up — the only responsive breakpoint supported, since every value has to be a literal Tailwind class."
+          description="A 12-column CSS grid container, paired with GridItem for each column-spanning child. GridItem's md attribute overrides its span at the md: breakpoint and up, the only responsive breakpoint supported, since every value has to be a literal Tailwind class."
           props={[
             {"pp_grid spacing", "a Spacing token (default: :md)"},
             {"pp_grid_item span", "1-12 (default: 12)"},
@@ -130,7 +130,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
           description="A thin separator line, most often used between sections of a List."
           props={[
             {"inset",
-             "boolean — indent past a leading icon/avatar column instead of spanning full width (default: false)"}
+             "boolean, indent past a leading icon/avatar column instead of spanning full width (default: false)"}
           ]}
           code={divider_code()}
         >

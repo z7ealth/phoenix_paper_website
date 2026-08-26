@@ -21,13 +21,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           props={[
             {"variant", "raised | flat | outlined | text | icon (default: raised)"},
             {"color", "primary | secondary | tertiary | error (default: primary)"},
-            {"elevation", "override the resting elevation, 0-24 (default: nil — variant decides)"},
+            {"elevation", "override the resting elevation, 0-24 (default: nil, variant decides)"},
             {"shape", ":none | :xs | :sm | :md | :lg | :xl | :full (default: :full, a pill)"},
-            {"ripple", "boolean — the ripple effect on click/tap (default: true)"},
+            {"ripple", "boolean, the ripple effect on click/tap (default: true)"},
             {"disabled", "boolean (default: false)"},
-            {"loading",
-             "boolean — spinner replaces start_icon, disables the button (default: false)"},
-            {":start_icon / :end_icon", "slots — an icon before/after the label"},
+            {"loading", "boolean, spinner replaces start_icon, disables the button (default: false)"},
+            {":start_icon / :end_icon", "slots: an icon before/after the label"},
             {"type", "button | submit | reset (default: button)"},
             {"paperize", "boolean (default: true)"},
             {"class", "merged on top via Tails"}
@@ -74,12 +73,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Button Group"
-          description="Visually joins a row of buttons into one segmented control by rounding only the outer corners. No group-level color/variant that cascades to children like MUI's — set each button's own attrs."
+          description="Visually joins a row of buttons into one segmented control by rounding only the outer corners. No group-level color/variant that cascades to children like MUI's; set each button's own attrs."
           props={[
             {"orientation", "horizontal | vertical (default: horizontal)"},
             {"shape", "corner radius token for the group's outer corners (default: :md)"},
             {"disable_elevation",
-             "boolean — zero out every child button's own elevation shadow (default: false)"},
+             "boolean, zero out every child button's own elevation shadow (default: false)"},
             {"paperize", "boolean (default: true)"},
             {"class", "merged on top via Tails"}
           ]}
@@ -111,11 +110,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Floating Action Button"
-          description="A circular, elevated, icon-only button, or an extended pill with a label — typically anchored to a screen corner."
+          description="A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner."
           props={[
             {"color", "primary | secondary | tertiary | error (default: secondary)"},
             {"size", "sm | md | lg (default: md)"},
-            {"extended", "boolean — labeled pill instead of a fixed circle (default: false)"},
+            {"extended", "boolean, labeled pill instead of a fixed circle (default: false)"},
             {"ripple", "boolean (default: true)"},
             {"disabled", "boolean (default: false)"},
             {"paperize", "boolean (default: true)"}

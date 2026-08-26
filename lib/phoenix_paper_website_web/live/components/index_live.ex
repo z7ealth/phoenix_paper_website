@@ -14,7 +14,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.IndexLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Every component, in one place</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          Pick a category to see it live — real PhoenixPaper components, not screenshots.
+          Pick a category to see it live: real PhoenixPaper components, not screenshots.
         </p>
 
         <.pp_grid spacing={:md}>

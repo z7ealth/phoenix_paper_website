@@ -21,16 +21,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Helpers</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Ripple, Elevation, Shape, and theming — the plumbing every visual
+          PhoenixPaper.Ripple, Elevation, Shape, and theming: the plumbing every visual
           component in this library is built on.
         </p>
 
         <.section
           title="Ripple"
-          description="The Material ripple effect — a circle that expands from the click point and fades out. Vanilla inline onclick, no JS hook/bundler. Click or tap any button on this site to see it."
+          description="The Material ripple effect (a circle that expands from the click point and fades out). Vanilla inline onclick, no JS hook/bundler. Click or tap any button on this site to see it."
           props={[
             {"ripple",
-             "the boolean prop on Button, Fab, ToggleButton, Switch, Checkbox, RadioGroup, and a linked ListItem — default true, except Checkbox/RadioGroup (default false; their own instant fill/border change already reads as feedback on a target that small); always off when paperize is false"},
+             "the boolean prop on Button, Fab, ToggleButton, Switch, Checkbox, RadioGroup, and a linked ListItem: default true, except Checkbox/RadioGroup (default false; their own instant fill/border change already reads as feedback on a target that small); always off when paperize is false"},
             {"PhoenixPaper.Ripple.on_click/1",
              "returns the script, or nil when disabled (so the attribute is dropped entirely)"},
             {"PhoenixPaper.Ripple.container_classes/1",
@@ -84,13 +84,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
 
         <.section
           title="Theming"
-          description="Colors are Tailwind v4 theme tokens backed by CSS custom properties, namespaced pp- so they never collide with daisyUI. Try the buttons below — no page reload, just flipping data-theme/data-pp-theme on the root html element."
+          description="Colors are Tailwind v4 theme tokens backed by CSS custom properties, namespaced pp- so they never collide with daisyUI. Try the buttons below: no page reload, just flipping data-theme/data-pp-theme on the root html element."
           props={[
             {"data-theme=\"dark\"",
-             "on any ancestor — the same attribute daisyUI/Phoenix 1.8's generated app.css already use"},
+             "on any ancestor (the same attribute daisyUI/Phoenix 1.8's generated app.css already use)"},
             {"data-pp-theme=\"teal\"", "opts into the bundled alternate palette"},
             {"custom theme",
-             "override the --color-pp-* variables from your own stylesheet — no build step, no JS config"}
+             "override the --color-pp-* variables from your own stylesheet: no build step, no JS config"}
           ]}
           code={theming_code()}
         >
@@ -121,7 +121,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
             </.pp_button>
           </.demo_group>
           <p class="text-sm text-pp-on-surface/60">
-            This changes the whole page's theme, not just this section — use the toggle in the
+            This changes the whole page's theme, not just this section; use the toggle in the
             top-right corner to flip back to your system preference.
           </p>
         </.section>

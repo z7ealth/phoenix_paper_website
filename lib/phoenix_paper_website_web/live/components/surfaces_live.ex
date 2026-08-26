@@ -17,26 +17,26 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
         <.section
           title="Paper"
-          description="The base surface — a background, an elevation shadow, and rounded corners. No padding, no slots. Card is built by composing this instead of duplicating its classes."
+          description="The base surface (a background, an elevation shadow, and rounded corners). No padding, no slots. Card is built by composing this instead of duplicating its classes."
           props={[
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"shape", "corner radius token (default: :lg)"},
             {"component",
-             "overrides the data-pp-component marker — used by components like Card (default: \"paper\")"},
+             "overrides the data-pp-component marker, used by components like Card (default: \"paper\")"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={paper_code()}
         >
           <.demo_group label="Try it">
             <.pp_paper elevation={4} class="p-4">
-              A raised surface — Card is built on this.
+              A raised surface: Card is built on this.
             </.pp_paper>
           </.demo_group>
         </.section>
 
         <.section
           title="Typography"
-          description="variant picks both the rendered tag and the text classes together — h1..h6, subtitle1/2, body1/2, caption, overline, button, code."
+          description="variant picks both the rendered tag and the text classes together: h1..h6, subtitle1/2, body1/2, caption, overline, button, code."
           props={[
             {"variant",
              "h1..h6 | subtitle1 | subtitle2 | body1 | body2 | caption | overline | button | code (default: body1)"},
@@ -72,15 +72,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
         <.section
           title="Accordion"
-          description="Pure CSS, no JS/LiveView — the same hidden-checkbox-plus-peer-checked trick as Drawer/Rating. AccordionSummary/Details/Actions all need the same id as their parent Accordion, to build the matching for=/peer-checked wiring."
+          description="Pure CSS, no JS/LiveView: the same hidden-checkbox-plus-peer-checked trick as Drawer/Rating. AccordionSummary/Details/Actions all need the same id as their parent Accordion, to build the matching for=/peer-checked wiring."
           props={[
-            {"id", "required — shared with AccordionSummary/Details/Actions"},
+            {"id", "required: shared with AccordionSummary/Details/Actions"},
             {"name", "shared across accordions for an exclusive group (radio instead of checkbox)"},
-            {"default_expanded", "boolean — initial checked state, uncontrolled (default: false)"},
+            {"default_expanded", "boolean, initial checked state, uncontrolled (default: false)"},
             {"disabled", "boolean (default: false)"},
-            {"disable_gutters",
-             "boolean — skip the extra margin an expanded accordion normally gets"},
-            {"elevation / shape / paperize", "same as Card — Accordion is a Paper underneath"}
+            {"disable_gutters", "boolean, skip the extra margin an expanded accordion normally gets"},
+            {"elevation / shape / paperize", "same as Card; Accordion is a Paper underneath"}
           ]}
           code={accordion_code()}
         >
@@ -126,7 +125,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
           </.demo_group>
           <p class="text-sm text-pp-on-surface/60">
             A checked radio can't be unchecked by clicking it again (an HTML limitation), so an
-            exclusive group can't return to "all collapsed" — a known, permanent difference from
+            exclusive group can't return to "all collapsed": a known, permanent difference from
             MUI's JS-driven version, not a bug.
           </p>
         </.section>
@@ -137,7 +136,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
   defp paper_code do
     """
-    <.pp_paper elevation={4} class="p-4">A raised surface — Card is built on this.</.pp_paper>\
+    <.pp_paper elevation={4} class="p-4">A raised surface: Card is built on this.</.pp_paper>\
     """
   end
 

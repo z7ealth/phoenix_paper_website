@@ -14,8 +14,8 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
         </p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Installation</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper ships as a plain hex package — a component library, not a full
-          Phoenix app. Three steps, and every component on this site is available in yours.
+          PhoenixPaper ships as a plain hex package (a component library, not a full
+          Phoenix app). Three steps, and every component on this site is available in yours.
         </p>
 
         <.section title="1. Add the dependency" description="In your app's mix.exs:">
@@ -35,7 +35,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
         >
           <.code text={css_snippet()} />
           <p class="mt-3 text-sm text-pp-on-surface/60">
-            The @source line matters — without it Tailwind never scans PhoenixPaper's
+            The @source line matters: without it Tailwind never scans PhoenixPaper's
             source files, and every class its components emit gets purged from the
             build.
           </p>
@@ -50,7 +50,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
               <.pp_card class="h-full">
                 <:title>paperize: true (default)</:title>
                 <p class="text-sm text-pp-on-surface/70">
-                  Renders with PhoenixPaper's Material Design classes — color, elevation,
+                  Renders with PhoenixPaper's Material Design classes: color, elevation,
                   shape, typography. Your own class attribute still merges on top, last
                   conflicting utility wins.
                 </p>
@@ -62,7 +62,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
                 <p class="text-sm text-pp-on-surface/70">
                   Drops every built-in class. Only your own class and any DOM structure
                   needed for the component to function (like a checkbox's hidden input)
-                  survive — a clean slate to skin yourself.
+                  survive: a clean slate to skin yourself.
                 </p>
               </.pp_card>
             </.pp_grid_item>
@@ -75,8 +75,8 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
         >
           <ul class="list-disc space-y-2 pl-5 text-sm text-pp-on-surface/70">
             <li>
-              Dark mode keys off the data-theme="dark" attribute — the same one daisyUI
-              and Phoenix 1.8's generated app.css already use, so PhoenixPaper flips with
+              Dark mode keys off the data-theme="dark" attribute (the same one daisyUI
+              and Phoenix 1.8's generated app.css already use), so PhoenixPaper flips with
               your app's existing toggle. This site's own light/dark switch, in the top
               right corner, is exactly that toggle.
             </li>
@@ -85,7 +85,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
               data-pp-theme="teal" on any ancestor element.
             </li>
             <li>
-              For a fully custom palette, don't fork the CSS file — override the
+              For a fully custom palette, don't fork the CSS file: override the
               --color-pp-* variables from your own stylesheet after importing
               phoenix_paper.css.
             </li>

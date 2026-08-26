@@ -25,12 +25,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Alert"
-          description="A colored, icon-led message for status feedback. severity is a distinct color axis from every other component's color — success/info/warning/error status colors, not primary/secondary/tertiary/error brand colors."
+          description="A colored, icon-led message for status feedback. severity is a distinct color axis from every other component's color: success/info/warning/error status colors, not primary/secondary/tertiary/error brand colors."
           props={[
             {"severity",
-             "success | info | warning | error (default: info) — picks the color and icon"},
+             "success | info | warning | error (default: info), picks the color and icon"},
             {"variant", "standard (tinted) | outlined | filled (default: standard)"},
-            {":title / :action", "optional slots — a bold line above the message, a trailing action"},
+            {":title / :action", "optional slots: a bold line above the message, a trailing action"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={alert_code()}
@@ -51,10 +51,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Backdrop"
-          description="A full-screen dimming overlay — most often behind a full-page loading spinner, or the piece Dialog composes for its own overlay. Stateless: open just toggles rendering it at all."
+          description="A full-screen dimming overlay (most often behind a full-page loading spinner, or the piece Dialog composes for its own overlay). Stateless: open just toggles rendering it at all."
           props={[
             {"open", "boolean (default: true)"},
-            {":inner_block", "optional content centered over the dim — e.g. a spinner"},
+            {":inner_block", "optional content centered over the dim (e.g. a spinner)"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={backdrop_code()}
@@ -69,9 +69,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Dialog"
-          description="A modal — built the same way mix phx.new's generated core_components.ex builds its modal/1: always in the DOM, shown/hidden via Phoenix.LiveView.JS commands, not a server-tracked assign. PhoenixPaper.Dialog.show/1 and .hide/1 return JS commands to wire to whatever should open/close it."
+          description="A modal, built the same way mix phx.new's generated core_components.ex builds its modal/1: always in the DOM, shown/hidden via Phoenix.LiveView.JS commands, not a server-tracked assign. PhoenixPaper.Dialog.show/1 and .hide/1 return JS commands to wire to whatever should open/close it."
           props={[
-            {"id", "required — targeted by show/1 and hide/1"},
+            {"id", "required: targeted by show/1 and hide/1"},
             {"on_cancel", "a JS command run (in addition to hiding) on backdrop click/Escape"},
             {":title / :actions", "optional slots"},
             {"paperize", "boolean (default: true)"}
@@ -104,7 +104,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
             {"variant", "linear | circular (default: linear)"},
             {"value", "0-100, nil for indeterminate (default: nil)"},
             {"color", "primary | secondary | tertiary | error (default: primary)"},
-            {"size", "circular only — diameter in pixels (default: 40)"},
+            {"size", "circular only, diameter in pixels (default: 40)"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={progress_code()}
@@ -137,7 +137,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Skeleton"
-          description="A placeholder loading shape — text, circular, rectangular, or rounded — with a pulsing (default) or shimmering animation while real content loads."
+          description="A placeholder loading shape (text, circular, rectangular, or rounded) with a pulsing (default) or shimmering animation while real content loads."
           props={[
             {"variant", "text | circular | rectangular | rounded (default: text)"},
             {"width / height", "an integer (px) or a CSS length string, e.g. \"100%\""},
@@ -163,13 +163,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Snackbar"
-          description="A brief toast — presentation-only. Auto-dismiss-after-a-delay isn't built in (that's one Process.send_after/3 in the caller's own LiveView, the same mechanism generated flash messages already use). No exit transition either, only entrance."
+          description="A brief toast: presentation-only. Auto-dismiss-after-a-delay isn't built in (that's one Process.send_after/3 in the caller's own LiveView, the same mechanism generated flash messages already use). No exit transition either, only entrance."
           props={[
             {"open", "boolean (default: true)"},
             {"anchor_origin",
              "bottom-left (default) | bottom-center | bottom-right | top-left | top-center | top-right"},
-            {"transition", "grow (default) | fade | slide | none — mount-in animation only"},
-            {":action", "optional slot — e.g. an \"Undo\" button"},
+            {"transition", "grow (default) | fade | slide | none, mount-in animation only"},
+            {":action", "optional slot (e.g. an \"Undo\" button)"},
             {"elevation", "resting elevation, 0-24 (default: 6)"},
             {"paperize", "boolean (default: true)"}
           ]}
