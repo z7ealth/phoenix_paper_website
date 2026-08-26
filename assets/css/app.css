@@ -117,4 +117,299 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
+/*
+ * Theme picker (PhoenixPaperWebsiteWeb.ThemePicker) -- Primary/Secondary/
+ * Tertiary/Neutral/Font overrides. Kept in this app's own app.css rather
+ * than forking phoenix_paper's CSS, per that file's own documented
+ * guidance: "To build a fully custom theme, don't fork this file --
+ * override the --color-pp-* variables from your own app.css instead."
+ * Structured exactly like that file's own [data-theme="dark"] /
+ * [data-pp-theme="teal"] blocks: a plain attribute selector for light
+ * values, an explicit-dark selector, and a `prefers-color-scheme` fallback
+ * for dark-OS users who haven't picked a mode explicitly yet.
+ *
+ * This site's shipped defaults are Violet primary / Indigo secondary /
+ * Teal tertiary / Zinc neutral -- each is the *unconditional* value below
+ * (the "Site defaults" block), not gated behind any data-pp-* attribute,
+ * overriding phoenix_paper.css's own indigo/pink/teal/plain-gray defaults
+ * the same "override, don't fork" way every other hue already does.
+ * Indigo (now just a Primary option), Pink (Secondary), and plain Neutral
+ * are, in turn, ordinary attributed options like any other hue below --
+ * whichever hue is a role's current default just needs no override rule
+ * of its own, since "no attribute" already renders as the site default.
+ *
+ * Primary/Secondary/Tertiary share one 12-hue table (see ThemePicker's
+ * @hues) -- each role just omits the one hue that's already its own
+ * default (violet/indigo/teal respectively), since that hue needs no
+ * override at all.
+ */
+
+/* Site defaults -- Violet primary / Indigo secondary (teal tertiary needs
+   no override here: phoenix_paper.css's own default already is teal). */
+:root {
+  --color-pp-primary: #7c3aed;
+  --color-pp-on-primary: #ffffff;
+  --color-pp-secondary: #3f51b5;
+  --color-pp-on-secondary: #ffffff;
+}
+[data-theme="dark"] {
+  --color-pp-primary: #a78bfa;
+  --color-pp-on-primary: #211b3d;
+  --color-pp-secondary: #7986cb;
+  --color-pp-on-secondary: #0a0e1f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-pp-primary: #a78bfa;
+    --color-pp-on-primary: #211b3d;
+    --color-pp-secondary: #7986cb;
+    --color-pp-on-secondary: #0a0e1f;
+  }
+}
+
+/* Primary -- light values (violet is the default, no override needed) */
+[data-pp-accent="indigo"] { --color-pp-primary: #3f51b5; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="red"] { --color-pp-primary: #dc2626; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="orange"] { --color-pp-primary: #ea580c; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="amber"] { --color-pp-primary: #d97706; --color-pp-on-primary: #1f1300; }
+[data-pp-accent="green"] { --color-pp-primary: #16a34a; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="teal"] { --color-pp-primary: #009688; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="cyan"] { --color-pp-primary: #0891b2; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="blue"] { --color-pp-primary: #2563eb; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="pink"] { --color-pp-primary: #ff4081; --color-pp-on-primary: #000000; }
+[data-pp-accent="rose"] { --color-pp-primary: #e11d48; --color-pp-on-primary: #ffffff; }
+[data-pp-accent="slate"] { --color-pp-primary: #475569; --color-pp-on-primary: #ffffff; }
+
+/* Primary -- explicit dark mode */
+[data-pp-accent="indigo"][data-theme="dark"] { --color-pp-primary: #7986cb; --color-pp-on-primary: #0a0e1f; }
+[data-pp-accent="red"][data-theme="dark"] { --color-pp-primary: #f87171; --color-pp-on-primary: #450a0a; }
+[data-pp-accent="orange"][data-theme="dark"] { --color-pp-primary: #fb923c; --color-pp-on-primary: #431407; }
+[data-pp-accent="amber"][data-theme="dark"] { --color-pp-primary: #fbbf24; --color-pp-on-primary: #1f1300; }
+[data-pp-accent="green"][data-theme="dark"] { --color-pp-primary: #4ade80; --color-pp-on-primary: #052e16; }
+[data-pp-accent="teal"][data-theme="dark"] { --color-pp-primary: #4db6ac; --color-pp-on-primary: #04211d; }
+[data-pp-accent="cyan"][data-theme="dark"] { --color-pp-primary: #22d3ee; --color-pp-on-primary: #083344; }
+[data-pp-accent="blue"][data-theme="dark"] { --color-pp-primary: #60a5fa; --color-pp-on-primary: #0a1a33; }
+[data-pp-accent="pink"][data-theme="dark"] { --color-pp-primary: #ff80ab; --color-pp-on-primary: #1a0511; }
+[data-pp-accent="rose"][data-theme="dark"] { --color-pp-primary: #fb7185; --color-pp-on-primary: #3f0617; }
+[data-pp-accent="slate"][data-theme="dark"] { --color-pp-primary: #94a3b8; --color-pp-on-primary: #1e293b; }
+
+/* Secondary -- light values (indigo is the default, no override needed) */
+[data-pp-secondary="red"] { --color-pp-secondary: #dc2626; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="orange"] { --color-pp-secondary: #ea580c; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="amber"] { --color-pp-secondary: #d97706; --color-pp-on-secondary: #1f1300; }
+[data-pp-secondary="green"] { --color-pp-secondary: #16a34a; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="teal"] { --color-pp-secondary: #009688; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="cyan"] { --color-pp-secondary: #0891b2; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="blue"] { --color-pp-secondary: #2563eb; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="violet"] { --color-pp-secondary: #7c3aed; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="pink"] { --color-pp-secondary: #ff4081; --color-pp-on-secondary: #000000; }
+[data-pp-secondary="rose"] { --color-pp-secondary: #e11d48; --color-pp-on-secondary: #ffffff; }
+[data-pp-secondary="slate"] { --color-pp-secondary: #475569; --color-pp-on-secondary: #ffffff; }
+
+/* Secondary -- explicit dark mode */
+[data-pp-secondary="red"][data-theme="dark"] { --color-pp-secondary: #f87171; --color-pp-on-secondary: #450a0a; }
+[data-pp-secondary="orange"][data-theme="dark"] { --color-pp-secondary: #fb923c; --color-pp-on-secondary: #431407; }
+[data-pp-secondary="amber"][data-theme="dark"] { --color-pp-secondary: #fbbf24; --color-pp-on-secondary: #1f1300; }
+[data-pp-secondary="green"][data-theme="dark"] { --color-pp-secondary: #4ade80; --color-pp-on-secondary: #052e16; }
+[data-pp-secondary="teal"][data-theme="dark"] { --color-pp-secondary: #4db6ac; --color-pp-on-secondary: #04211d; }
+[data-pp-secondary="cyan"][data-theme="dark"] { --color-pp-secondary: #22d3ee; --color-pp-on-secondary: #083344; }
+[data-pp-secondary="blue"][data-theme="dark"] { --color-pp-secondary: #60a5fa; --color-pp-on-secondary: #0a1a33; }
+[data-pp-secondary="violet"][data-theme="dark"] { --color-pp-secondary: #a78bfa; --color-pp-on-secondary: #211b3d; }
+[data-pp-secondary="pink"][data-theme="dark"] { --color-pp-secondary: #ff80ab; --color-pp-on-secondary: #1a0511; }
+[data-pp-secondary="rose"][data-theme="dark"] { --color-pp-secondary: #fb7185; --color-pp-on-secondary: #3f0617; }
+[data-pp-secondary="slate"][data-theme="dark"] { --color-pp-secondary: #94a3b8; --color-pp-on-secondary: #1e293b; }
+
+/* Tertiary -- light values (teal is the default, no override needed) */
+[data-pp-tertiary="indigo"] { --color-pp-tertiary: #3f51b5; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="red"] { --color-pp-tertiary: #dc2626; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="orange"] { --color-pp-tertiary: #ea580c; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="amber"] { --color-pp-tertiary: #d97706; --color-pp-on-tertiary: #1f1300; }
+[data-pp-tertiary="green"] { --color-pp-tertiary: #16a34a; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="cyan"] { --color-pp-tertiary: #0891b2; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="blue"] { --color-pp-tertiary: #2563eb; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="violet"] { --color-pp-tertiary: #7c3aed; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="pink"] { --color-pp-tertiary: #ff4081; --color-pp-on-tertiary: #000000; }
+[data-pp-tertiary="rose"] { --color-pp-tertiary: #e11d48; --color-pp-on-tertiary: #ffffff; }
+[data-pp-tertiary="slate"] { --color-pp-tertiary: #475569; --color-pp-on-tertiary: #ffffff; }
+
+/* Tertiary -- explicit dark mode */
+[data-pp-tertiary="indigo"][data-theme="dark"] { --color-pp-tertiary: #7986cb; --color-pp-on-tertiary: #0a0e1f; }
+[data-pp-tertiary="red"][data-theme="dark"] { --color-pp-tertiary: #f87171; --color-pp-on-tertiary: #450a0a; }
+[data-pp-tertiary="orange"][data-theme="dark"] { --color-pp-tertiary: #fb923c; --color-pp-on-tertiary: #431407; }
+[data-pp-tertiary="amber"][data-theme="dark"] { --color-pp-tertiary: #fbbf24; --color-pp-on-tertiary: #1f1300; }
+[data-pp-tertiary="green"][data-theme="dark"] { --color-pp-tertiary: #4ade80; --color-pp-on-tertiary: #052e16; }
+[data-pp-tertiary="cyan"][data-theme="dark"] { --color-pp-tertiary: #22d3ee; --color-pp-on-tertiary: #083344; }
+[data-pp-tertiary="blue"][data-theme="dark"] { --color-pp-tertiary: #60a5fa; --color-pp-on-tertiary: #0a1a33; }
+[data-pp-tertiary="violet"][data-theme="dark"] { --color-pp-tertiary: #a78bfa; --color-pp-on-tertiary: #211b3d; }
+[data-pp-tertiary="pink"][data-theme="dark"] { --color-pp-tertiary: #ff80ab; --color-pp-on-tertiary: #1a0511; }
+[data-pp-tertiary="rose"][data-theme="dark"] { --color-pp-tertiary: #fb7185; --color-pp-on-tertiary: #3f0617; }
+[data-pp-tertiary="slate"][data-theme="dark"] { --color-pp-tertiary: #94a3b8; --color-pp-on-tertiary: #1e293b; }
+
+/* Site default -- Zinc neutral. Placed *before* the attributed overrides
+   below (same reasoning as the Primary/Secondary defaults block above):
+   this and [data-pp-neutral="X"] are equal specificity, so source order
+   decides -- an explicit data-pp-neutral must win over this unconditional
+   default, which means this block has to come first. */
+:root {
+  --color-pp-surface: #fafafa;
+  --color-pp-on-surface: #18181b;
+  --color-pp-surface-variant: #f4f4f5;
+  --color-pp-outline: #71717a;
+}
+[data-theme="dark"] {
+  --color-pp-surface: #18181b;
+  --color-pp-on-surface: #e4e4e7;
+  --color-pp-surface-variant: #27272a;
+  --color-pp-outline: #a1a1aa;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-pp-surface: #18181b;
+    --color-pp-on-surface: #e4e4e7;
+    --color-pp-surface-variant: #27272a;
+    --color-pp-outline: #a1a1aa;
+  }
+}
+
+/* Neutral -- light values (zinc is the site default, no override needed) */
+[data-pp-neutral="neutral"] { --color-pp-surface: #ffffff; --color-pp-on-surface: #1f1f1f; --color-pp-surface-variant: #f5f5f5; --color-pp-outline: #79747e; }
+[data-pp-neutral="slate"] { --color-pp-surface: #f8fafc; --color-pp-on-surface: #0f172a; --color-pp-surface-variant: #f1f5f9; --color-pp-outline: #64748b; }
+[data-pp-neutral="stone"] { --color-pp-surface: #fafaf9; --color-pp-on-surface: #1c1917; --color-pp-surface-variant: #f5f5f4; --color-pp-outline: #78716c; }
+
+/* Neutral -- explicit dark mode */
+[data-pp-neutral="neutral"][data-theme="dark"] { --color-pp-surface: #121212; --color-pp-on-surface: #e6e6e6; --color-pp-surface-variant: #1e1e1e; --color-pp-outline: #938f99; }
+[data-pp-neutral="slate"][data-theme="dark"] { --color-pp-surface: #0f172a; --color-pp-on-surface: #e2e8f0; --color-pp-surface-variant: #1e293b; --color-pp-outline: #94a3b8; }
+[data-pp-neutral="stone"][data-theme="dark"] { --color-pp-surface: #1c1917; --color-pp-on-surface: #e7e5e4; --color-pp-surface-variant: #292524; --color-pp-outline: #a8a29e; }
+
+/* Primary/Secondary/Tertiary/Neutral -- system dark fallback (no explicit
+   data-theme yet), mirroring phoenix_paper.css's own
+   `:root:not([data-theme="light"])` block for the same "no explicit
+   choice, OS is dark" case. */
+@media (prefers-color-scheme: dark) {
+  [data-pp-accent="red"]:not([data-theme="light"]) { --color-pp-primary: #f87171; --color-pp-on-primary: #450a0a; }
+  [data-pp-accent="orange"]:not([data-theme="light"]) { --color-pp-primary: #fb923c; --color-pp-on-primary: #431407; }
+  [data-pp-accent="amber"]:not([data-theme="light"]) { --color-pp-primary: #fbbf24; --color-pp-on-primary: #1f1300; }
+  [data-pp-accent="green"]:not([data-theme="light"]) { --color-pp-primary: #4ade80; --color-pp-on-primary: #052e16; }
+  [data-pp-accent="teal"]:not([data-theme="light"]) { --color-pp-primary: #4db6ac; --color-pp-on-primary: #04211d; }
+  [data-pp-accent="cyan"]:not([data-theme="light"]) { --color-pp-primary: #22d3ee; --color-pp-on-primary: #083344; }
+  [data-pp-accent="blue"]:not([data-theme="light"]) { --color-pp-primary: #60a5fa; --color-pp-on-primary: #0a1a33; }
+  [data-pp-accent="indigo"]:not([data-theme="light"]) { --color-pp-primary: #7986cb; --color-pp-on-primary: #0a0e1f; }
+  [data-pp-accent="pink"]:not([data-theme="light"]) { --color-pp-primary: #ff80ab; --color-pp-on-primary: #1a0511; }
+  [data-pp-accent="rose"]:not([data-theme="light"]) { --color-pp-primary: #fb7185; --color-pp-on-primary: #3f0617; }
+  [data-pp-accent="slate"]:not([data-theme="light"]) { --color-pp-primary: #94a3b8; --color-pp-on-primary: #1e293b; }
+
+  [data-pp-secondary="red"]:not([data-theme="light"]) { --color-pp-secondary: #f87171; --color-pp-on-secondary: #450a0a; }
+  [data-pp-secondary="orange"]:not([data-theme="light"]) { --color-pp-secondary: #fb923c; --color-pp-on-secondary: #431407; }
+  [data-pp-secondary="amber"]:not([data-theme="light"]) { --color-pp-secondary: #fbbf24; --color-pp-on-secondary: #1f1300; }
+  [data-pp-secondary="green"]:not([data-theme="light"]) { --color-pp-secondary: #4ade80; --color-pp-on-secondary: #052e16; }
+  [data-pp-secondary="teal"]:not([data-theme="light"]) { --color-pp-secondary: #4db6ac; --color-pp-on-secondary: #04211d; }
+  [data-pp-secondary="cyan"]:not([data-theme="light"]) { --color-pp-secondary: #22d3ee; --color-pp-on-secondary: #083344; }
+  [data-pp-secondary="blue"]:not([data-theme="light"]) { --color-pp-secondary: #60a5fa; --color-pp-on-secondary: #0a1a33; }
+  [data-pp-secondary="violet"]:not([data-theme="light"]) { --color-pp-secondary: #a78bfa; --color-pp-on-secondary: #211b3d; }
+  [data-pp-secondary="pink"]:not([data-theme="light"]) { --color-pp-secondary: #ff80ab; --color-pp-on-secondary: #1a0511; }
+  [data-pp-secondary="rose"]:not([data-theme="light"]) { --color-pp-secondary: #fb7185; --color-pp-on-secondary: #3f0617; }
+  [data-pp-secondary="slate"]:not([data-theme="light"]) { --color-pp-secondary: #94a3b8; --color-pp-on-secondary: #1e293b; }
+
+  [data-pp-tertiary="indigo"]:not([data-theme="light"]) { --color-pp-tertiary: #7986cb; --color-pp-on-tertiary: #0a0e1f; }
+  [data-pp-tertiary="red"]:not([data-theme="light"]) { --color-pp-tertiary: #f87171; --color-pp-on-tertiary: #450a0a; }
+  [data-pp-tertiary="orange"]:not([data-theme="light"]) { --color-pp-tertiary: #fb923c; --color-pp-on-tertiary: #431407; }
+  [data-pp-tertiary="amber"]:not([data-theme="light"]) { --color-pp-tertiary: #fbbf24; --color-pp-on-tertiary: #1f1300; }
+  [data-pp-tertiary="green"]:not([data-theme="light"]) { --color-pp-tertiary: #4ade80; --color-pp-on-tertiary: #052e16; }
+  [data-pp-tertiary="cyan"]:not([data-theme="light"]) { --color-pp-tertiary: #22d3ee; --color-pp-on-tertiary: #083344; }
+  [data-pp-tertiary="blue"]:not([data-theme="light"]) { --color-pp-tertiary: #60a5fa; --color-pp-on-tertiary: #0a1a33; }
+  [data-pp-tertiary="violet"]:not([data-theme="light"]) { --color-pp-tertiary: #a78bfa; --color-pp-on-tertiary: #211b3d; }
+  [data-pp-tertiary="pink"]:not([data-theme="light"]) { --color-pp-tertiary: #ff80ab; --color-pp-on-tertiary: #1a0511; }
+  [data-pp-tertiary="rose"]:not([data-theme="light"]) { --color-pp-tertiary: #fb7185; --color-pp-on-tertiary: #3f0617; }
+  [data-pp-tertiary="slate"]:not([data-theme="light"]) { --color-pp-tertiary: #94a3b8; --color-pp-on-tertiary: #1e293b; }
+
+  [data-pp-neutral="neutral"]:not([data-theme="light"]) { --color-pp-surface: #121212; --color-pp-on-surface: #e6e6e6; --color-pp-surface-variant: #1e1e1e; --color-pp-outline: #938f99; }
+  [data-pp-neutral="slate"]:not([data-theme="light"]) { --color-pp-surface: #0f172a; --color-pp-on-surface: #e2e8f0; --color-pp-surface-variant: #1e293b; --color-pp-outline: #94a3b8; }
+  [data-pp-neutral="stone"]:not([data-theme="light"]) { --color-pp-surface: #1c1917; --color-pp-on-surface: #e7e5e4; --color-pp-surface-variant: #292524; --color-pp-outline: #a8a29e; }
+}
+
+/* Font -- a --pp-font-family custom property so `body` (and anything under
+   it) can pick it up as one declaration; unrelated to Tailwind's own
+   --font-sans theme variable, kept separate so this never touches
+   Tailwind's own utility generation. */
+:root {
+  --pp-font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+[data-pp-font="serif"] {
+  --pp-font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+[data-pp-font="mono"] {
+  --pp-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+[data-pp-font="rounded"] {
+  --pp-font-family: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+}
+body {
+  font-family: var(--pp-font-family);
+}
+
+/* Theme picker swatches (data-pp-swatch="group:value", see ThemePicker) --
+   the active one in each group gets a ring, derived purely from <html>'s
+   current data-theme/data-pp-accent/data-pp-secondary/data-pp-tertiary/
+   data-pp-neutral/data-pp-font attribute so there's no JS state to keep in
+   sync (see ThemePicker's moduledoc). */
+:is(
+  html:not([data-pp-accent]) [data-pp-swatch="accent:violet"],
+  html[data-pp-accent="indigo"] [data-pp-swatch="accent:indigo"],
+  html[data-pp-accent="red"] [data-pp-swatch="accent:red"],
+  html[data-pp-accent="orange"] [data-pp-swatch="accent:orange"],
+  html[data-pp-accent="amber"] [data-pp-swatch="accent:amber"],
+  html[data-pp-accent="green"] [data-pp-swatch="accent:green"],
+  html[data-pp-accent="teal"] [data-pp-swatch="accent:teal"],
+  html[data-pp-accent="cyan"] [data-pp-swatch="accent:cyan"],
+  html[data-pp-accent="blue"] [data-pp-swatch="accent:blue"],
+  html[data-pp-accent="pink"] [data-pp-swatch="accent:pink"],
+  html[data-pp-accent="rose"] [data-pp-swatch="accent:rose"],
+  html[data-pp-accent="slate"] [data-pp-swatch="accent:slate"],
+  html:not([data-pp-secondary]) [data-pp-swatch="secondary:indigo"],
+  html[data-pp-secondary="red"] [data-pp-swatch="secondary:red"],
+  html[data-pp-secondary="orange"] [data-pp-swatch="secondary:orange"],
+  html[data-pp-secondary="amber"] [data-pp-swatch="secondary:amber"],
+  html[data-pp-secondary="green"] [data-pp-swatch="secondary:green"],
+  html[data-pp-secondary="teal"] [data-pp-swatch="secondary:teal"],
+  html[data-pp-secondary="cyan"] [data-pp-swatch="secondary:cyan"],
+  html[data-pp-secondary="blue"] [data-pp-swatch="secondary:blue"],
+  html[data-pp-secondary="violet"] [data-pp-swatch="secondary:violet"],
+  html[data-pp-secondary="pink"] [data-pp-swatch="secondary:pink"],
+  html[data-pp-secondary="rose"] [data-pp-swatch="secondary:rose"],
+  html[data-pp-secondary="slate"] [data-pp-swatch="secondary:slate"],
+  html:not([data-pp-tertiary]) [data-pp-swatch="tertiary:teal"],
+  html[data-pp-tertiary="indigo"] [data-pp-swatch="tertiary:indigo"],
+  html[data-pp-tertiary="red"] [data-pp-swatch="tertiary:red"],
+  html[data-pp-tertiary="orange"] [data-pp-swatch="tertiary:orange"],
+  html[data-pp-tertiary="amber"] [data-pp-swatch="tertiary:amber"],
+  html[data-pp-tertiary="green"] [data-pp-swatch="tertiary:green"],
+  html[data-pp-tertiary="cyan"] [data-pp-swatch="tertiary:cyan"],
+  html[data-pp-tertiary="blue"] [data-pp-swatch="tertiary:blue"],
+  html[data-pp-tertiary="violet"] [data-pp-swatch="tertiary:violet"],
+  html[data-pp-tertiary="pink"] [data-pp-swatch="tertiary:pink"],
+  html[data-pp-tertiary="rose"] [data-pp-swatch="tertiary:rose"],
+  html[data-pp-tertiary="slate"] [data-pp-swatch="tertiary:slate"],
+  html:not([data-pp-neutral]) [data-pp-swatch="neutral:zinc"],
+  html[data-pp-neutral="neutral"] [data-pp-swatch="neutral:neutral"],
+  html[data-pp-neutral="slate"] [data-pp-swatch="neutral:slate"],
+  html[data-pp-neutral="stone"] [data-pp-swatch="neutral:stone"]
+) {
+  box-shadow: 0 0 0 2px var(--color-pp-surface), 0 0 0 4px var(--color-pp-on-surface);
+  transform: scale(1.1);
+}
+
+:is(
+  html:not([data-pp-font]) [data-pp-swatch="font:sans"],
+  html[data-pp-font="serif"] [data-pp-swatch="font:serif"],
+  html[data-pp-font="mono"] [data-pp-swatch="font:mono"],
+  html[data-pp-font="rounded"] [data-pp-swatch="font:rounded"],
+  html:not([data-theme]) [data-pp-swatch="mode:system"],
+  html[data-theme="light"] [data-pp-swatch="mode:light"],
+  html[data-theme="dark"] [data-pp-swatch="mode:dark"]
+) {
+  border-color: var(--color-pp-primary);
+  background-color: var(--color-pp-primary);
+  color: var(--color-pp-on-primary);
+}
+
 /* This file is for your main application CSS */

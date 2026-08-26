@@ -74,8 +74,9 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_box>
               <:title>Tailwind-native theming</:title>
               Colors are Tailwind v4 theme tokens, namespaced <code class="text-xs">pp-</code>
-              so they never collide with daisyUI — this site ships both, side by side. Dark
-              mode flips with the toggle in the top right corner.
+              so they never collide with daisyUI — this site ships both, side by side. Try the
+              theme picker in the top right corner — color mode, primary accent, neutral tone,
+              and font are all live.
             </.pp_card>
           </.pp_grid_item>
 

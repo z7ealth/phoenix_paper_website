@@ -15,8 +15,9 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
 
   @doc """
   The shell for every page except the home page: a persistent
-  `PhoenixPaper.Drawer` sidebar (no navbar -- just a floating theme toggle
-  and, on mobile, a floating drawer toggle). Both are real PhoenixPaper
+  `PhoenixPaper.Drawer` sidebar plus a sticky `PhoenixPaper.AppBar` for the
+  content column (mobile drawer toggle on the left,
+  `PhoenixPaperWebsiteWeb.ThemePicker` on the right). All real PhoenixPaper
   components, and this is the showcase's own live demo of them.
 
   ## Examples
@@ -43,12 +44,12 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
 
     ~H"""
     <div class="min-h-screen bg-pp-surface text-pp-on-surface">
-      <div class="fixed top-4 right-4 z-30">
-        <.pp_theme_toggle label={nil} />
-      </div>
-
       <div class="flex w-full">
-        <.pp_drawer id="site-drawer" class="lg:sticky lg:top-0 lg:h-screen">
+        <.pp_drawer
+          id="site-drawer"
+          elevation={0}
+          class="border-r border-pp-outline/10 lg:sticky lg:top-0 lg:h-screen"
+        >
           <:header>
             <.link navigate={~p"/"}>
               <.logo_lockup size="lg" />
@@ -68,12 +69,24 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
         </.pp_drawer>
 
         <div class="min-w-0 flex-1">
-          <.pp_drawer_toggle
-            for="site-drawer"
-            class="fixed top-4 left-4 z-40 bg-pp-surface pp-elevation-2"
-          />
+          <.pp_app_bar
+            color="surface"
+            position="sticky"
+            elevation={0}
+            class="border-b border-pp-outline/10"
+          >
+            <:leading>
+              <.pp_drawer_toggle for="site-drawer" />
+            </:leading>
+            <.link navigate={~p"/"} class="lg:hidden">
+              <.logo_lockup size="md" />
+            </.link>
+            <:actions>
+              <.theme_picker />
+            </:actions>
+          </.pp_app_bar>
 
-          <main class="pt-20 pb-10 sm:pt-24 lg:pt-10">
+          <main class="py-10">
             {render_slot(@inner_block)}
           </main>
 
@@ -87,9 +100,9 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   end
 
   @doc """
-  The bare shell for the home page only: just the floating theme toggle, no
-  navbar and no drawer -- the landing page doesn't need in-app navigation
-  chrome around it.
+  The bare shell for the home page only: just the floating logo and
+  `PhoenixPaperWebsiteWeb.ThemePicker`, no navbar and no drawer -- the
+  landing page doesn't need in-app navigation chrome around it.
 
   ## Examples
 
@@ -111,7 +124,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
       </div>
 
       <div class="fixed top-4 right-4 z-30">
-        <.pp_theme_toggle label={nil} />
+        <.theme_picker />
       </div>
 
       {render_slot(@inner_block)}
