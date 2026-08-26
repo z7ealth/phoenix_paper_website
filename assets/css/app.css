@@ -118,6 +118,26 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /*
+ * PhoenixPaper.Paper (and everything built on it -- Card, Accordion, the
+ * Dialog panel, TableContainer) is bg-pp-surface with nothing but a subtle
+ * elevation shadow to set it apart -- and this app's own page background
+ * (Layouts.app/landing) is *also* bg-pp-surface, the same token. In light
+ * mode a dark-on-light shadow still reads; in dark mode a dark shadow on an
+ * already-dark page barely shows at all, so every card/panel visually
+ * disappears into the page. A thin border fixes it everywhere at once
+ * (matching the app bar's border-b / the drawer's border-r) via the
+ * data-pp-component marker each of these renders, rather than editing
+ * every individual <.pp_card>/<.pp_paper> call site across the app.
+ */
+[data-pp-component="paper"],
+[data-pp-component="card"],
+[data-pp-component="accordion"],
+[data-pp-component="dialog-content"],
+[data-pp-component="table-container"] {
+  border: 1px solid color-mix(in srgb, var(--color-pp-outline) 15%, transparent);
+}
+
+/*
  * Theme picker (PhoenixPaperWebsiteWeb.ThemePicker) -- Primary/Secondary/
  * Tertiary/Neutral/Font overrides. Kept in this app's own app.css rather
  * than forking phoenix_paper's CSS, per that file's own documented
