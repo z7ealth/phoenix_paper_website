@@ -56,12 +56,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
           class="border-r border-pp-outline/10 lg:sticky lg:top-0 lg:h-screen"
         >
           <:header>
-            <.link navigate={~p"/"} class="flex items-center gap-2">
-              <.logo_lockup size="lg" />
-              <span class="rounded-full bg-pp-on-surface/10 px-1.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-pp-on-surface/50">
-                v{phoenix_paper_version()}
-              </span>
-            </.link>
+            <.brand />
           </:header>
           <.pp_list class="px-2 py-4">
             <%= for section <- @nav_sections do %>
@@ -127,9 +122,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     ~H"""
     <div class="min-h-screen bg-pp-surface text-pp-on-surface">
       <div class="fixed top-4 left-4 z-30">
-        <.link navigate={~p"/"}>
-          <.logo_lockup size="lg" />
-        </.link>
+        <.brand />
       </div>
 
       <div class="fixed top-4 right-4 z-30 flex items-center gap-1">
@@ -195,9 +188,23 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     """
   end
 
-  # The installed phoenix_paper version, for the badge next to the sidebar
-  # logo -- read from the loaded dep so it tracks mix.exs without a second
-  # place to bump.
+  # The home link + wordmark + installed-version caption, shared by the
+  # sidebar header (app/1) and the landing page's floating corner
+  # (landing/1). The version sits *under* the wordmark rather than beside it
+  # so it never gets clipped by the drawer's width.
+  defp brand(assigns) do
+    ~H"""
+    <.link navigate={~p"/"} class="flex flex-col items-start gap-0.5">
+      <.logo_lockup size="lg" />
+      <span class="pl-[2.625rem] text-[0.65rem] font-semibold uppercase tracking-wider text-pp-on-surface/45">
+        v{phoenix_paper_version()}
+      </span>
+    </.link>
+    """
+  end
+
+  # The installed phoenix_paper version, read from the loaded dep so it
+  # tracks mix.exs without a second place to bump.
   defp phoenix_paper_version do
     :phoenix_paper |> Application.spec(:vsn) |> to_string()
   end
