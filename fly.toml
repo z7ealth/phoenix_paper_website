@@ -1,15 +1,14 @@
-# fly.toml app configuration file generated for phoenix-paper-website-falling-dawn-666 on 2026-08-28T18:32:03-06:00
+# fly.toml app configuration file generated for phoenix-paper-website on 2026-08-28T20:37:17-06:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'phoenix-paper-website-falling-dawn-666'
+app = 'phoenix-paper-website'
 primary_region = 'dfw'
 kill_signal = 'SIGTERM'
 
-[build]
 [env]
-  PHX_HOST = 'phoenix-paper-website-falling-dawn-666.fly.dev'
+  PHX_HOST = 'phoenixpaper.dev'
   PORT = '8080'
 
 [http_service]

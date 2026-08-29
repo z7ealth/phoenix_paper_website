@@ -9,13 +9,14 @@
 /* Required for Tailwind to automatically pick up changes in colocated CSS files in dev */
 @source "../../_build/dev/phoenix-colocated/phoenix_paper_website/*/";
 
-/* PhoenixPaper is wired in as a `path:` dependency (mix.exs) pointing at the
-   sibling checkout at ../../phoenix_paper, not a fetched hex package under
-   deps/ -- so unlike the paths in phoenix_paper's own README/AGENTS.md
-   "Consumer setup" (written for a real hex dependency), these reach out of
-   this project entirely. If that checkout ever moves, update both lines. */
-@import "../../../phoenix_paper/priv/static/phoenix_paper.css";
-@source "../../../phoenix_paper/lib";
+/* PhoenixPaper is a real hex dependency (mix.exs: {:phoenix_paper, "~> 0.1.0"}),
+   fetched into deps/ like any other -- these paths match phoenix_paper's own
+   README/AGENTS.md "Consumer setup" for that case. (Earlier this pointed at a
+   sibling ../../../phoenix_paper checkout, back when it was a `path:` dep --
+   that broke the Docker build, since a docker build's context is scoped to
+   this repo alone and can't see a directory outside it.) */
+@import "../../deps/phoenix_paper/priv/static/phoenix_paper.css";
+@source "../../deps/phoenix_paper/lib";
 
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */

@@ -27,8 +27,12 @@ ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
 FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
+# nodejs/npm are only here for the highlight.js npm dependency assets/js/app.js
+# and assets/css/app.css both import (see assets/package.json) -- everything
+# else in the asset pipeline (esbuild, tailwind) is npm-free, handled by the
+# :esbuild/:tailwind hex packages below instead.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential git \
+  && apt-get install -y --no-install-recommends build-essential git nodejs npm \
   && rm -rf /var/lib/apt/lists/*
 
 # prepare build dir
@@ -62,6 +66,11 @@ COPY lib lib
 RUN mix compile
 
 COPY assets assets
+
+# assets/node_modules is excluded from the build context (.dockerignore) like
+# priv/static/assets -- fetched fresh here, same reasoning as everything else
+# under "Static artifacts" in that file.
+RUN npm install --prefix assets
 
 # compile assets
 RUN mix assets.deploy

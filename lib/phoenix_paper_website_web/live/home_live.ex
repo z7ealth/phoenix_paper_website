@@ -43,7 +43,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <.section
           eyebrow="Quick look"
           title="Every component, live"
-          description="Nothing on this page is a screenshot: everything below is a real PhoenixPaper component, rendered live by this LiveView."
+          description="Click around below and try them."
         >
           <.pp_stack spacing={:lg}>
             <.demo_group label="Try it">
