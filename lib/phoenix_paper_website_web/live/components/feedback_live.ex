@@ -9,18 +9,29 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     {:noreply, update(socket, :show_backdrop, &(!&1))}
   end
 
-  # Snackbar is presentation-only -- this "Undo" just proves the click
-  # reaches the LiveView instead of crashing it.
+  # The Snackbar demos' "Undo" / close button just prove the click reaches
+  # the LiveView instead of crashing it -- there's no open assign to clear.
   def handle_event("dismiss", _params, socket), do: {:noreply, socket}
+
+  # The Flash section drives PhoenixPaper.Flash against the real @flash --
+  # put_flash/3 here, the ✕ on each chip clears it via LiveView's built-in
+  # lv:clear-flash (no handler for that). This page opts out of the layout's
+  # default flash_group so the two don't both render the same message.
+  def handle_event("flash_info", _params, socket),
+    do: {:noreply, put_flash(socket, :info, "Workbook saved.")}
+
+  def handle_event("flash_error", _params, socket),
+    do: {:noreply, put_flash(socket, :error, "Could not reach the guest agent.")}
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_page={:feedback}>
+    <Layouts.app flash={@flash} current_page={:feedback} flash_group={false}>
+      <.pp_flash_group flash={@flash} auto_hide_duration={6000} />
       <.pp_container max_width="lg">
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Feedback</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar.
+          PhoenixPaper.Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar, Flash.
         </p>
 
         <.section
@@ -163,12 +174,17 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Snackbar"
-          description="A brief toast: presentation-only. Auto-dismiss-after-a-delay isn't built in (that's one Process.send_after/3 in the caller's own LiveView, the same mechanism generated flash messages already use). No exit transition either, only entrance."
+          description="A brief toast on an inverted-surface chip. Server-owned dismissal (a Process.send_after/3 clearing the open assign, the same mechanism generated flash messages use) is still the default, but on_close + auto_hide_duration add a hook-free client-side auto-dismiss for the no-round-trip case. No exit transition, only entrance. For Phoenix flash messages, use Flash below."
           props={[
             {"open", "boolean (default: true)"},
             {"anchor_origin",
              "bottom-left (default) | bottom-center | bottom-right | top-left | top-center | top-right"},
             {"transition", "grow (default) | fade | slide | none, mount-in animation only"},
+            {"on_close", "a JS: renders a trailing ✕ button running it (MUI's close-IconButton)"},
+            {"auto_hide_duration",
+             "ms after which the snackbar triggers on_close itself (needs on_close; client-side)"},
+            {"positioned",
+             "boolean (default: true): keep the fixed viewport anchoring, or drop it to place the chip yourself"},
             {":action", "optional slot (e.g. an \"Undo\" button)"},
             {"elevation", "resting elevation, 0-24 (default: 6)"},
             {"paperize", "boolean (default: true)"}
@@ -186,10 +202,55 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
               <.pp_snackbar
                 anchor_origin="top-right"
                 transition="slide"
+                on_close={JS.push("dismiss")}
                 class="!absolute !top-4 !right-4"
               >
-                Copied to clipboard
+                Link copied
               </.pp_snackbar>
+            </div>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Flash"
+          description="Phoenix's @flash rendered as stacked snackbars: the Material counterpart of a generated core_components' flash_group. Drop pp_flash_group once in the root layout. Dismiss is wired to LiveView's built-in lv:clear-flash (no handler in your LiveView); auto_hide_duration is opt-in. Monochrome by spec: the kind picks a leading icon, not a color."
+          props={[
+            {"flash", "the @flash map"},
+            {"kinds", "flash keys to render, in stacking order (default: [:info, :error])"},
+            {"anchor_origin",
+             "corner/edge of the viewport the stack sits at (default: bottom-right)"},
+            {"auto_hide_duration",
+             "ms after which each chip clears itself via lv:clear-flash (opt-in)"},
+            {"transition", "grow | fade | slide (default) | none"},
+            {"paperize", "boolean (default: true)"}
+          ]}
+          code={flash_code()}
+        >
+          <.demo_group label="Trigger a real flash">
+            <.pp_button phx-click="flash_info">
+              <:start_icon><.pp_icon name="hero-information-circle" /></:start_icon>
+              Trigger info flash
+            </.pp_button>
+            <.pp_button color="error" phx-click="flash_error">
+              <:start_icon><.pp_icon name="hero-exclamation-circle" /></:start_icon>
+              Trigger error flash
+            </.pp_button>
+          </.demo_group>
+          <p class="-mt-4 mb-8 text-sm text-pp-on-surface/60">
+            This whole page renders a pp_flash_group bound to @flash instead of the default
+            flash_group. The buttons above call put_flash/3; a real chip slides in at the
+            bottom-right, auto-hides after 6s, or dismiss it with the ✕ (LiveView's built-in
+            lv:clear-flash, no handler).
+          </p>
+
+          <.demo_group label="Appearance (inline, static)" class="flex-col items-stretch">
+            <p class="text-sm text-pp-on-surface/60">
+              The same chips shown inline (each is a pp_snackbar positioned={false}) rather than fixed
+              to the viewport corner:
+            </p>
+            <div class="flex flex-col gap-2">
+              <.pp_flash flash={%{"info" => "Workbook saved."}} kind={:info} />
+              <.pp_flash flash={%{"error" => "Could not reach the guest agent."}} kind={:error} />
             </div>
           </.demo_group>
         </.section>
@@ -270,9 +331,27 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
       </:action>
     </.pp_snackbar>
 
-    <.pp_snackbar anchor_origin="top-right" transition="slide">
-      Copied to clipboard
+    <%!-- on_close renders a trailing ✕; pair with auto_hide_duration for a
+          hook-free client-side auto-dismiss (a no-op CSS animation whose
+          animationend clicks the ✕) --%>
+    <.pp_snackbar anchor_origin="top-right" transition="slide" on_close={JS.push("dismiss")} auto_hide_duration={5000}>
+      Link copied
     </.pp_snackbar>\
     """
+  end
+
+  defp flash_code do
+    ~S'''
+    # Drop pp_flash_group once, where a generated <.flash_group> goes.
+    # auto_hide_duration is opt-in; dismissal needs no handler (lv:clear-flash).
+    <.pp_flash_group flash={@flash} auto_hide_duration={6000} />
+
+    # ...then anywhere, an ordinary put_flash/3 shows a chip:
+    def handle_event("flash_info", _params, socket),
+      do: {:noreply, put_flash(socket, :info, "Workbook saved.")}
+
+    def handle_event("flash_error", _params, socket),
+      do: {:noreply, put_flash(socket, :error, "Could not reach the guest agent.")}
+    '''
   end
 end

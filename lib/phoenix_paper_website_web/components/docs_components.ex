@@ -181,12 +181,13 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   slot :inner_block, required: true
 
   @doc """
-  A link styled like `PhoenixPaper.Button` for page-to-page navigation CTAs.
+  A link styled for the landing page's page-to-page navigation CTAs.
 
-  `pp_button` always renders a `<button>` (see phoenix_paper's AGENTS.md,
-  "Conditional root tag: link vs. static element" -- that dual-tag pattern is
-  only implemented for `ListItem`), so a real navigation link reuses its
-  visual language here instead of nesting a `<button>` inside an `<a>`.
+  Since phoenix_paper 0.2.0 `pp_button` has a link mode (`href`/`navigate`/
+  `patch` render an `<a>`), so a plain navigation button no longer needs a
+  local reimplementation -- but this keeps its own `raised`/`outlined`/
+  `flat` + `surface` palette, tuned for the hero and the closing CTA band,
+  which don't map onto `pp_button`'s brand-color variants.
   """
   def link_button(assigns) do
     ~H"""

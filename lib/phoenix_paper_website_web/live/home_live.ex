@@ -25,7 +25,10 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
                 A component library for Phoenix and Phoenix LiveView, in the spirit of
                 <span class="whitespace-nowrap text-pp-on-surface">ember-paper</span>
                 for Ember.js, styled entirely with Tailwind CSS, and shipped as a plain hex
-                dependency your app already knows how to install.
+                dependency your app already knows how to install. Most components follow the API
+                and behavior of <span class="whitespace-nowrap text-pp-on-surface">MUI</span>
+                (Material-UI for React), adapted to Phoenix's server-rendered, function-component
+                model.
               </p>
 
               <.pp_stack direction="row" spacing={:md} wrap>

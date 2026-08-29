@@ -31,7 +31,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Actions",
         path: "/components/actions",
         icon: "hero-cursor-arrow-rays",
-        blurb: "Button, ButtonGroup, Fab, ToggleButton"
+        blurb: "Button, ButtonGroup, Fab, SpeedDial, ToggleButton"
       },
       %{
         id: :forms,
@@ -74,7 +74,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Feedback",
         path: "/components/feedback",
         icon: "hero-chat-bubble-left-right",
-        blurb: "Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar"
+        blurb: "Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar, Flash"
       },
       %{
         id: :helpers,

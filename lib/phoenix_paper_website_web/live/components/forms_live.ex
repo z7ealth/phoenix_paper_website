@@ -29,6 +29,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"size", "medium | small (default: medium)"},
             {"shape", "corner radius token (default: :sm), ignored for variant=\"standard\""},
             {"multiline / rows", "renders a textarea instead of an input"},
+            {"hide_label",
+             "boolean (default: false): dense, unwrapped variant for an inline filter toolbar (label becomes the placeholder, no notch, no helper/error rows). Pair with size=\"small\""},
             {"start_adornment / end_adornment",
              "slots for prefix/suffix content, e.g. an icon or unit"},
             {"field", "a Phoenix.HTML.FormField from to_form/2: sets name/id/value for you"},
@@ -84,6 +86,29 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               class="w-full max-w-sm"
             />
           </.demo_group>
+
+          <.demo_group label="hide_label (inline filter toolbar)">
+            <.pp_input hide_label label="Search" name="dense_search_demo" size="small" class="w-48">
+              <:start_adornment>
+                <.pp_icon name="hero-magnifying-glass" class="size-4" />
+              </:start_adornment>
+            </.pp_input>
+            <.pp_select
+              hide_label
+              label="Status"
+              name="dense_status_demo"
+              prompt="Any status"
+              options={["Active", "Archived"]}
+            />
+            <.pp_input
+              hide_label
+              label="Owner"
+              name="dense_owner_demo"
+              size="small"
+              errors={["required"]}
+              class="w-40"
+            />
+          </.demo_group>
         </.section>
 
         <.section
@@ -93,6 +118,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"options", "list of {label, value} tuples, or plain values"},
             {"prompt", "an empty/placeholder option's label"},
             {"variant", "outlined | filled (default: outlined)"},
+            {"hide_label",
+             "boolean (default: false): dense, unwrapped variant (see Input): drops the wrapper column, floating label and helper/error rows. Use prompt for placeholder text"},
             {"field / errors / helper_text", "same as Input"},
             {"disabled", "boolean (default: false)"}
           ]}
@@ -111,6 +138,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               name="country_filled_demo"
               prompt="Choose one"
               options={["Canada", "Mexico", "United States"]}
+            />
+          </.demo_group>
+
+          <.demo_group label="hide_label">
+            <.pp_select
+              hide_label
+              label="Status"
+              name="dense_country_demo"
+              prompt="Any"
+              options={["Active", "Archived", "Draft"]}
             />
           </.demo_group>
         </.section>
@@ -396,7 +433,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
       <:end_adornment>USD</:end_adornment>
     </.pp_input>
 
-    <.pp_input multiline rows={3} label="Bio" name="bio" />\
+    <.pp_input multiline rows={3} label="Bio" name="bio" />
+
+    <%!-- hide_label: dense, unwrapped. Label becomes the placeholder, no
+          notch, no helper/error rows. For an inline filter toolbar. --%>
+    <.pp_input hide_label label="Search" name="q" size="small">
+      <:start_adornment><.pp_icon name="hero-magnifying-glass" /></:start_adornment>
+    </.pp_input>\
     """
   end
 
@@ -414,7 +457,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
       name="country_filled"
       prompt="Choose one"
       options={["Canada", "Mexico", "United States"]}
-    />\
+    />
+
+    <%!-- hide_label: the dense, inline counterpart of Input's own --%>
+    <.pp_select hide_label label="Status" name="status" prompt="Any" options={["Active", "Archived"]} />\
     """
   end
 

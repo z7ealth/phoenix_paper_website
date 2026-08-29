@@ -16,7 +16,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   @doc """
   The shell for every page except the home page: a persistent
   `PhoenixPaper.Drawer` sidebar plus a sticky `PhoenixPaper.AppBar` for the
-  content column (mobile drawer toggle on the left,
+  content column (mobile drawer toggle on the left, a GitHub link and
   `PhoenixPaperWebsiteWeb.ThemePicker` on the right). All real PhoenixPaper
   components, and this is the showcase's own live demo of them.
 
@@ -37,6 +37,11 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     default: nil,
     doc: "which Nav item (see PhoenixPaperWebsiteWeb.Nav) is active, for sidebar highlighting"
 
+  attr :flash_group, :boolean,
+    default: true,
+    doc:
+      "render the default core_components flash_group -- the Feedback page opts out (flash_group={false}) so it can showcase PhoenixPaper.Flash's own pp_flash_group against the real @flash instead"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -51,8 +56,11 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
           class="border-r border-pp-outline/10 lg:sticky lg:top-0 lg:h-screen"
         >
           <:header>
-            <.link navigate={~p"/"}>
+            <.link navigate={~p"/"} class="flex items-center gap-2">
               <.logo_lockup size="lg" />
+              <span class="rounded-full bg-pp-on-surface/10 px-1.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-pp-on-surface/50">
+                v{phoenix_paper_version()}
+              </span>
             </.link>
           </:header>
           <.pp_list class="px-2 py-4">
@@ -82,6 +90,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
               <.logo_lockup size="md" />
             </.link>
             <:actions>
+              <.github_link />
               <.theme_picker />
             </:actions>
           </.pp_app_bar>
@@ -95,14 +104,14 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
       </div>
     </div>
 
-    <.flash_group flash={@flash} />
+    <.flash_group :if={@flash_group} flash={@flash} />
     """
   end
 
   @doc """
-  The bare shell for the home page only: just the floating logo and
-  `PhoenixPaperWebsiteWeb.ThemePicker`, no navbar and no drawer -- the
-  landing page doesn't need in-app navigation chrome around it.
+  The bare shell for the home page only: just the floating logo, a GitHub
+  link, and `PhoenixPaperWebsiteWeb.ThemePicker`, no navbar and no drawer --
+  the landing page doesn't need in-app navigation chrome around it.
 
   ## Examples
 
@@ -123,7 +132,8 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
         </.link>
       </div>
 
-      <div class="fixed top-4 right-4 z-30">
+      <div class="fixed top-4 right-4 z-30 flex items-center gap-1">
+        <.github_link />
         <.theme_picker />
       </div>
 
@@ -185,21 +195,40 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     """
   end
 
-  # A centered link to the phoenix_paper source repo, shown at the bottom of
-  # every page.
+  # The installed phoenix_paper version, for the badge next to the sidebar
+  # logo -- read from the loaded dep so it tracks mix.exs without a second
+  # place to bump.
+  defp phoenix_paper_version do
+    :phoenix_paper |> Application.spec(:vsn) |> to_string()
+  end
+
+  # A centered copyright line, shown at the bottom of every page. The
+  # GitHub link used to live here too -- it's now up in the app bar/floating
+  # corner instead (see app/1, landing/1), alongside the theme picker.
   defp footer(assigns) do
+    assigns = assign(assigns, :year, Date.utc_today().year)
+
     ~H"""
-    <footer class="flex justify-center py-8">
-      <.link
-        href="https://github.com/z7ealth/phoenix_paper"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-pp-on-surface/50 transition-colors hover:text-pp-on-surface"
-        aria-label="PhoenixPaper on GitHub"
-      >
-        <.github_mark class="size-6" />
-      </.link>
+    <footer class="flex items-center justify-center gap-1.5 py-8 text-xs text-pp-on-surface/50">
+      <span aria-hidden="true">&copy;</span>
+      <span>z7ealth {@year}</span>
     </footer>
+    """
+  end
+
+  # A link to the phoenix_paper source repo, styled as an icon button to sit
+  # next to PhoenixPaperWebsiteWeb.ThemePicker in the app bar/floating corner.
+  defp github_link(assigns) do
+    ~H"""
+    <.link
+      href="https://github.com/z7ealth/phoenix_paper"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="PhoenixPaper on GitHub"
+      class="relative z-40 inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-pp-on-surface/10"
+    >
+      <.github_mark class="size-5" />
+    </.link>
     """
   end
 

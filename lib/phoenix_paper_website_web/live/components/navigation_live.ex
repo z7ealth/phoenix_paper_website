@@ -17,12 +17,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="App Bar"
-          description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore (just a floating theme toggle instead), so here it is on its own."
+          description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore (just a floating theme toggle instead), so here it is on its own. Default toolbar gutters are responsive (px-4 rising to px-6 at the sm breakpoint), matching MUI's Toolbar."
           props={[
             {"color", "primary | secondary | tertiary | surface | transparent (default: primary)"},
             {"elevation", "resting elevation, 0-24 (default: 4), ignored for color=\"transparent\""},
             {"position", "static | relative | sticky | fixed | absolute (default: static)"},
             {"variant", "regular | dense (default: regular), dense shrinks the toolbar row"},
+            {"max_width",
+             "sm | md | lg | xl | 2xl | full (default: full): caps and centres the toolbar content, like wrapping MUI's Toolbar in a Container. Line it up with a pp_container of the same max_width below"},
+            {"disable_gutters", "boolean (default: false): drops the toolbar's horizontal padding"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={app_bar_code()}
@@ -38,6 +41,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
           <.demo_group label="Dense variant" class="flex-col items-stretch">
             <.pp_app_bar variant="dense">Dense toolbar row</.pp_app_bar>
+          </.demo_group>
+
+          <.demo_group label="max_width (content capped + centred)" class="flex-col items-stretch">
+            <.pp_app_bar max_width="sm" color="surface" class="border border-pp-outline/30">
+              max_width="sm"
+              <:actions>
+                <.pp_button variant="icon"><.pp_icon name="hero-bell" /></.pp_button>
+              </:actions>
+            </.pp_app_bar>
           </.demo_group>
 
           <.demo_group label="With leading/actions (correct contrast)" class="flex-col items-stretch">
@@ -286,6 +298,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
     <.pp_app_bar variant="dense" class="!static">
       Dense variant
+    </.pp_app_bar>
+
+    <%!-- max_width caps + centres the toolbar row the way wrapping MUI's
+          Toolbar in a <Container> would. Line it up with a pp_container of
+          the same max_width in the page body. disable_gutters drops the
+          toolbar's own horizontal padding. --%>
+    <.pp_app_bar position="sticky" max_width="xl">
+      My App
+      <:actions><.pp_theme_toggle label={nil} /></:actions>
     </.pp_app_bar>\
     """
   end
