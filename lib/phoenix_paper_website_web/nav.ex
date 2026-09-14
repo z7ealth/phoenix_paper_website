@@ -16,7 +16,8 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
             label: "Getting Started",
             path: "/getting-started",
             icon: "hero-book-open"
-          }
+          },
+          %{id: :theming, label: "Theming", path: "/theming", icon: "hero-swatch"}
         ]
       },
       %{title: "Components", items: component_items()}
@@ -81,7 +82,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Helpers",
         path: "/components/helpers",
         icon: "hero-wrench-screwdriver",
-        blurb: "Ripple, Elevation, Shape, Theming"
+        blurb: "Ripple, Elevation, Shape"
       }
     ]
   end

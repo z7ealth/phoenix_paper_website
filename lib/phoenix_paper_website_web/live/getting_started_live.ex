@@ -71,25 +71,15 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
 
         <.section
           title="Theming and dark mode"
-          description="Every color is a Tailwind v4 theme token, namespaced pp- so it never collides with daisyUI's own primary/secondary/base-100 tokens in the same app."
+          description="Every color is a Tailwind v4 theme token, namespaced pp- so it never collides with daisyUI's own primary/secondary/base-100 tokens in the same app. Dark mode keys off a data-theme attribute, the same one daisyUI and Phoenix 1.8's generated app.css already use, so PhoenixPaper flips with your app's existing toggle."
         >
-          <ul class="list-disc space-y-2 pl-5 text-sm text-pp-on-surface/70">
-            <li>
-              Dark mode keys off the data-theme="dark" attribute (the same one daisyUI
-              and Phoenix 1.8's generated app.css already use), so PhoenixPaper flips with
-              your app's existing toggle. This site's own light/dark switch, in the top
-              right corner, is exactly that toggle.
-            </li>
-            <li>
-              A second bundled palette (teal / amber) is opt-in via
-              data-pp-theme="teal" on any ancestor element.
-            </li>
-            <li>
-              For a fully custom palette, don't fork the CSS file: override the
-              --color-pp-* variables from your own stylesheet after importing
-              phoenix_paper.css.
-            </li>
-          </ul>
+          <p class="text-sm text-pp-on-surface/70">
+            To set your own light and dark palettes, override the --color-pp-* variables in
+            your app.css after the import above. The full walkthrough, with the
+            system-preference fallback and the toggle, is on the
+            <.link navigate={~p"/theming"} class="text-pp-primary hover:underline">Theming</.link>
+            page.
+          </p>
         </.section>
 
         <.section

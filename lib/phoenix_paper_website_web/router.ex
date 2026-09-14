@@ -20,6 +20,7 @@ defmodule PhoenixPaperWebsiteWeb.Router do
     live_session :default do
       live "/", HomeLive
       live "/getting-started", GettingStartedLive
+      live "/theming", ThemingLive
       live "/components", Components.IndexLive
       live "/components/actions", Components.ActionsLive
       live "/components/forms", Components.FormsLive

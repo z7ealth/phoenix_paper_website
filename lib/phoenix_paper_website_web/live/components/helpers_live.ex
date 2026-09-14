@@ -1,8 +1,6 @@
 defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
-  alias Phoenix.LiveView.JS
-
   @elevation_levels [0, 1, 2, 4, 8, 16, 24]
   @shape_tokens [:none, :xs, :sm, :md, :lg, :xl, :full]
 
@@ -21,8 +19,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Helpers</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Ripple, Elevation, Shape, and theming: the plumbing every visual
-          component in this library is built on.
+          PhoenixPaper.Ripple, Elevation, and Shape: the plumbing every visual component in
+          this library is built on. Color theming has its own <.link
+            navigate={~p"/theming"}
+            class="text-pp-primary hover:underline"
+          >guide</.link>.
         </p>
 
         <.section
@@ -81,50 +82,6 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
             </div>
           </.demo_group>
         </.section>
-
-        <.section
-          title="Theming"
-          description="Colors are Tailwind v4 theme tokens backed by CSS custom properties, namespaced pp- so they never collide with daisyUI. Try the buttons below: no page reload, just flipping data-theme/data-pp-theme on the root html element."
-          props={[
-            {"data-theme=\"dark\"",
-             "on any ancestor (the same attribute daisyUI/Phoenix 1.8's generated app.css already use)"},
-            {"data-pp-theme=\"teal\"", "opts into the bundled alternate palette"},
-            {"custom theme",
-             "override the --color-pp-* variables from your own stylesheet: no build step, no JS config"}
-          ]}
-          code={theming_code()}
-        >
-          <.demo_group label="Try it">
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.set_attribute({"data-theme", "dark"}, to: "html")}
-            >
-              Dark
-            </.pp_button>
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.set_attribute({"data-theme", "light"}, to: "html")}
-            >
-              Light
-            </.pp_button>
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.set_attribute({"data-pp-theme", "teal"}, to: "html")}
-            >
-              Teal
-            </.pp_button>
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.remove_attribute("data-pp-theme", to: "html")}
-            >
-              Indigo (default)
-            </.pp_button>
-          </.demo_group>
-          <p class="text-sm text-pp-on-surface/60">
-            This changes the whole page's theme, not just this section; use the toggle in the
-            top-right corner to flip back to your system preference.
-          </p>
-        </.section>
       </.pp_container>
     </Layouts.app>
     """
@@ -146,13 +103,6 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
   defp shape_code do
     """
     <div class={["size-14 border-2 border-pp-primary", PhoenixPaper.Shape.class(:lg)]} />\
-    """
-  end
-
-  defp theming_code do
-    """
-    <button phx-click={JS.set_attribute({"data-theme", "dark"}, to: "html")}>Dark</button>
-    <button phx-click={JS.set_attribute({"data-pp-theme", "teal"}, to: "html")}>Teal</button>\
     """
   end
 end
