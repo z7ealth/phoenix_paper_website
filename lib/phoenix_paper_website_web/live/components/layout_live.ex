@@ -33,7 +33,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
             >
               tag="span"
             </.pp_box>
-            <.pp_box tag="pre" class="rounded-lg bg-pp-tertiary/10 p-4 text-xs text-pp-tertiary">
+            <.pp_box tag="pre" class="rounded-lg bg-pp-accent/10 p-4 text-xs text-pp-accent">
               tag="pre", whitespace preserved.
             </.pp_box>
           </.demo_group>
@@ -82,7 +82,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
             <.pp_stack direction="row" spacing={:sm}>
               <.layout_swatch color="primary">1</.layout_swatch>
               <.layout_swatch color="secondary">2</.layout_swatch>
-              <.layout_swatch color="tertiary">3</.layout_swatch>
+              <.layout_swatch color="accent">3</.layout_swatch>
             </.pp_stack>
           </.demo_group>
 
@@ -90,7 +90,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
             <.pp_stack direction="column" spacing={:sm}>
               <.layout_swatch color="primary">1</.layout_swatch>
               <.layout_swatch color="secondary">2</.layout_swatch>
-              <.layout_swatch color="tertiary">3</.layout_swatch>
+              <.layout_swatch color="accent">3</.layout_swatch>
             </.pp_stack>
           </.demo_group>
         </.section>
@@ -195,7 +195,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
     """
   end
 
-  attr :color, :string, values: ~w(primary secondary tertiary)
+  attr :color, :string, values: ~w(primary secondary accent)
   attr :class, :any, default: nil
   slot :inner_block, required: true
 
@@ -213,5 +213,5 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
   defp swatch_classes("primary"), do: "bg-pp-primary/15 text-pp-primary"
   defp swatch_classes("secondary"), do: "bg-pp-secondary/15 text-pp-secondary"
-  defp swatch_classes("tertiary"), do: "bg-pp-tertiary/15 text-pp-tertiary"
+  defp swatch_classes("accent"), do: "bg-pp-accent/15 text-pp-accent"
 end

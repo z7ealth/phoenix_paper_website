@@ -24,20 +24,20 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             {"label / value / name / id", "standard text field attrs"},
             {"type", "any input type, e.g. text | email | password (default: text)"},
             {"variant", "outlined | filled | standard (default: outlined)"},
-            {"color",
-             "primary | secondary | tertiary | error (default: primary), focus/label accent"},
+            {"color", "primary | secondary | accent | error (default: primary), focus/label accent"},
             {"size", "medium | small (default: medium)"},
             {"shape", "corner radius token (default: :sm), ignored for variant=\"standard\""},
             {"multiline / rows", "renders a textarea instead of an input"},
             {"hide_label",
              "boolean (default: false): dense, unwrapped variant for an inline filter toolbar (label becomes the placeholder, no notch, no helper/error rows). Pair with size=\"small\""},
-            {"start_adornment / end_adornment",
-             "slots for prefix/suffix content, e.g. an icon or unit"},
             {"field", "a Phoenix.HTML.FormField from to_form/2: sets name/id/value for you"},
             {"errors", "list of error strings: switches to the error color, hides helper_text"},
             {"helper_text", "shown below the field when there are no errors"},
             {"disabled", "boolean (default: false)"},
             {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":start_adornment / :end_adornment", "prefix/suffix content, e.g. an icon or unit"}
           ]}
           code={input_code()}
         >
@@ -65,7 +65,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
           <.demo_group label="Colors">
             <.pp_input color="primary" label="Primary" name="color_primary_demo" />
             <.pp_input color="secondary" label="Secondary" name="color_secondary_demo" />
-            <.pp_input color="tertiary" label="Tertiary" name="color_tertiary_demo" />
+            <.pp_input color="accent" label="Accent" name="color_accent_demo" />
           </.demo_group>
 
           <.demo_group label="Size and adornments">
@@ -270,7 +270,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
           props={[
             {"min / max / step", "default 0 / 100 / 1"},
             {"value", "a number, or a {low, high} tuple for a range slider (two thumbs)"},
-            {"color", "primary | secondary | tertiary | error (default: primary)"},
+            {"color", "primary | secondary | accent | error (default: primary)"},
             {"size", "medium | small (default: medium)"},
             {"orientation", "horizontal | vertical (default: horizontal)"},
             {"track", "normal | none | inverted (default: normal), ignored for range sliders"},
@@ -282,7 +282,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
         >
           <.demo_group label="Colors" class="items-start">
             <.pp_slider
-              :for={color <- ~w(primary secondary tertiary error)}
+              :for={color <- ~w(primary secondary accent error)}
               name={"volume_#{color}_demo"}
               label={color}
               value={60}
@@ -512,18 +512,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
   defp slider_code do
     """
     <.pp_slider name="volume" label="Volume" value={60} />
-
-    <%!-- size --%>
     <.pp_slider name="volume_small" label="Small" value={60} size="small" />
-
-    <%!-- colors --%>
-    <.pp_slider :for={color <- ~w(primary secondary tertiary error)} name={"volume_\#{color}"} label={color} value={60} color={color} />
-
-    <%!-- track modes --%>
     <.pp_slider name="volume_no_track" label="track: none" value={60} track="none" />
-    <.pp_slider name="volume_inverted" label="track: inverted" value={60} track="inverted" />
 
-    <%!-- discrete marks, evenly spaced --%>
+    <%!-- discrete, evenly-spaced marks --%>
     <.pp_slider name="volume_marks" label="Discrete (marks)" value={40} step={20} marks={true} />
 
     <%!-- custom labeled marks --%>
@@ -531,17 +523,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
       name="temperature"
       label="Temperature"
       value={30}
-      min={0}
       max={100}
-      marks={[{0, "0°C"}, {30, "30°C"}, {60, "60°C"}, {100, "100°C"}]}
+      marks={[{0, "0°C"}, {50, "50°C"}, {100, "100°C"}]}
     />
 
     <%!-- range slider: a {low, high} tuple instead of a single number --%>
     <.pp_slider name="price" label="Price range" value={{20, 80}} />
 
-    <%!-- vertical --%>
     <.pp_slider name="volume_vertical" orientation="vertical" value={60} />
-
     <.pp_slider name="volume_disabled" label="Disabled" value={30} disabled />\
     """
   end

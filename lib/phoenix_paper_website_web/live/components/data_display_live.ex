@@ -47,6 +47,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {"shape", "corner radius token (default: :lg)"},
             {"paperize", "boolean (default: true)"}
           ]}
+          slots={[{":title", "a heading above the body"}, {":actions", "trailing buttons"}]}
           code={card_code()}
         >
           <.demo_group label="Basic" class="items-start">
@@ -77,8 +78,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {"src / alt", "an image, with alt text (default: nil, falls back to :inner_block)"},
             {"variant", "circular | rounded | square (default: circular)"},
             {"size", "small | medium | large (default: medium)"},
-            {":inner_block", "initials or an icon: shown with no src, or if the image fails to load"},
             {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":inner_block", "initials or an icon: shown with no src, or if the image fails to load"}
           ]}
           code={avatar_code()}
         >
@@ -110,7 +113,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {"show_zero", "show the badge when content is the integer 0 (default: false)"},
             {"variant", "standard | dot (default: standard)"},
             {"color",
-             "primary | secondary | tertiary | error | success | warning | info (default: error)"},
+             "primary | secondary | accent | error | success | warning | info (default: error)"},
             {"overlap",
              "rectangular | circular, pulls the badge inward onto a circular child (default: rectangular)"},
             {"anchor_origin", "which corner (default: top-right)"},
@@ -140,15 +143,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           props={[
             {"variant", "filled | outlined (default: filled)"},
             {"color",
-             "default | primary | secondary | tertiary | error | success | warning | info (default: default)"},
+             "default | primary | secondary | accent | error | success | warning | info (default: default)"},
             {"size", "small | medium (default: medium)"},
             {"clickable",
              "renders a real button with a ripple, for filter/action chips (default: false)"},
             {"deletable", "renders a trailing delete control wired to on_delete (default: false)"},
             {"on_delete", "JS command run when the delete control is clicked"},
-            {"disabled", "dims and disables the chip and its delete control (default: false)"},
-            {":icon", "a leading icon or avatar slot"}
+            {"disabled", "dims and disables the chip and its delete control (default: false)"}
           ]}
+          slots={[{":icon", "a leading icon or avatar"}]}
           code={chip_code()}
         >
           <.demo_group label="Variants">
@@ -208,7 +211,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           code={icon_code()}
         >
           <.demo_group label="Try it">
-            <.pp_icon name="hero-check" class="text-pp-tertiary" />
+            <.pp_icon name="hero-check" class="text-pp-accent" />
             <.pp_icon name="hero-star" class="text-pp-secondary" />
             <.pp_icon name="hero-home" class="text-pp-primary" />
             <.pp_icon name="hero-bell" class="text-pp-error" />
@@ -413,7 +416,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
   defp icon_code do
     """
-    <.pp_icon name="hero-check" class="text-pp-tertiary" />\
+    <.pp_icon name="hero-check" class="text-pp-accent" />\
     """
   end
 

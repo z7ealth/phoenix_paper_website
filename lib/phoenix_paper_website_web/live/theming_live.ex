@@ -8,7 +8,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
   @brand_swatches [
     {"pp-primary", "bg-pp-primary text-pp-on-primary"},
     {"pp-secondary", "bg-pp-secondary text-pp-on-secondary"},
-    {"pp-tertiary", "bg-pp-tertiary text-pp-on-tertiary"},
+    {"pp-accent", "bg-pp-accent text-pp-on-accent"},
     {"pp-error", "bg-pp-error text-pp-on-error"}
   ]
 
@@ -45,8 +45,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
             {"--color-pp-primary",
              "the main brand / action color: raised buttons, links, active states, focus rings"},
             {"--color-pp-secondary", "a second accent for less prominent actions and highlights"},
-            {"--color-pp-tertiary",
-             "a third accent, used sparingly (e.g. the landing hero gradient)"},
+            {"--color-pp-accent", "a third accent, used sparingly (e.g. the landing hero gradient)"},
             {"--color-pp-error", "destructive actions and invalid form fields"},
             {"--color-pp-surface",
              "the background of the page and of every Paper / Card / Dialog / AppBar"},
@@ -171,8 +170,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
             <div class="rounded-lg bg-pp-primary px-4 py-3 text-sm font-medium text-pp-on-primary">
               on-primary on primary &mdash; correct
             </div>
-            <div class="rounded-lg bg-pp-primary px-4 py-3 text-sm font-medium text-pp-tertiary">
-              tertiary on primary &mdash; don't
+            <div class="rounded-lg bg-pp-primary px-4 py-3 text-sm font-medium text-pp-accent">
+              accent on primary &mdash; don't
             </div>
           </.demo_group>
         </.section>
@@ -299,8 +298,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
       --color-pp-on-primary: #ffffff;
       --color-pp-secondary: #ff4081;
       --color-pp-on-secondary: #000000;
-      --color-pp-tertiary: #009688;
-      --color-pp-on-tertiary: #ffffff;
+      --color-pp-accent: #009688;
+      --color-pp-on-accent: #ffffff;
       --color-pp-error: #d32f2f;
       --color-pp-on-error: #ffffff;
 
@@ -323,8 +322,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
       --color-pp-on-primary: #0a0e1f;
       --color-pp-secondary: #ff80ab;
       --color-pp-on-secondary: #1a0511;
-      --color-pp-tertiary: #4db6ac;
-      --color-pp-on-tertiary: #04211d;
+      --color-pp-accent: #4db6ac;
+      --color-pp-on-accent: #04211d;
       --color-pp-error: #ef9a9a;
       --color-pp-on-error: #370505;
 

@@ -23,6 +23,11 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     default: [],
     doc: "list of {name, description} tuples, rendered as an options table"
 
+  attr :slots, :list,
+    default: [],
+    doc:
+      "list of {name, description} tuples for the component's named slots, rendered as their own table, separate from props"
+
   attr :code, :string,
     default: nil,
     doc: "the HEEx snippet that produced the demo, rendered behind a Show code toggle"
@@ -31,9 +36,14 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
 
   @doc """
   A titled page section used to group related component demos, with an
-  optional options table and an optional toggleable code snippet -- mirrors
-  phoenix_paper's own `dev.exs` catalog's `demo_section/1` (title,
-  description, live example, options, "Show code").
+  optional options table, an optional slots table, and an optional
+  toggleable code snippet -- mirrors phoenix_paper's own `dev.exs` catalog's
+  `demo_section/1` (title, description, live example, options, "Show code").
+
+  `props` and `slots` are kept as two separate tables rather than one list
+  with a `:`-prefixed naming convention: a slot isn't just another attr (it
+  takes rendered content, not a value), and a caller skimming the page
+  shouldn't have to notice a leading colon to tell the two apart.
   """
   def section(assigns) do
     ~H"""
@@ -63,6 +73,17 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[11rem_1fr]">
           <div :for={{name, desc} <- @props} class="contents">
             <dt class="font-mono text-xs text-pp-primary">{name}</dt>
+            <dd class="mb-2 text-xs text-pp-on-surface/70 sm:mb-0">{desc}</dd>
+          </div>
+        </dl>
+      </.pp_paper>
+      <.pp_paper :if={@slots != []} elevation={0} class="mt-4 border border-pp-outline/15 p-6">
+        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-pp-on-surface/60">
+          Slots
+        </h3>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[11rem_1fr]">
+          <div :for={{name, desc} <- @slots} class="contents">
+            <dt class="font-mono text-xs text-pp-secondary">{name}</dt>
             <dd class="mb-2 text-xs text-pp-on-surface/70 sm:mb-0">{desc}</dd>
           </div>
         </dl>
@@ -268,8 +289,8 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   A big, floating, gradient-filled version of `logo_mark/1` for the landing
   hero -- same path data, but filled with `url(#pp-hero-gradient)` instead
   of `currentColor`, so it reads live off the current
-  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-tertiary` tokens
-  rather than a single text color. Picking a new accent/secondary/tertiary
+  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-accent` tokens
+  rather than a single text color. Picking a new primary/secondary/accent
   in `PhoenixPaperWebsiteWeb.ThemePicker` repaints it instantly, no JS of
   its own -- an inline `<svg>`'s `stop-color` resolves CSS custom
   properties from the page same as any other computed style, same reason
@@ -296,7 +317,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         >
           <stop offset="0%" stop-color="var(--color-pp-primary)" />
           <stop offset="55%" stop-color="var(--color-pp-secondary)" />
-          <stop offset="100%" stop-color="var(--color-pp-tertiary)" />
+          <stop offset="100%" stop-color="var(--color-pp-accent)" />
         </linearGradient>
       </defs>
       <path

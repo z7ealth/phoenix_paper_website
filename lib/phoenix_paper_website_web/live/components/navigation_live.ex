@@ -12,14 +12,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
         <h1 class="mb-4 text-3xl font-semibold tracking-tight">Navigation</h1>
         <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.AppBar, Drawer, Tabs, Breadcrumbs, and the List family.
+          PhoenixPaper.AppBar, Drawer, Menu, Tabs, Breadcrumbs, and the List family.
         </p>
 
         <.section
           title="App Bar"
           description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore (just a floating theme toggle instead), so here it is on its own. Default toolbar gutters are responsive (px-4 rising to px-6 at the sm breakpoint), matching MUI's Toolbar."
           props={[
-            {"color", "primary | secondary | tertiary | surface | transparent (default: primary)"},
+            {"color", "primary | secondary | accent | surface | transparent (default: primary)"},
             {"elevation", "resting elevation, 0-24 (default: 4), ignored for color=\"transparent\""},
             {"position", "static | relative | sticky | fixed | absolute (default: static)"},
             {"variant", "regular | dense (default: regular), dense shrinks the toolbar row"},
@@ -28,11 +28,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             {"disable_gutters", "boolean (default: false): drops the toolbar's horizontal padding"},
             {"paperize", "boolean (default: true)"}
           ]}
+          slots={[
+            {":leading", "content before the title, e.g. a pp_drawer_toggle"},
+            {":actions", "content after the title, e.g. icon buttons"}
+          ]}
           code={app_bar_code()}
         >
           <.demo_group label="Colors" class="flex-col items-stretch">
             <.pp_app_bar
-              :for={color <- ~w(primary secondary tertiary surface transparent)}
+              :for={color <- ~w(primary secondary accent surface transparent)}
               color={color}
             >
               {color}
@@ -85,11 +89,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           props={[
             {"id", "required: builds the mobile toggle checkbox's id as \"\#{id}-toggle\""},
             {"color",
-             "primary | secondary | tertiary | surface (default: surface), also restyles nested List/ListItem for contrast"},
+             "primary | secondary | accent | surface (default: surface), also restyles nested List/ListItem for contrast"},
+            {"width", "sm | md | lg | xl (default: md)"},
             {"paperize", "boolean (default: true)"},
             {"pp_drawer_toggle for=",
              "a hamburger label pointing at the given drawer's id; works from anywhere on the page"}
           ]}
+          slots={[{":header", "content above the drawer's own inner_block, e.g. a logo/app name"}]}
           code={drawer_code()}
         >
           <.pp_paper
@@ -104,6 +110,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             color also reaches into nested List/ListItem/ListSubheader/Divider so a colored
             drawer stays readable, not just a style mismatch (see the App Bar pitfall above;
             the same "same color on same color" trap applies to an active item's highlight).
+            width picks a fixed panel width (sm/md/lg/xl), applied at both the mobile and
+            desktop breakpoint together.
           </.pp_paper>
         </.section>
 
@@ -119,11 +127,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
              "id matches the parent Tabs; value must be unique within the group"},
             {"pp_tab default_selected", "boolean, initial selection, uncontrolled (default: false)"},
             {"pp_tab color",
-             "primary | secondary | tertiary | error (default: primary), set per Tab, doesn't cascade"},
-            {"pp_tab :icon", "optional leading icon slot"},
+             "primary | secondary | accent | error (default: primary), set per Tab, doesn't cascade"},
             {"pp_tab disabled / ripple / paperize", "same as Button"},
             {"pp_tab_panel id / value", "must match the corresponding Tab exactly"}
           ]}
+          slots={[{"pp_tab :icon", "optional leading icon"}]}
           code={tabs_code()}
         >
           <.demo_group label="Basic" class="flex-col items-stretch">
@@ -147,7 +155,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
                 Primary
               </.pp_tab>
               <.pp_tab id="color-tabs" value="secondary" color="secondary">Secondary</.pp_tab>
-              <.pp_tab id="color-tabs" value="tertiary" color="tertiary">Tertiary</.pp_tab>
+              <.pp_tab id="color-tabs" value="accent" color="accent">Accent</.pp_tab>
               <.pp_tab id="color-tabs" value="error" color="error">Error</.pp_tab>
             </.pp_tabs>
           </.demo_group>
@@ -184,14 +192,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           title="Breadcrumbs"
           description="A breadcrumb trail with a separator auto-inserted between :item slots. An item renders as a link when it has href/navigate/patch, or plain current-page text otherwise: whichever item you leave without a link is the current page, same convention as ListItem."
           props={[
-            {"pp_breadcrumbs :item href/navigate/patch",
-             "makes that item a link; omit all three for the current page"},
-            {"pp_breadcrumbs :separator",
-             "a slot, not a string: can hold an icon; defaults to \"/\""},
             {"max_items", "collapse into an expandable ellipsis beyond this many items (default: 8)"},
             {"items_before_collapse / items_after_collapse",
              "collapsed slice sizes (default: 1 / 1)"},
             {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":item href/navigate/patch",
+             "makes that item a link; omit all three for the current page"},
+            {":separator", "not a string: can hold an icon; defaults to \"/\""}
           ]}
           code={breadcrumbs_code()}
         >
@@ -227,14 +236,72 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
         </.section>
 
         <.section
+          title="Menu"
+          description="A trigger that reveals a small anchored popover list of actions, in the spirit of MUI's Menu/MenuItem: an overflow (...) menu, a profile menu, anything where clicking a button reveals a short list of things to do next. Built with plain Phoenix.LiveView.JS commands and phx-click-away, not a hook: closes on selecting an item, clicking outside, or Escape."
+          props={[
+            {"id", "required"},
+            {"anchor",
+             "bottom-start (default) | bottom-end | top-start | top-end, relative to the trigger"},
+            {"elevation", "resting elevation, 0-24 (default: 8)"},
+            {"shape", "corner radius token (default: :sm)"},
+            {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":trigger", "required: the clickable content that opens the menu"},
+            {":inner_block", "required: the popover's content, typically a pp_list"}
+          ]}
+          code={menu_code()}
+        >
+          <.demo_group label="Try it">
+            <.pp_menu id="demo-menu">
+              <:trigger>
+                <.pp_button variant="outlined">
+                  Actions
+                  <:end_icon><.pp_icon name="hero-chevron-down" /></:end_icon>
+                </.pp_button>
+              </:trigger>
+              <.pp_list>
+                <.pp_list_item>
+                  <:leading><.pp_icon name="hero-pencil-square" /></:leading>
+                  Edit
+                </.pp_list_item>
+                <.pp_list_item>
+                  <:leading><.pp_icon name="hero-document-duplicate" /></:leading>
+                  Duplicate
+                </.pp_list_item>
+                <.pp_divider />
+                <.pp_list_item>
+                  <:leading><.pp_icon name="hero-trash" /></:leading>
+                  Delete
+                </.pp_list_item>
+              </.pp_list>
+            </.pp_menu>
+
+            <.pp_menu id="demo-menu-icon" anchor="bottom-end">
+              <:trigger>
+                <.pp_button variant="icon"><.pp_icon name="hero-ellipsis-vertical" /></.pp_button>
+              </:trigger>
+              <.pp_list>
+                <.pp_list_item href="#">Profile</.pp_list_item>
+                <.pp_list_item href="#">Settings</.pp_list_item>
+                <.pp_list_item>Log out</.pp_list_item>
+              </.pp_list>
+            </.pp_menu>
+          </.demo_group>
+        </.section>
+
+        <.section
           title="List"
           description="A vertical stack of list items, with optional sub-headers to group them. Renders items as links, buttons, or plain rows depending on their own attrs: a linked item ripples on click by default, just like Button. Click Home or Inbox below to see it."
           props={[
             {"pp_list", "the container, role=\"list\""},
             {"pp_list_item href/navigate/patch", "makes it a link; active/disabled/ripple as usual"},
-            {"pp_list_item :leading / :secondary / :trailing",
-             "optional slots for an icon, a subtitle line, a badge"},
             {"pp_list_subheader", "a small uppercase section label"}
+          ]}
+          slots={[
+            {"pp_list_item :leading", "an icon or avatar"},
+            {"pp_list_item :secondary", "a subtitle line below the primary one"},
+            {"pp_list_item :trailing", "a trailing icon, badge, or action"}
           ]}
           code={list_code()}
         >
@@ -289,7 +356,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       </:actions>
     </.pp_app_bar>
 
-    <.pp_app_bar :for={color <- ~w(primary secondary tertiary surface transparent)} color={color} class="!static">
+    <.pp_app_bar :for={color <- ~w(primary secondary accent surface transparent)} color={color} class="!static">
       {color}
       <:actions>
         <.pp_button variant="icon"><.pp_icon name="hero-bell" /></.pp_button>
@@ -318,10 +385,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       My App
     </.pp_app_bar>
 
-    <.pp_drawer id="app-drawer" color="primary">
+    <.pp_drawer id="app-drawer" color="primary" width="lg">
       <:header>My App</:header>
       <.pp_list>
-        <.pp_list_item href="/" active={@current_path == "/"}>Home</.pp_list_item>
+        <.pp_list_item href="/" active>Home</.pp_list_item>
       </.pp_list>
     </.pp_drawer>\
     """
@@ -377,6 +444,19 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       <:item navigate="/four">Four</:item>
       <:item>Five</:item>
     </.pp_breadcrumbs>\
+    """
+  end
+
+  defp menu_code do
+    """
+    <.pp_menu id="profile-menu" anchor="bottom-end">
+      <:trigger><.pp_icon name="hero-ellipsis-vertical" /></:trigger>
+      <.pp_list>
+        <.pp_list_item navigate={~p"/profile"}>Profile</.pp_list_item>
+        <.pp_list_item navigate={~p"/settings"}>Settings</.pp_list_item>
+        <.pp_list_item phx-click="log_out">Log out</.pp_list_item>
+      </.pp_list>
+    </.pp_menu>\
     """
   end
 

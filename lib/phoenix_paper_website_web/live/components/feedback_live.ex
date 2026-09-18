@@ -36,13 +36,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Alert"
-          description="A colored, icon-led message for status feedback. severity is a distinct color axis from every other component's color: success/info/warning/error status colors, not primary/secondary/tertiary/error brand colors."
+          description="A colored, icon-led message for status feedback. severity is a distinct color axis from every other component's color: success/info/warning/error status colors, not primary/secondary/accent/error brand colors."
           props={[
             {"severity",
              "success | info | warning | error (default: info), picks the color and icon"},
             {"variant", "standard (tinted) | outlined | filled (default: standard)"},
-            {":title / :action", "optional slots: a bold line above the message, a trailing action"},
             {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":title", "a bold line above the message"},
+            {":action", "a trailing action, e.g. a button"}
           ]}
           code={alert_code()}
         >
@@ -65,9 +68,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           description="A full-screen dimming overlay (most often behind a full-page loading spinner, or the piece Dialog composes for its own overlay). Stateless: open just toggles rendering it at all."
           props={[
             {"open", "boolean (default: true)"},
-            {":inner_block", "optional content centered over the dim (e.g. a spinner)"},
             {"paperize", "boolean (default: true)"}
           ]}
+          slots={[{":inner_block", "content centered over the dim (e.g. a spinner)"}]}
           code={backdrop_code()}
         >
           <.demo_group label="Try it">
@@ -84,9 +87,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           props={[
             {"id", "required: targeted by show/1 and hide/1"},
             {"on_cancel", "a JS command run (in addition to hiding) on backdrop click/Escape"},
-            {":title / :actions", "optional slots"},
             {"paperize", "boolean (default: true)"}
           ]}
+          slots={[{":title", "optional heading"}, {":actions", "optional trailing buttons"}]}
           code={dialog_code()}
         >
           <.demo_group label="Try it">
@@ -114,7 +117,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           props={[
             {"variant", "linear | circular (default: linear)"},
             {"value", "0-100, nil for indeterminate (default: nil)"},
-            {"color", "primary | secondary | tertiary | error (default: primary)"},
+            {"color", "primary | secondary | accent | error (default: primary)"},
             {"size", "circular only, diameter in pixels (default: 40)"},
             {"paperize", "boolean (default: true)"}
           ]}
@@ -133,7 +136,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
           <.demo_group label="Circular">
             <div
-              :for={color <- ~w(primary secondary tertiary error)}
+              :for={color <- ~w(primary secondary accent error)}
               class="flex flex-col items-center gap-2"
             >
               <.pp_progress variant="circular" value={65} color={color} />
@@ -174,21 +177,23 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Snackbar"
-          description="A brief toast on an inverted-surface chip. Server-owned dismissal (a Process.send_after/3 clearing the open assign, the same mechanism generated flash messages use) is still the default, but on_close + auto_hide_duration add a hook-free client-side auto-dismiss for the no-round-trip case. No exit transition, only entrance. For Phoenix flash messages, use Flash below."
+          description="A brief toast on an inverted-surface chip. Server-owned dismissal (a Process.send_after/3 clearing the open assign, the same mechanism generated flash messages use) is still the default, but on_close + auto_hide_duration add a hook-free client-side auto-dismiss for the no-round-trip case: a visible countdown bar along the chip's bottom edge tracks it. No exit transition, only entrance. For Phoenix flash messages, use Flash below."
           props={[
             {"open", "boolean (default: true)"},
+            {"color",
+             "default | primary | secondary | accent | error (default: default, the inverted monochrome Material spec; the others paint a brand-colored chip)"},
             {"anchor_origin",
              "bottom-left (default) | bottom-center | bottom-right | top-left | top-center | top-right"},
             {"transition", "grow (default) | fade | slide | none, mount-in animation only"},
             {"on_close", "a JS: renders a trailing ✕ button running it (MUI's close-IconButton)"},
             {"auto_hide_duration",
-             "ms after which the snackbar triggers on_close itself (needs on_close; client-side)"},
+             "ms after which the snackbar triggers on_close itself (needs on_close; client-side). Shown as a shrinking countdown bar along the chip's bottom edge"},
             {"positioned",
              "boolean (default: true): keep the fixed viewport anchoring, or drop it to place the chip yourself"},
-            {":action", "optional slot (e.g. an \"Undo\" button)"},
             {"elevation", "resting elevation, 0-24 (default: 6)"},
             {"paperize", "boolean (default: true)"}
           ]}
+          slots={[{":action", "e.g. an \"Undo\" button"}]}
           code={snackbar_code()}
         >
           <.demo_group label="Try it" class="flex-col items-stretch">
@@ -200,9 +205,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
                 </:action>
               </.pp_snackbar>
               <.pp_snackbar
+                color="primary"
                 anchor_origin="top-right"
                 transition="slide"
                 on_close={JS.push("dismiss")}
+                auto_hide_duration={5000}
                 class="!absolute !top-4 !right-4"
               >
                 Link copied
@@ -217,8 +224,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           props={[
             {"flash", "the @flash map"},
             {"kinds", "flash keys to render, in stacking order (default: [:info, :error])"},
-            {"anchor_origin",
-             "corner/edge of the viewport the stack sits at (default: bottom-right)"},
+            {"anchor_origin", "corner/edge of the viewport the stack sits at (default: top-right)"},
             {"auto_hide_duration",
              "ms after which each chip clears itself via lv:clear-flash (opt-in)"},
             {"transition", "grow | fade | slide (default) | none"},
@@ -239,7 +245,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           <p class="-mt-4 mb-8 text-sm text-pp-on-surface/60">
             This whole page renders a pp_flash_group bound to @flash instead of the default
             flash_group. The buttons above call put_flash/3; a real chip slides in at the
-            bottom-right, auto-hides after 6s, or dismiss it with the ✕ (LiveView's built-in
+            top-right, auto-hides after 6s, or dismiss it with the ✕ (LiveView's built-in
             lv:clear-flash, no handler).
           </p>
 

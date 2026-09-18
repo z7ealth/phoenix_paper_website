@@ -47,7 +47,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Navigation",
         path: "/components/navigation",
         icon: "hero-bars-3-bottom-left",
-        blurb: "AppBar, Drawer, Tabs, Breadcrumbs, List"
+        blurb: "AppBar, Drawer, Menu, Tabs, Breadcrumbs, List"
       },
       %{
         id: :layout,

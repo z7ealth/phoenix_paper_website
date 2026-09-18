@@ -13,7 +13,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
           <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div class="pp-hero-blob pp-hero-blob-1 absolute -top-24 -left-16 size-72 bg-pp-primary" />
             <div class="pp-hero-blob pp-hero-blob-2 absolute top-0 -right-10 size-64 bg-pp-secondary" />
-            <div class="pp-hero-blob pp-hero-blob-3 absolute -bottom-24 left-1/3 size-56 bg-pp-tertiary" />
+            <div class="pp-hero-blob pp-hero-blob-3 absolute -bottom-24 left-1/3 size-56 bg-pp-accent" />
           </div>
 
           <div class="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
@@ -52,7 +52,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
             <.demo_group label="Try it">
               <.pp_button color="primary">Raised</.pp_button>
               <.pp_button color="secondary" variant="outlined">Outlined</.pp_button>
-              <.pp_button color="tertiary" variant="text">Text</.pp_button>
+              <.pp_button color="accent" variant="text">Text</.pp_button>
               <.pp_button variant="icon" color="primary"><.pp_icon name="hero-bell" /></.pp_button>
               <.pp_fab color="secondary"><.pp_icon name="hero-sparkles" /></.pp_fab>
             </.demo_group>
@@ -112,7 +112,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <.pp_grid_item span={12} md={6}>
             <.pp_card padding={:lg} class="h-full">
-              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-tertiary/10 text-pp-tertiary">
+              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-accent/10 text-pp-accent">
                 <.pp_icon name="hero-shield-check" />
               </.pp_box>
               <:title>The paperize escape hatch</:title>

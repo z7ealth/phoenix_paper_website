@@ -21,7 +21,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           description="Five classic Material variants, each available in four colors. Ripples on click or tap by default (see the Helpers page). Passing href, navigate or patch switches it to link mode, rendering an anchor instead of a button element, keeping every variant/color/ripple: for a button that navigates, without nesting a button inside a link."
           props={[
             {"variant", "raised | flat | outlined | text | icon (default: raised)"},
-            {"color", "primary | secondary | tertiary | error (default: primary)"},
+            {"color", "primary | secondary | accent | error (default: primary)"},
+            {"size", "small | medium | large (default: medium)"},
             {"elevation", "override the resting elevation, 0-24 (default: nil, variant decides)"},
             {"shape", ":none | :xs | :sm | :md | :lg | :xl | :full (default: :full, a pill)"},
             {"ripple", "boolean, the ripple effect on click/tap (default: true)"},
@@ -30,21 +31,28 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             {"loading", "boolean, spinner replaces start_icon, disables the button (default: false)"},
             {"href / navigate / patch",
              "any set renders an anchor (Phoenix.Component.link/1) instead of a button, same styling. method/download/target/rel pass through"},
-            {":start_icon / :end_icon", "slots: an icon before/after the label"},
             {"type", "button | submit | reset (default: button, ignored in link mode)"},
             {"paperize", "boolean (default: true)"},
-            {"class", "merged on top via Tails"}
+            {"class",
+             "plain string concatenation on top of the built-in classes; prefix an override with ! (Tailwind's important modifier) to reliably beat a built-in utility for the same property"}
           ]}
+          slots={[{":start_icon / :end_icon", "an icon before/after the label"}]}
           code={button_code()}
         >
           <.demo_group :for={variant <- ~w(raised flat outlined text icon)} label={variant}>
             <.pp_button
-              :for={color <- ~w(primary secondary tertiary error)}
+              :for={color <- ~w(primary secondary accent error)}
               variant={variant}
               color={color}
             >
               <.pp_icon :if={variant == "icon"} name="hero-star" />
               <span :if={variant != "icon"}>{color}</span>
+            </.pp_button>
+          </.demo_group>
+
+          <.demo_group label="Sizes">
+            <.pp_button :for={size <- ~w(small medium large)} size={size}>
+              {size}
             </.pp_button>
           </.demo_group>
 
@@ -90,7 +98,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             {"disable_elevation",
              "boolean, zero out every child button's own elevation shadow (default: false)"},
             {"paperize", "boolean (default: true)"},
-            {"class", "merged on top via Tails"}
+            {"class", "plain string concatenation on top of the built-in classes (see Button above)"}
           ]}
           code={button_group_code()}
         >
@@ -122,7 +130,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           title="Floating Action Button"
           description="A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner."
           props={[
-            {"color", "primary | secondary | tertiary | error (default: secondary)"},
+            {"color", "primary | secondary | accent | error (default: secondary)"},
             {"size", "sm | md | lg (default: md)"},
             {"extended", "boolean, labeled pill instead of a fixed circle (default: false)"},
             {"ripple", "boolean (default: true)"},
@@ -136,7 +144,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           </.demo_group>
 
           <.demo_group label="Colors and extended">
-            <.pp_fab :for={color <- ~w(primary secondary tertiary error)} color={color}>
+            <.pp_fab :for={color <- ~w(primary secondary accent error)} color={color}>
               <.pp_icon name="hero-star" />
             </.pp_fab>
             <.pp_fab extended color="primary">
@@ -152,15 +160,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             {"id / label",
              "id wires the toggle checkbox; label is the trigger's accessible name (both required)"},
             {"direction", "up (default) | down | left | right"},
-            {"color", "primary | secondary | tertiary | error (default: secondary), the trigger"},
+            {"color", "primary | secondary | accent | error (default: secondary), the trigger"},
             {"size", "sm | md | lg (default: md), the trigger"},
-            {"default_open", "boolean (default: false), uncontrolled, no server wiring"},
-            {":icon / :open_icon",
-             "closed icon (default hero-plus, rotates 45deg when open) / a distinct icon to cross-fade to instead"},
-            {":action",
-             "slot, body is the icon. Attrs: label (pill text), href / navigate / patch (link mode), on_click (a JS or event name)"},
             {"ripple", "boolean (default: true), off whenever paperize is false"},
             {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":icon", "closed icon (default hero-plus, rotates 45deg when open)"},
+            {":open_icon", "a distinct icon to cross-fade to instead of rotating :icon"},
+            {":action",
+             "body is the icon. Attrs: label (pill text), href / navigate / patch (link mode), on_click (a JS or event name)"}
           ]}
           code={speed_dial_code()}
         >
@@ -190,7 +199,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           description="A button with a boolean pressed state, filled when pressed. Combine several inside a Button Group for a segmented toggle."
           props={[
             {"pressed", "boolean (default: false)"},
-            {"color", "primary | secondary | tertiary | error (default: primary)"},
+            {"color", "primary | secondary | accent | error (default: primary)"},
             {"shape", "corner radius token (default: :md)"},
             {"ripple", "boolean (default: true)"},
             {"disabled", "boolean (default: false)"}
@@ -205,7 +214,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
           <.demo_group label="Colors, pressed">
             <.pp_toggle_button
-              :for={color <- ~w(primary secondary tertiary error)}
+              :for={color <- ~w(primary secondary accent error)}
               pressed
               color={color}
             >
@@ -231,6 +240,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
     <.pp_button color="primary">Save</.pp_button>
     <.pp_button variant="outlined" color="secondary">Outlined</.pp_button>
     <.pp_button variant="text">Text</.pp_button>
+    <.pp_button size="small" variant="outlined">Small</.pp_button>
     <.pp_button ripple={false}>No ripple</.pp_button>
     <.pp_button paperize={false} class="border-4 border-dashed border-fuchsia-500 px-3 py-1 font-mono text-fuchsia-700">
       paperize: false
@@ -280,7 +290,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
   defp fab_code do
     """
     <.pp_fab :for={size <- ~w(sm md lg)} size={size}><.pp_icon name="hero-star" /></.pp_fab>
-    <.pp_fab :for={color <- ~w(primary secondary tertiary error)} color={color}>
+    <.pp_fab :for={color <- ~w(primary secondary accent error)} color={color}>
       <.pp_icon name="hero-star" />
     </.pp_fab>
     <.pp_fab extended color="primary">
@@ -317,7 +327,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
       Bold
     </.pp_toggle_button>
 
-    <.pp_toggle_button :for={color <- ~w(primary secondary tertiary error)} pressed color={color}>
+    <.pp_toggle_button :for={color <- ~w(primary secondary accent error)} pressed color={color}>
       {color}
     </.pp_toggle_button>\
     """

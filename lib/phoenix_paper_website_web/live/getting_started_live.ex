@@ -82,15 +82,6 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
           </p>
         </.section>
 
-        <.section
-          title="What's on the roadmap"
-          description="This showcase covers nearly every component PhoenixPaper ships today. One classic Material building block isn't implemented yet:"
-        >
-          <.pp_stack direction="row" spacing={:sm} wrap>
-            <.pp_chip :for={item <- ["Menu"]} variant="outlined">{item}</.pp_chip>
-          </.pp_stack>
-        </.section>
-
         <.pp_box class="flex justify-end">
           <.link_button href={~p"/components"}>Browse the components</.link_button>
         </.pp_box>
@@ -103,7 +94,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     """
     defp deps do
       [
-        {:phoenix_paper, "~> 0.2.1"}
+        {:phoenix_paper, "~> 0.2.2"}
       ]
     end\
     """

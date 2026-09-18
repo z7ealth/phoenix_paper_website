@@ -7,8 +7,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   already use for small vanilla interactions).
 
   Lets a visitor restyle the site live: color mode (light/dark/system), the
-  `Primary`/`Secondary`/`Tertiary` brand colors (`--color-pp-primary`,
-  `--color-pp-secondary`, `--color-pp-tertiary`, and their `on-*` pairs), the
+  `Primary`/`Secondary`/`Accent` brand colors (`--color-pp-primary`,
+  `--color-pp-secondary`, `--color-pp-accent`, and their `on-*` pairs), the
   `--color-pp-surface`/`--color-pp-on-surface`/`--color-pp-surface-variant`/
   `--color-pp-outline` neutral tones, and the page's font stack -- the same
   idea as Nuxt UI's own theme picker. Every option is a plain `data-pp-*`
@@ -18,16 +18,27 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   override `--color-pp-*` tokens from the consuming app instead of forking
   the dependency.
 
-  Primary/Secondary/Tertiary all pick from the same 12-hue swatch table
+  Primary/Secondary/Accent all pick from the same 12-hue swatch table
   (`@hues`) -- one shared list, rendered three times by `@color_roles`
   (each role just pairs it with its own `data-pp-*` attribute and its own
   *current* default hue, so picking that hue is a no-op -- it's already
   what "no attribute" renders as). The site's shipped defaults are Violet
-  primary / Indigo secondary / Teal tertiary / Zinc neutral / dark mode --
+  primary / Indigo secondary / Teal accent / Zinc neutral / dark mode --
   each is the base, unconditional value in `app.css`'s "Theme picker"
   section (not gated behind any `data-pp-*` attribute), with the
   previously-shipped alternative (Indigo primary / Pink secondary / plain
   Neutral) demoted to a regular, explicitly-attributed option instead.
+
+  The third role's own attribute stayed `data-pp-tertiary` (and its swatch
+  group `"tertiary"`) even after `phoenix_paper` 0.2.2 renamed its
+  `tertiary` color slot to `accent`: `data-pp-accent` was already taken
+  here for the *Primary* role (a pre-existing, unrelated naming choice made
+  before that library rename), so reusing "accent" for this role's own
+  attribute would collide with it. Only the legend label changed, to keep
+  what a visitor sees in step with the library's own naming; the CSS this
+  attribute sets now writes `--color-pp-accent`/`--color-pp-on-accent`
+  (see `app.css`'s "Theme picker" section), matching what the components
+  actually read.
 
   ## Why plain `<html>` attributes, not LiveView assigns
 
@@ -54,7 +65,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
 
   Choices aren't written to `localStorage` or anywhere else -- a hard reload
   (or a fresh visit) always lands back on the site defaults (dark mode,
-  Violet primary, Indigo secondary, Teal tertiary, Zinc neutral, Sans font).
+  Violet primary, Indigo secondary, Teal accent, Zinc neutral, Sans font).
   Within a session, though, the attribute set on `<html>` survives live
   navigation between pages just fine (it's outside any LiveView's own DOM,
   see above), so a choice sticks around as you browse until you reload.
@@ -89,7 +100,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   @color_roles [
     {"data-pp-accent", "accent", "Primary", "violet"},
     {"data-pp-secondary", "secondary", "Secondary", "indigo"},
-    {"data-pp-tertiary", "tertiary", "Tertiary", "teal"}
+    {"data-pp-tertiary", "tertiary", "Accent", "teal"}
   ]
 
   # Swatch dot hex is each tone's `outline` value, not its near-white
