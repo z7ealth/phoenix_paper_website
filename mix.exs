@@ -42,7 +42,8 @@ defmodule PhoenixPaperWebsite.MixProject do
     [
       {:phoenix, "~> 1.8.12"},
       {:phoenix_html, "~> 4.1"},
-      {:phoenix_paper, "~> 0.2.2"},
+      {:phoenix_paper, "~> 0.2.4"},
+      # {:phoenix_paper, path: "../phoenix_paper"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2.0"},
       {:lazy_html, ">= 0.1.0", only: :test},
@@ -80,7 +81,7 @@ defmodule PhoenixPaperWebsite.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "assets.setup", "assets.build"],
+      setup: ["deps.get", "assets.setup", "cmd --cd assets npm install", "assets.build"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": [
         "compile",

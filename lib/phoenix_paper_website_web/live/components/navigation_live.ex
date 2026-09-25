@@ -9,11 +9,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:navigation}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Navigation</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Navigation">
           PhoenixPaper.AppBar, Drawer, Menu, Tabs, Breadcrumbs, and the List family.
-        </p>
+        </.page_header>
 
         <.section
           title="App Bar"
@@ -34,7 +32,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           ]}
           code={app_bar_code()}
         >
-          <.demo_group label="Colors" class="flex-col items-stretch">
+          <.demo_group label="Colors" direction="column">
             <.pp_app_bar
               :for={color <- ~w(primary secondary accent surface transparent)}
               color={color}
@@ -43,44 +41,38 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_app_bar>
           </.demo_group>
 
-          <.demo_group label="Dense variant" class="flex-col items-stretch">
+          <.demo_group label="Dense variant" direction="column">
             <.pp_app_bar variant="dense">Dense toolbar row</.pp_app_bar>
           </.demo_group>
 
-          <.demo_group label="max_width (content capped + centred)" class="flex-col items-stretch">
+          <.demo_group label="max_width (content capped + centred)" direction="column">
             <.pp_app_bar max_width="sm" color="surface" class="border border-pp-outline/30">
               max_width="sm"
               <:actions>
-                <.pp_button variant="icon"><.pp_icon name="hero-bell" /></.pp_button>
+                <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
               </:actions>
             </.pp_app_bar>
           </.demo_group>
 
-          <.demo_group label="With leading/actions (correct contrast)" class="flex-col items-stretch">
+          <.demo_group label="With leading/actions (color=&quot;inherit&quot;)" direction="column">
             <.pp_app_bar>
               <:leading>
-                <.pp_drawer_toggle
-                  for="site-drawer"
-                  class="text-pp-on-primary hover:bg-pp-on-primary/10"
-                />
+                <.pp_drawer_toggle for="site-drawer" />
                 <span>My App</span>
               </:leading>
               <:actions>
-                <.pp_button
-                  variant="icon"
-                  class="text-pp-on-primary hover:bg-pp-on-primary/10 focus-visible:outline-pp-on-primary"
-                >
+                <.pp_button variant="icon" color="inherit" aria-label="Notifications">
                   <.pp_icon name="hero-bell" />
                 </.pp_button>
               </:actions>
             </.pp_app_bar>
           </.demo_group>
-          <p class="text-sm text-pp-on-surface/60">
-            Pitfall: a Button's text/icon color is always the brand color (text-pp-primary by
-            default) regardless of what it's sitting on: drop one onto a same-colored app bar
-            with no override and it's not just low contrast, it's the exact same color as the
-            background. The demo above overrides with text-pp-on-primary explicitly.
-          </p>
+          <.pp_typography variant="body2" color="muted">
+            A Button's default color is the brand color (primary), whatever it sits on: on a
+            primary app bar that's the exact same color as the background. Give buttons on a
+            colored bar color="inherit" so they follow the bar's own text color, as above.
+            The drawer toggle already does.
+          </.pp_typography>
         </.section>
 
         <.section
@@ -98,21 +90,20 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           slots={[{":header", "content above the drawer's own inner_block, e.g. a logo/app name"}]}
           code={drawer_code()}
         >
-          <.pp_paper
-            elevation={0}
-            class="border border-pp-outline/15 p-6 text-sm text-pp-on-surface/70"
-          >
-            The sidebar on the left of this very page is pp_drawer: every link in it is a
-            pp_list_item using navigate, highlighted active on whichever page you're on (real
-            LiveView navigation, no full page reload). Its mobile toggle is pure CSS: pp_drawer
+          <.pp_card>
+            The sidebar on the left of this very page is pp_drawer holding a dense pp_list:
+            the Overview links are pp_list_items using navigate, highlighted active on
+            whichever page you're on (real LiveView navigation, no full page reload), and each
+            component category is a pp_list_group, open on its own page, listing that page's
+            components. Its mobile toggle is pure CSS: pp_drawer
             renders a visually hidden checkbox, and pp_drawer_toggle is just a label wired to
             that checkbox's id, so it can live anywhere on the page, no JavaScript required.
             color also reaches into nested List/ListItem/ListSubheader/Divider so a colored
-            drawer stays readable, not just a style mismatch (see the App Bar pitfall above;
+            drawer stays readable, not just a style mismatch (see the App Bar note above;
             the same "same color on same color" trap applies to an active item's highlight).
             width picks a fixed panel width (sm/md/lg/xl), applied at both the mobile and
             desktop breakpoint together.
-          </.pp_paper>
+          </.pp_card>
         </.section>
 
         <.section
@@ -123,6 +114,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             {"pp_tabs orientation", "horizontal | vertical (default: horizontal)"},
             {"pp_tabs variant",
              "standard | scrollable | full_width (default: standard), horizontal only"},
+            {"pp_tabs centered",
+             "boolean (default: false): center the tabs; horizontal standard variant only"},
             {"pp_tab id / value",
              "id matches the parent Tabs; value must be unique within the group"},
             {"pp_tab default_selected", "boolean, initial selection, uncontrolled (default: false)"},
@@ -134,7 +127,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           slots={[{"pp_tab :icon", "optional leading icon"}]}
           code={tabs_code()}
         >
-          <.demo_group label="Basic" class="flex-col items-stretch">
+          <.demo_group label="Basic" direction="column">
             <.pp_tabs id="demo-tabs">
               <.pp_tab id="demo-tabs" value="one" default_selected>One</.pp_tab>
               <.pp_tab id="demo-tabs" value="two">Two</.pp_tab>
@@ -149,7 +142,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_tab_panel>
           </.demo_group>
 
-          <.demo_group label="Colors" class="flex-col items-stretch">
+          <.demo_group label="Colors" direction="column">
             <.pp_tabs id="color-tabs">
               <.pp_tab id="color-tabs" value="primary" default_selected color="primary">
                 Primary
@@ -160,7 +153,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_tabs>
           </.demo_group>
 
-          <.demo_group label="variant=&quot;full_width&quot;" class="flex-col items-stretch">
+          <.demo_group label="variant=&quot;full_width&quot;" direction="column">
             <.pp_tabs id="full-width-tabs" variant="full_width">
               <.pp_tab id="full-width-tabs" value="one" default_selected>One</.pp_tab>
               <.pp_tab id="full-width-tabs" value="two">Two</.pp_tab>
@@ -168,7 +161,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_tabs>
           </.demo_group>
 
-          <.demo_group label="Vertical, with icons" class="flex-col items-stretch">
+          <.demo_group label="Vertical, with icons" direction="column">
             <.pp_tabs id="vertical-tabs" orientation="vertical" class="max-w-xs">
               <.pp_tab
                 id="vertical-tabs"
@@ -195,6 +188,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             {"max_items", "collapse into an expandable ellipsis beyond this many items (default: 8)"},
             {"items_before_collapse / items_after_collapse",
              "collapsed slice sizes (default: 1 / 1)"},
+            {"expand_text", "aria-label for the ellipsis expand control (default: \"Show path\")"},
             {"paperize", "boolean (default: true)"}
           ]}
           slots={[
@@ -204,7 +198,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           ]}
           code={breadcrumbs_code()}
         >
-          <.demo_group label="Basic" class="flex-col items-start">
+          <.demo_group label="Basic" direction="column" class="items-start">
             <.pp_breadcrumbs>
               <:item href="#">Home</:item>
               <:item href="#">Catalog</:item>
@@ -212,7 +206,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_breadcrumbs>
           </.demo_group>
 
-          <.demo_group label="Custom separator" class="flex-col items-start">
+          <.demo_group label="Custom separator" direction="column" class="items-start">
             <.pp_breadcrumbs>
               <:separator><.pp_icon name="hero-chevron-right" class="size-4" /></:separator>
               <:item href="#">Home</:item>
@@ -223,7 +217,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
           <.demo_group
             label="max_items={3}: click the ellipsis to expand"
-            class="flex-col items-start"
+            direction="column"
+            class="items-start"
           >
             <.pp_breadcrumbs max_items={3}>
               <:item href="#">One</:item>
@@ -295,13 +290,22 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           description="A vertical stack of list items, with optional sub-headers to group them. Renders items as links, buttons, or plain rows depending on their own attrs: a linked item ripples on click by default, just like Button. Click Home or Inbox below to see it."
           props={[
             {"pp_list", "the container, role=\"list\""},
+            {"pp_list dense", "boolean (default: false): compact rows for every item inside"},
+            {"pp_list nested", "boolean (default: false): indent the whole list one step"},
+            {"pp_list inset",
+             "boolean (default: false): line up items without a leading icon with those that have one"},
             {"pp_list_item href/navigate/patch", "makes it a link; active/disabled/ripple as usual"},
+            {"pp_list_item dense", "boolean (default: false): a compact row, for one item alone"},
+            {"pp_list_group",
+             "a list item that expands to show a nested list (MUI's nested List + Collapse): id (required), default_open, dense. The sidebar on this page is built from these"},
             {"pp_list_subheader", "a small uppercase section label"}
           ]}
           slots={[
             {"pp_list_item :leading", "an icon or avatar"},
             {"pp_list_item :secondary", "a subtitle line below the primary one"},
-            {"pp_list_item :trailing", "a trailing icon, badge, or action"}
+            {"pp_list_item :trailing", "a trailing icon, badge, or action"},
+            {"pp_list_group :leading / :label", "the group row's own icon and text"},
+            {"pp_list_group :inner_block", "the nested items, indented one step"}
           ]}
           code={list_code()}
         >
@@ -340,6 +344,30 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
               </.pp_list>
             </.pp_box>
           </.demo_group>
+
+          <.demo_group label="dense + inset, with a collapsible pp_list_group">
+            <.pp_paper class="w-full max-w-xs">
+              <.pp_list id="list-group-demo" dense inset>
+                <.pp_list_item href="#">
+                  <:leading><.pp_icon name="hero-inbox" /></:leading>
+                  Inbox
+                </.pp_list_item>
+                <.pp_list_item href="#">Drafts</.pp_list_item>
+                <.pp_list_group id="list-group-demo-projects" default_open>
+                  <:leading><.pp_icon name="hero-folder" /></:leading>
+                  <:label>Projects</:label>
+                  <.pp_list_item href="#">Website</.pp_list_item>
+                  <.pp_list_item href="#">Mobile app</.pp_list_item>
+                </.pp_list_group>
+                <.pp_list_group id="list-group-demo-archive">
+                  <:leading><.pp_icon name="hero-archive-box" /></:leading>
+                  <:label>Archive</:label>
+                  <.pp_list_item href="#">2025</.pp_list_item>
+                  <.pp_list_item href="#">2024</.pp_list_item>
+                </.pp_list_group>
+              </.pp_list>
+            </.pp_paper>
+          </.demo_group>
         </.section>
       </.pp_container>
     </Layouts.app>
@@ -352,14 +380,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       <:leading><.pp_drawer_toggle for="app-drawer" /></:leading>
       My App
       <:actions>
-        <.pp_button variant="icon"><.pp_icon name="hero-bell" /></.pp_button>
+        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
       </:actions>
     </.pp_app_bar>
 
     <.pp_app_bar :for={color <- ~w(primary secondary accent surface transparent)} color={color} class="!static">
       {color}
       <:actions>
-        <.pp_button variant="icon"><.pp_icon name="hero-bell" /></.pp_button>
+        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
       </:actions>
     </.pp_app_bar>
 
@@ -373,7 +401,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           toolbar's own horizontal padding. --%>
     <.pp_app_bar position="sticky" max_width="xl">
       My App
-      <:actions><.pp_theme_toggle label={nil} /></:actions>
+      <:actions><.pp_theme_toggle /></:actions>
     </.pp_app_bar>\
     """
   end
@@ -469,6 +497,21 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       <.pp_divider />
       <.pp_list_subheader>Account</.pp_list_subheader>
       <.pp_list_item navigate={~p"/settings"}>Settings</.pp_list_item>
+    </.pp_list>
+
+    <%!-- dense rows; inset lines "Drafts" up with the items that have icons --%>
+    <.pp_list dense inset>
+      <.pp_list_item navigate={~p"/inbox"}>
+        <:leading><.pp_icon name="hero-inbox" /></:leading>
+        Inbox
+      </.pp_list_item>
+      <.pp_list_item navigate={~p"/drafts"}>Drafts</.pp_list_item>
+      <.pp_list_group id="nav-projects" default_open>
+        <:leading><.pp_icon name="hero-folder" /></:leading>
+        <:label>Projects</:label>
+        <.pp_list_item navigate={~p"/projects/website"}>Website</.pp_list_item>
+        <.pp_list_item navigate={~p"/projects/mobile"}>Mobile app</.pp_list_item>
+      </.pp_list_group>
     </.pp_list>\
     """
   end

@@ -9,13 +9,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:layout}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Layout</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Layout">
           PhoenixPaper.Box, Container, Stack, Grid / GridItem, and Divider: Tailwind-native
           layout primitives in the spirit of MUI's Layout category. Every page on this site,
           including this one, is built out of them.
-        </p>
+        </.page_header>
 
         <.section
           title="Box"
@@ -48,7 +46,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
           ]}
           code={container_code()}
         >
-          <.demo_group label="max_width comparison" class="flex-col items-stretch">
+          <.demo_group label="max_width comparison" direction="column">
             <div class="rounded-lg border border-dashed border-pp-outline/30 p-2">
               <.pp_container
                 max_width="sm"
@@ -105,7 +103,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
           ]}
           code={grid_code()}
         >
-          <.demo_group label="Even thirds" class="flex-col items-stretch">
+          <.demo_group label="Even thirds" direction="column">
             <.pp_grid spacing={:sm}>
               <.pp_grid_item :for={n <- 1..3} span={4}>
                 <.layout_swatch color="primary" class="w-full">{n}</.layout_swatch>
@@ -115,7 +113,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
 
           <.demo_group
             label="Stack on mobile, three columns on desktop (span=12 md=4)"
-            class="flex-col items-stretch"
+            direction="column"
           >
             <.pp_grid spacing={:sm}>
               <.pp_grid_item :for={n <- 1..3} span={12} md={4}>
@@ -134,7 +132,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.LayoutLive do
           ]}
           code={divider_code()}
         >
-          <.demo_group label="Variants" class="flex-col items-stretch gap-4">
+          <.demo_group label="Variants" direction="column">
             <span class="text-sm">Above</span>
             <.pp_divider />
             <span class="text-sm">Below</span>

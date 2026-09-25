@@ -15,7 +15,8 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
 
   @doc """
   The shell for every page except the home page: a persistent
-  `PhoenixPaper.Drawer` sidebar plus a sticky `PhoenixPaper.AppBar` for the
+  `PhoenixPaper.Drawer` sidebar (full height, stacked above the app bar,
+  with the logo in its header) plus a sticky `PhoenixPaper.AppBar` for the
   content column (mobile drawer toggle on the left, a GitHub link and
   `PhoenixPaperWebsiteWeb.ThemePicker` on the right). All real PhoenixPaper
   components, and this is the showcase's own live demo of them.
@@ -40,7 +41,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   attr :flash_group, :boolean,
     default: true,
     doc:
-      "render the default core_components flash_group -- the Feedback page opts out (flash_group={false}) so it can showcase PhoenixPaper.Flash's own pp_flash_group against the real @flash instead"
+      "render the flash group -- the Feedback page opts out (flash_group={false}) to render its own pp_flash_group, with auto_hide_duration, as that section's live demo"
 
   slot :inner_block, required: true
 
@@ -50,40 +51,56 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     ~H"""
     <div class="min-h-screen bg-pp-surface text-pp-on-surface">
       <div class="flex w-full">
-        <.pp_drawer
-          id="site-drawer"
-          elevation={0}
-          class="border-r border-pp-outline/10 lg:sticky lg:top-0 lg:h-screen"
-        >
+        <.pp_drawer id="site-drawer">
           <:header>
             <.brand />
           </:header>
-          <.pp_list class="px-2 py-4">
+          <.pp_list dense>
             <%= for section <- @nav_sections do %>
               <.pp_list_subheader>{section.title}</.pp_list_subheader>
               <%= for item <- section.items do %>
-                <.pp_list_item navigate={item.path} active={@current_page == item.id}>
-                  <:leading><.pp_icon name={item.icon} /></:leading>
-                  {item.label}
-                </.pp_list_item>
+                <%= cond do %>
+                  <% item[:href] -> %>
+                    <%!-- External (e.g. the Changelog on GitHub): a plain href.
+                          pp_list_item doesn't accept target/rel, so it opens in
+                          the same tab; the trailing icon marks it as external. --%>
+                    <.pp_list_item id={"nav-#{item.id}"} href={item.href}>
+                      <:leading><.pp_icon name={item.icon} /></:leading>
+                      {item.label}
+                      <:trailing><.pp_icon name="hero-arrow-top-right-on-square-mini" /></:trailing>
+                    </.pp_list_item>
+                  <% item[:children] in [nil, []] -> %>
+                    <.pp_list_item navigate={item.path} active={@current_page == item.id}>
+                      <:leading><.pp_icon name={item.icon} /></:leading>
+                      {item.label}
+                    </.pp_list_item>
+                  <% true -> %>
+                    <%!-- A component category: a collapsible group, open on its own page,
+                        with one #anchor link per section on that page (see
+                        Nav.component_items/0). Same-page clicks are plain anchor jumps;
+                        cross-page ones are LiveView navigations that scroll to the hash
+                        once the new page is mounted. --%>
+                    <.pp_list_group
+                      id={"nav-#{item.id}"}
+                      default_open={@current_page == item.id}
+                    >
+                      <:leading><.pp_icon name={item.icon} /></:leading>
+                      <:label>{item.label}</:label>
+                      <.pp_list_item :for={child <- item.children} navigate={child.path}>
+                        {child.label}
+                      </.pp_list_item>
+                    </.pp_list_group>
+                <% end %>
               <% end %>
             <% end %>
           </.pp_list>
         </.pp_drawer>
 
         <div class="min-w-0 flex-1">
-          <.pp_app_bar
-            color="surface"
-            position="sticky"
-            elevation={0}
-            class="border-b border-pp-outline/10"
-          >
+          <.pp_app_bar color="surface" position="sticky" elevation={0}>
             <:leading>
               <.pp_drawer_toggle for="site-drawer" />
             </:leading>
-            <.link navigate={~p"/"} class="lg:hidden">
-              <.logo_lockup size="md" />
-            </.link>
             <:actions>
               <.github_link />
               <.theme_picker />
@@ -140,51 +157,28 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   end
 
   @doc """
-  Shows the flash group with standard titles and content.
+  The app's flash messages: `PhoenixPaper.Flash`'s `pp_flash_group` for the
+  real `@flash`, plus its `connection_notices` (the client/server
+  connection-lost chips), with the texts run through Gettext.
 
   ## Examples
 
       <.flash_group flash={@flash} />
   """
   attr :flash, :map, required: true, doc: "the map of flash messages"
-  attr :id, :string, default: "flash-group", doc: "the optional id of flash container"
+  attr :auto_hide_duration, :integer, default: nil, doc: "see pp_flash_group"
 
   def flash_group(assigns) do
     ~H"""
-    <div id={@id} aria-live="polite">
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:error} flash={@flash} />
-
-      <.flash
-        id="client-error"
-        kind={:error}
-        title={gettext("We can't find the internet")}
-        phx-disconnected={
-          show(".phx-client-error #client-error")
-          |> JS.remove_attribute("hidden", to: ".phx-client-error #client-error")
-        }
-        phx-connected={hide("#client-error") |> JS.set_attribute({"hidden", ""})}
-        hidden
-      >
-        {gettext("Attempting to reconnect")}
-        <.pp_icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
-      </.flash>
-
-      <.flash
-        id="server-error"
-        kind={:error}
-        title={gettext("Something went wrong!")}
-        phx-disconnected={
-          show(".phx-server-error #server-error")
-          |> JS.remove_attribute("hidden", to: ".phx-server-error #server-error")
-        }
-        phx-connected={hide("#server-error") |> JS.set_attribute({"hidden", ""})}
-        hidden
-      >
-        {gettext("Attempting to reconnect")}
-        <.pp_icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
-      </.flash>
-    </div>
+    <.pp_flash_group
+      id="flash-group"
+      flash={@flash}
+      connection_notices
+      client_error_title={gettext("We can't find the internet")}
+      server_error_title={gettext("Something went wrong!")}
+      reconnecting_text={gettext("Attempting to reconnect")}
+      auto_hide_duration={@auto_hide_duration}
+    />
     """
   end
 
@@ -223,19 +217,22 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     """
   end
 
-  # A link to the phoenix_paper source repo, styled as an icon button to sit
-  # next to PhoenixPaperWebsiteWeb.ThemePicker in the app bar/floating corner.
+  # A link to the phoenix_paper source repo: a pp_button icon button in link
+  # mode, next to PhoenixPaperWebsiteWeb.ThemePicker in the app bar/floating
+  # corner.
   defp github_link(assigns) do
     ~H"""
-    <.link
+    <.pp_button
+      id="github-link"
+      variant="icon"
+      color="inherit"
       href="https://github.com/z7ealth/phoenix_paper"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="PhoenixPaper on GitHub"
-      class="relative z-40 inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-pp-on-surface/10"
     >
-      <.github_mark class="size-5" />
-    </.link>
+      <.github_mark class="size-6" />
+    </.pp_button>
     """
   end
 

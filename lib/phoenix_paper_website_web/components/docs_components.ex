@@ -6,9 +6,27 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   """
   use Phoenix.Component
 
-  import PhoenixPaper.Stack, only: [pp_stack: 1]
-  import PhoenixPaper.Chip, only: [pp_chip: 1]
-  import PhoenixPaper.Paper, only: [pp_paper: 1]
+  use PhoenixPaper.Components
+
+  attr :eyebrow, :string, required: true
+  attr :title, :string, required: true
+  slot :inner_block, required: true, doc: "the lead paragraph"
+
+  @doc """
+  The eyebrow / title / lead paragraph block every page opens with, all
+  `PhoenixPaper.Typography`.
+  """
+  def page_header(assigns) do
+    ~H"""
+    <.pp_stack spacing={:sm} class="mb-12">
+      <.pp_typography variant="overline" color="primary">{@eyebrow}</.pp_typography>
+      <.pp_typography variant="h3">{@title}</.pp_typography>
+      <.pp_typography variant="body1" color="muted" class="max-w-2xl">
+        {render_slot(@inner_block)}
+      </.pp_typography>
+    </.pp_stack>
+    """
+  end
 
   attr :eyebrow, :string, default: nil
   attr :title, :string, required: true
@@ -47,12 +65,12 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   """
   def section(assigns) do
     ~H"""
-    <section class="mb-16">
-      <p :if={@eyebrow} class="mb-1 text-xs font-medium uppercase tracking-wide text-pp-primary">
+    <section id={slug(@title)} class="mb-16 scroll-mt-20">
+      <.pp_typography :if={@eyebrow} variant="overline" color="primary">
         {@eyebrow}
-      </p>
-      <div class="mb-2 flex items-center gap-2">
-        <h2 class="text-2xl font-semibold tracking-tight">{@title}</h2>
+      </.pp_typography>
+      <.pp_stack direction="row" spacing={:sm} class="mb-2 items-center">
+        <.pp_typography variant="h4">{@title}</.pp_typography>
         <.pp_chip
           :if={@live_component}
           size="small"
@@ -61,39 +79,57 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         >
           LiveComponent
         </.pp_chip>
-      </div>
-      <p :if={@description} class="mb-6 max-w-2xl text-sm text-pp-on-surface/70">
+      </.pp_stack>
+      <.pp_typography
+        :if={@description}
+        variant="body2"
+        color="muted"
+        class="mb-6 max-w-2xl"
+      >
         {@description}
-      </p>
+      </.pp_typography>
       {render_slot(@inner_block)}
-      <.pp_paper :if={@props != []} elevation={0} class="mt-6 border border-pp-outline/15 p-6">
-        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-pp-on-surface/60">
-          Options
-        </h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[11rem_1fr]">
-          <div :for={{name, desc} <- @props} class="contents">
-            <dt class="font-mono text-xs text-pp-primary">{name}</dt>
-            <dd class="mb-2 text-xs text-pp-on-surface/70 sm:mb-0">{desc}</dd>
-          </div>
-        </dl>
-      </.pp_paper>
-      <.pp_paper :if={@slots != []} elevation={0} class="mt-4 border border-pp-outline/15 p-6">
-        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-pp-on-surface/60">
-          Slots
-        </h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[11rem_1fr]">
-          <div :for={{name, desc} <- @slots} class="contents">
-            <dt class="font-mono text-xs text-pp-secondary">{name}</dt>
-            <dd class="mb-2 text-xs text-pp-on-surface/70 sm:mb-0">{desc}</dd>
-          </div>
-        </dl>
-      </.pp_paper>
+      <.api_table :if={@props != []} id={"#{slug(@title)}-options"} label="Option" rows={@props} />
+      <.api_table :if={@slots != []} id={"#{slug(@title)}-slots"} label="Slot" rows={@slots} />
       <.demo_code :if={@code} id={slug(@title)} text={@code} />
     </section>
     """
   end
 
-  defp slug(title) do
+  attr :id, :string, required: true
+  attr :label, :string, required: true, doc: "the name column's heading"
+  attr :rows, :list, required: true, doc: "{name, description} tuples"
+
+  # A section's Options or Slots reference, as a dense PhoenixPaper.Table.
+  defp api_table(assigns) do
+    ~H"""
+    <.pp_table_container id={@id} class="mt-6">
+      <.pp_table dense>
+        <.pp_table_head>
+          <.pp_table_row>
+            <.pp_table_cell variant="head">{@label}</.pp_table_cell>
+            <.pp_table_cell variant="head">Description</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_head>
+        <.pp_table_body>
+          <.pp_table_row :for={{name, desc} <- @rows}>
+            <.pp_table_cell>
+              <.pp_typography variant="code">{name}</.pp_typography>
+            </.pp_table_cell>
+            <.pp_table_cell>{desc}</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_body>
+      </.pp_table>
+    </.pp_table_container>
+    """
+  end
+
+  @doc """
+  The DOM id a `section/1` titled `title` gets, e.g. `"App Bar"` ->
+  `"app-bar"` -- also what `PhoenixPaperWebsiteWeb.Nav` builds its
+  per-component `#anchor` links from, so the two can't disagree.
+  """
+  def slug(title) do
     title
     |> String.downcase()
     |> String.replace(~r/[^a-z0-9]+/, "-")
@@ -104,49 +140,46 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   attr :text, :string, required: true
 
   @doc """
-  A "Show code" / "Hide code" toggle revealing a `<.code>` block -- pure CSS,
-  a hidden checkbox plus a `peer-checked:` label, same mechanism as
-  `PhoenixPaper.Drawer`/`PhoenixPaper.Accordion` and the same pattern
-  `dev.exs`'s own catalog page uses for its code panels.
+  A "Show code" toggle revealing a `<.code>` block -- a
+  `PhoenixPaper.Collapse`.
   """
   def demo_code(assigns) do
     ~H"""
-    <div class="mt-4">
-      <input type="checkbox" id={"#{@id}-code-toggle"} class="peer sr-only" />
-      <label
-        for={"#{@id}-code-toggle"}
-        class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-pp-outline px-3 py-1 text-xs font-medium text-pp-on-surface transition-colors hover:bg-pp-on-surface/10 peer-checked:[&>.pp-show-code]:hidden peer-checked:[&>.pp-hide-code]:inline"
-      >
-        <span class="pp-show-code">▸ Show code</span>
-        <span class="pp-hide-code hidden">▾ Hide code</span>
-      </label>
-      <div class="hidden peer-checked:mt-3 peer-checked:block">
-        <.code text={@text} />
-      </div>
-    </div>
+    <.pp_collapse id={"#{@id}-code"} class="mt-4">
+      <:trigger>Show code</:trigger>
+      <.code text={@text} />
+    </.pp_collapse>
     """
   end
 
   attr :label, :string, required: true
+  attr :direction, :string, default: "row", values: ~w(row column)
+  attr :spacing, :atom, default: :md
   attr :class, :any, default: nil
   slot :inner_block, required: true
 
   @doc """
   A labeled sub-group inside a section, for a single component's variants.
 
-  The demo canvas itself is a `PhoenixPaper.Stack` (`direction="row"`,
-  wrapping) -- every demo box on every component page is a live `pp_stack`.
+  The demo canvas itself is a `PhoenixPaper.Stack` (wrapping) -- every demo
+  box on every component page is a live `pp_stack`. Pass `direction` and
+  `spacing` through to it rather than overriding with `flex-col` / `gap-*`
+  in `class`: Tailwind resolves conflicting utilities by stylesheet order,
+  not class order, so `flex-row` beats `flex-col` and `gap-4` beats `gap-2`.
+  Rows center their items; columns keep flexbox's default stretch, so an
+  `items-*` in `class` never conflicts with a default.
   """
   def demo_group(assigns) do
     ~H"""
     <div class="mb-8">
       <h3 class="mb-3 text-sm font-medium text-pp-on-surface/60">{@label}</h3>
       <.pp_stack
-        direction="row"
-        spacing={:md}
-        wrap
+        direction={@direction}
+        spacing={@spacing}
+        wrap={@direction == "row"}
         class={[
-          "items-center rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6",
+          "rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6",
+          @direction == "row" && "items-center",
           @class
         ]}
       >

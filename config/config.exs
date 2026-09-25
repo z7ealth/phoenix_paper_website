@@ -45,7 +45,18 @@ config :tailwind,
       --output=priv/static/assets/css/app.css
     ),
     cd: Path.expand("..", __DIR__),
-    env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
+    # app.css imports "phoenix_paper/priv/static/phoenix_paper.css" as a bare
+    # specifier, so its parent dir goes first: deps/ for the hex dep, or the
+    # sibling checkout's parent for a `path:` dep -- wherever mix.exs points,
+    # without app.css changing (and without a stale deps/phoenix_paper
+    # shadowing a path dep).
+    env: %{
+      "NODE_PATH" => [
+        Path.dirname(Mix.Project.deps_paths(depth: 1)[:phoenix_paper]),
+        Path.expand("../deps", __DIR__),
+        Mix.Project.build_path()
+      ]
+    }
   ]
 
 # Configure Elixir's Logger

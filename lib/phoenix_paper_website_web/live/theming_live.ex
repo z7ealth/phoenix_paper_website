@@ -30,13 +30,11 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:theming}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Guide</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Theming</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Guide" title="Theming">
           Every color in PhoenixPaper is one CSS custom property. You set your palette by
           overriding those properties in your own app.css: once for light, once for dark.
           No build step, no JavaScript config, no forking the dependency.
-        </p>
+        </.page_header>
 
         <.section
           title="The token model"
@@ -145,19 +143,21 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
         >
           <p class="text-sm text-pp-on-surface/70">
             That is the entire theming API. There is no config file and no JS: the components
-            resolve <code class="text-xs text-pp-primary">var(--color-pp-primary)</code>
+            resolve
+            <.pp_typography variant="code">var(--color-pp-primary)</.pp_typography>
             at paint time, so a token change takes effect on the next repaint with no rebuild.
             Do not edit
-            <code class="text-xs text-pp-primary">deps/phoenix_paper/priv/static/phoenix_paper.css</code>
+            <.pp_typography variant="code">
+              deps/phoenix_paper/priv/static/phoenix_paper.css
+            </.pp_typography>
             directly: your changes belong in your app so an upgrade never clobbers them.
           </p>
           <p class="mt-3 text-sm text-pp-on-surface/70">
-            These two blocks assume the page always has an explicit <code class="text-xs text-pp-primary">data-theme</code>: hardcode one in
-            root.html.heex (this site uses <code class="text-xs text-pp-primary">data-theme="dark"</code>),
-            or let the toggle set it. If the page can render with no
-            <code class="text-xs text-pp-primary">data-theme</code>
-            at all and you want it to follow the OS until the first click, also add the
-            <code class="text-xs text-pp-primary">@media (prefers-color-scheme: dark)</code>
+            These two blocks cover an explicit <.pp_typography variant="code">data-theme</.pp_typography>. ThemeToggle's
+            default, System, has no
+            <.pp_typography variant="code">data-theme</.pp_typography>
+            at all (this site starts that way), so to follow the OS also add the
+            <.pp_typography variant="code">@media (prefers-color-scheme: dark)</.pp_typography>
             block from the section above, with the same dark values.
           </p>
         </.section>
@@ -178,12 +178,12 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
 
         <.section
           title="Wiring the toggle"
-          description="PhoenixPaper.ThemeToggle is a light/dark switch that only ever sets data-theme on click, never on mount, so the CSS fallback above owns the first paint and there is no flash. Point target at html (the default) for the whole page, or at a scoped selector to theme a preview pane. It does not persist across a full reload on its own: use on_toggle to push the choice to the server, or add a small hook that writes localStorage."
+          description="PhoenixPaper.ThemeToggle is a System / Light / Dark control, System by default: it removes data-theme, so the prefers-color-scheme fallback above picks the colors, and it only ever changes data-theme on click. Light and Dark are saved in localStorage under phx:theme; restore it in your root layout's head before first paint (a Phoenix 1.8 layout already does) and there's no flash. Point target at html (the default) for the whole page, or at a scoped selector to theme a preview pane."
           code={toggle_code()}
         >
-          <.demo_group label="This is the same component as the switch in this page's top-right corner">
-            <.pp_theme_toggle />
-            <.pp_theme_toggle label={nil} />
+          <.demo_group label="Both variants (they share data-theme with this site's theme picker)">
+            <.pp_theme_toggle id="theming-toggle-segmented" />
+            <.pp_theme_toggle id="theming-toggle-switch" variant="switch" />
           </.demo_group>
         </.section>
 
@@ -215,18 +215,21 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
           <ul class="list-disc space-y-2 pl-5 text-sm text-pp-on-surface/70">
             <li>Overrides live in your app.css, after the phoenix_paper import, never in the dep.</li>
             <li>
-              Two blocks: <code class="text-xs text-pp-primary">:root</code>
-              (light) and a <code class="text-xs text-pp-primary">[data-theme="dark"]</code>
+              Two blocks:
+              <.pp_typography variant="code">:root</.pp_typography>
+              (light) and a
+              <.pp_typography variant="code">[data-theme="dark"]</.pp_typography>
               block. Add the
-              <code class="text-xs text-pp-primary">@media (prefers-color-scheme: dark)</code>
+              <.pp_typography variant="code">@media (prefers-color-scheme: dark)</.pp_typography>
               fallback (with the
-              <code class="text-xs text-pp-primary">:not([data-theme="light"])</code>
+              <.pp_typography variant="code">:not([data-theme="light"])</.pp_typography>
               guard) only if the page can render with no
-              <code class="text-xs text-pp-primary">data-theme</code>
+              <.pp_typography variant="code">data-theme</.pp_typography>
               and should follow the OS.
             </li>
             <li>
-              The page has a <code class="text-xs text-pp-primary">data-theme</code>
+              The page has a
+              <.pp_typography variant="code">data-theme</.pp_typography>
               on first paint: hardcode one in root.html.heex, or the two-block setup shows light
               until the toggle is clicked.
             </li>
@@ -234,8 +237,10 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
               Every background token you change gets its on- token changed and contrast-checked.
             </li>
             <li>
-              The toggle target matches where <code class="text-xs text-pp-primary">data-theme</code>
-              is read (usually <code class="text-xs text-pp-primary">html</code>
+              The toggle target matches where
+              <.pp_typography variant="code">data-theme</.pp_typography>
+              is read (usually
+              <.pp_typography variant="code">html</.pp_typography>
               in root.html.heex).
             </li>
             <li>
@@ -287,7 +292,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
     """
     @import "tailwindcss";
     @import "../../deps/phoenix_paper/priv/static/phoenix_paper.css";
-    @source "../../deps/phoenix_paper/lib";
 
     /* Every --color-pp-* token phoenix_paper defines, at its default value.
        Change the hexes you want; delete the lines you don't. */
@@ -347,13 +351,19 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
     <%!-- Anywhere: an AppBar action, a settings panel. Defaults to target="html". --%>
     <.pp_theme_toggle />
 
-    <%!-- Scoped preview + persistence --%>
-    <.pp_theme_toggle
-      label="Dark mode"
-      default_checked={@dark_mode?}
-      target="#preview"
-      on_toggle={JS.push("save_theme_preference")}
-    />\
+    <%!-- root.html.heex <head>: restore a saved Light/Dark before first paint
+          (a Phoenix 1.8 root layout already ships this) --%>
+    <script>
+      (() => {
+        const theme = localStorage.getItem("phx:theme");
+        if (theme) document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+
+    <%!-- Scoped preview, and saving the choice server-side too --%>
+    <div id="preview">
+      <.pp_theme_toggle target="#preview" on_toggle={JS.push("save_theme")} />
+    </div>\
     """
   end
 

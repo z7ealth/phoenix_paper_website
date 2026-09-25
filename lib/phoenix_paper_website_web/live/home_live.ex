@@ -86,11 +86,10 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <.pp_grid spacing={:lg} class="mb-16">
           <.pp_grid_item span={12} md={6}>
             <.pp_card padding={:lg} class="h-full">
-              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-primary/10 text-pp-primary">
-                <.pp_icon name="hero-swatch" />
-              </.pp_box>
+              <.pp_avatar color="primary" class="mb-3"><.pp_icon name="hero-swatch" /></.pp_avatar>
               <:title>Tailwind-native theming</:title>
-              Colors are Tailwind v4 theme tokens, namespaced <code class="text-xs">pp-</code>
+              Colors are Tailwind v4 theme tokens, namespaced
+              <.pp_typography variant="code">pp-</.pp_typography>
               so they never collide with daisyUI; this site ships both, side by side. Try the
               theme picker in the top right corner: color mode, primary accent, neutral tone,
               and font are all live.
@@ -99,39 +98,43 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <.pp_grid_item span={12} md={6}>
             <.pp_card padding={:lg} class="h-full">
-              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-secondary/10 text-pp-secondary">
-                <.pp_icon name="hero-bolt" />
-              </.pp_box>
+              <.pp_avatar color="secondary" class="mb-3"><.pp_icon name="hero-bolt" /></.pp_avatar>
               <:title>CSS-only interactions</:title>
               Checkboxes, radios, ratings, accordions, and the drawer's mobile toggle are all
-              pure CSS: <code class="text-xs">peer-checked:</code>
-              and <code class="text-xs">has-[:checked]:</code>
+              pure CSS:
+              <.pp_typography variant="code">peer-checked:</.pp_typography>
+              and
+              <.pp_typography variant="code">has-[:checked]:</.pp_typography>
               tricks, no client JS shipped for them at all.
             </.pp_card>
           </.pp_grid_item>
 
           <.pp_grid_item span={12} md={6}>
             <.pp_card padding={:lg} class="h-full">
-              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-accent/10 text-pp-accent">
+              <.pp_avatar color="accent" class="mb-3">
                 <.pp_icon name="hero-shield-check" />
-              </.pp_box>
+              </.pp_avatar>
               <:title>The paperize escape hatch</:title>
-              Every component accepts a <code class="text-xs">paperize</code>
+              Every component accepts a
+              <.pp_typography variant="code">paperize</.pp_typography>
               attribute. Turn it off and every built-in class disappears; only your own
-              <code class="text-xs">class</code>
+              <.pp_typography variant="code">class</.pp_typography>
               renders, no fighting the library's CSS.
             </.pp_card>
           </.pp_grid_item>
 
           <.pp_grid_item span={12} md={6}>
             <.pp_card padding={:lg} class="h-full">
-              <.pp_box class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-pp-error/10 text-pp-error">
+              <.pp_avatar color="error" class="mb-3">
                 <.pp_icon name="hero-code-bracket" />
-              </.pp_box>
+              </.pp_avatar>
               <:title>Idiomatic Phoenix forms</:title>
-              Form components accept a <code class="text-xs">field</code>
-              from <code class="text-xs">to_form/2</code>
-              the same way this app's own <code class="text-xs">core_components.ex</code>
+              Form components accept a
+              <.pp_typography variant="code">field</.pp_typography>
+              from
+              <.pp_typography variant="code">to_form/2</.pp_typography>
+              the same way this app's own
+              <.pp_typography variant="code">core_components.ex</.pp_typography>
               inputs do: no new form abstraction to learn.
             </.pp_card>
           </.pp_grid_item>

@@ -26,13 +26,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:feedback} flash_group={false}>
-      <.pp_flash_group flash={@flash} auto_hide_duration={6000} />
+      <Layouts.flash_group flash={@flash} auto_hide_duration={6000} />
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Feedback</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Feedback">
           PhoenixPaper.Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar, Flash.
-        </p>
+        </.page_header>
 
         <.section
           title="Alert"
@@ -49,7 +47,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           ]}
           code={alert_code()}
         >
-          <.demo_group label="Try it" class="flex-col items-stretch">
+          <.demo_group label="Try it" direction="column">
             <.pp_alert severity="success">Changes saved.</.pp_alert>
             <.pp_alert severity="info">A new update is available.</.pp_alert>
             <.pp_alert severity="warning" variant="outlined">Check your input.</.pp_alert>
@@ -57,7 +55,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
               <:title>Error</:title>
               Could not save your changes.
               <:action>
-                <.pp_button variant="text" class="!text-pp-on-error">Retry</.pp_button>
+                <.pp_button variant="text" color="inherit">Retry</.pp_button>
               </:action>
             </.pp_alert>
           </.demo_group>
@@ -86,6 +84,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           description="A modal, built the same way mix phx.new's generated core_components.ex builds its modal/1: always in the DOM, shown/hidden via Phoenix.LiveView.JS commands, not a server-tracked assign. PhoenixPaper.Dialog.show/1 and .hide/1 return JS commands to wire to whatever should open/close it."
           props={[
             {"id", "required: targeted by show/1 and hide/1"},
+            {"show", "boolean (default: false): open immediately when the dialog first mounts"},
             {"on_cancel", "a JS command run (in addition to hiding) on backdrop click/Escape"},
             {"paperize", "boolean (default: true)"}
           ]}
@@ -123,7 +122,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           ]}
           code={progress_code()}
         >
-          <.demo_group label="Linear" class="flex-col items-stretch">
+          <.demo_group label="Linear" direction="column">
             <div class="max-w-sm">
               <p class="mb-2 text-xs text-pp-on-surface/60">Determinate (72%)</p>
               <.pp_progress value={72} />
@@ -160,7 +159,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           ]}
           code={skeleton_code()}
         >
-          <.demo_group label="Try it" class="flex-col items-stretch">
+          <.demo_group label="Try it" direction="column">
             <div class="flex max-w-sm flex-col gap-3">
               <div class="flex items-center gap-3">
                 <.pp_skeleton variant="circular" width={40} height={40} />
@@ -196,12 +195,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           slots={[{":action", "e.g. an \"Undo\" button"}]}
           code={snackbar_code()}
         >
-          <.demo_group label="Try it" class="flex-col items-stretch">
+          <.demo_group label="Try it" direction="column">
             <div class="relative h-32 rounded-lg border border-pp-outline/20">
               <.pp_snackbar class="!absolute !inset-x-4 !bottom-4">
                 Changes saved
                 <:action>
-                  <.pp_button variant="text" class="!text-pp-surface" phx-click="dismiss">Undo</.pp_button>
+                  <.pp_button variant="text" color="inherit" phx-click="dismiss">Undo</.pp_button>
                 </:action>
               </.pp_snackbar>
               <.pp_snackbar
@@ -228,6 +227,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
             {"auto_hide_duration",
              "ms after which each chip clears itself via lv:clear-flash (opt-in)"},
             {"transition", "grow | fade | slide (default) | none"},
+            {"pp_flash kind / flash",
+             "a single flash key as one chip (what pp_flash_group renders per kind), e.g. to place one inline"},
+            {"connection_notices",
+             "boolean (default: false): also render the hidden \"We can't find the internet\" / \"Something went wrong!\" chips a generated core_components shows while the LiveView socket is disconnected, toggled client-side by phx-disconnected/phx-connected"},
+            {"client_error_title / server_error_title / reconnecting_text",
+             "the connection_notices texts, e.g. to run them through Gettext"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={flash_code()}
@@ -246,10 +251,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
             This whole page renders a pp_flash_group bound to @flash instead of the default
             flash_group. The buttons above call put_flash/3; a real chip slides in at the
             top-right, auto-hides after 6s, or dismiss it with the ✕ (LiveView's built-in
-            lv:clear-flash, no handler).
+            lv:clear-flash, no handler). It also sets connection_notices: stop the server and
+            a "We can't find the internet" chip appears until the socket reconnects.
           </p>
 
-          <.demo_group label="Appearance (inline, static)" class="flex-col items-stretch">
+          <.demo_group label="Appearance (inline, static)" direction="column">
             <p class="text-sm text-pp-on-surface/60">
               The same chips shown inline (each is a pp_snackbar positioned={false}) rather than fixed
               to the viewport corner:
@@ -273,7 +279,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     <.pp_alert severity="error" variant="filled">
       <:title>Error</:title>
       Could not save your changes.
-      <:action><.pp_button variant="text">Retry</.pp_button></:action>
+      <:action><.pp_button variant="text" color="inherit">Retry</.pp_button></:action>
     </.pp_alert>\
     """
   end
@@ -333,7 +339,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     <.pp_snackbar>
       Changes saved
       <:action>
-        <.pp_button variant="text" class="!text-pp-surface" phx-click="dismiss">Undo</.pp_button>
+        <.pp_button variant="text" color="inherit" phx-click="dismiss">Undo</.pp_button>
       </:action>
     </.pp_snackbar>
 
@@ -350,7 +356,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     ~S'''
     # Drop pp_flash_group once, where a generated <.flash_group> goes.
     # auto_hide_duration is opt-in; dismissal needs no handler (lv:clear-flash).
-    <.pp_flash_group flash={@flash} auto_hide_duration={6000} />
+    # connection_notices adds the generated flash_group's connection-lost chips.
+    <.pp_flash_group
+      flash={@flash}
+      auto_hide_duration={6000}
+      connection_notices
+      client_error_title={gettext("We can't find the internet")}
+    />
 
     # ...then anywhere, an ordinary put_flash/3 shows a chip:
     def handle_event("flash_info", _params, socket),

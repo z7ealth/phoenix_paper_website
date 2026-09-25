@@ -23,7 +23,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   (each role just pairs it with its own `data-pp-*` attribute and its own
   *current* default hue, so picking that hue is a no-op -- it's already
   what "no attribute" renders as). The site's shipped defaults are Violet
-  primary / Indigo secondary / Teal accent / Zinc neutral / dark mode --
+  primary / Indigo secondary / Teal accent / Zinc neutral / System mode --
   each is the base, unconditional value in `app.css`'s "Theme picker"
   section (not gated behind any `data-pp-*` attribute), with the
   previously-shipped alternative (Indigo primary / Pink secondary / plain
@@ -61,14 +61,17 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   default. Deriving the active swatch from an `<html>` attribute sidesteps
   that entirely -- `<html>` is never part of the diff.
 
-  ## No persistence, by design
+  ## Persistence
 
-  Choices aren't written to `localStorage` or anywhere else -- a hard reload
-  (or a fresh visit) always lands back on the site defaults (dark mode,
-  Violet primary, Indigo secondary, Teal accent, Zinc neutral, Sans font).
-  Within a session, though, the attribute set on `<html>` survives live
-  navigation between pages just fine (it's outside any LiveView's own DOM,
-  see above), so a choice sticks around as you browse until you reload.
+  Only the color mode is saved: under `localStorage` `"phx:theme"`, the
+  same key `PhoenixPaper.ThemeToggle` uses and `root.html.heex` restores
+  before first paint, so the picker and every toggle on the site stay in
+  agreement across reloads. System (the default) removes the key. The
+  colors and font aren't saved -- a hard reload lands back on the site
+  defaults (Violet primary, Indigo secondary, Teal accent, Zinc neutral,
+  Sans font). Within a session, the attributes set on `<html>` survive live
+  navigation between pages (it's outside any LiveView's own DOM, see
+  above).
   """
   use Phoenix.Component
 
@@ -122,10 +125,11 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
     {"rounded", "Rounded", ~s(ui-rounded, "SF Pro Rounded", system-ui, sans-serif)}
   ]
 
+  # Same order and default as PhoenixPaper.ThemeToggle: System first.
   @modes [
+    {"system", "System", "hero-computer-desktop-mini"},
     {"light", "Light", "hero-sun-mini"},
-    {"dark", "Dark", "hero-moon-mini"},
-    {"system", "System", "hero-computer-desktop-mini"}
+    {"dark", "Dark", "hero-moon-mini"}
   ]
 
   attr(:id, :string, default: "pp-theme-settings")
@@ -260,10 +264,18 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
     """
   end
 
-  defp mode_apply_js("system"), do: "document.documentElement.removeAttribute('data-theme');"
+  # Saved under "phx:theme", the same key PhoenixPaper.ThemeToggle uses and
+  # root.html.heex restores, so the picker and every toggle agree and the
+  # choice survives a reload. System removes it.
+  defp mode_apply_js("system"),
+    do:
+      "document.documentElement.removeAttribute('data-theme');" <>
+        "localStorage.removeItem('phx:theme');"
 
   defp mode_apply_js(value),
-    do: "document.documentElement.setAttribute('data-theme',#{inspect(value)});"
+    do:
+      "document.documentElement.setAttribute('data-theme',#{inspect(value)});" <>
+        "localStorage.setItem('phx:theme',#{inspect(value)});"
 
   defp role_apply_js(attr, value, default) when value == default,
     do: "document.documentElement.removeAttribute(#{inspect(attr)});"
@@ -283,7 +295,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
     do: "document.documentElement.setAttribute('data-pp-font',#{inspect(value)});"
 
   defp reset_js do
-    "document.documentElement.setAttribute('data-theme','dark');" <>
+    mode_apply_js("system") <>
       "document.documentElement.removeAttribute('data-pp-accent');" <>
       "document.documentElement.removeAttribute('data-pp-secondary');" <>
       "document.documentElement.removeAttribute('data-pp-tertiary');" <>

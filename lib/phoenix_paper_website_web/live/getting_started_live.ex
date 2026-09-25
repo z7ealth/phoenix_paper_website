@@ -9,14 +9,10 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:getting_started}>
       <.pp_container max_width="md">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">
-          Getting Started
-        </p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Installation</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Getting Started" title="Installation">
           PhoenixPaper ships as a plain hex package (a component library, not a full
           Phoenix app). Three steps, and every component on this site is available in yours.
-        </p>
+        </.page_header>
 
         <.section title="1. Add the dependency" description="In your app's mix.exs:">
           <.code text={deps_snippet()} />
@@ -35,9 +31,10 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
         >
           <.code text={css_snippet()} />
           <p class="mt-3 text-sm text-pp-on-surface/60">
-            The @source line matters: without it Tailwind never scans PhoenixPaper's
-            source files, and every class its components emit gets purged from the
-            build.
+            No separate @source line is needed: since 0.2.3, phoenix_paper.css declares
+            its own, so Tailwind scans PhoenixPaper's source files wherever the package
+            lives (deps/ or a local path: dependency). Upgrading from an older version?
+            Your existing @source line is now redundant but harmless.
           </p>
         </.section>
 
@@ -51,8 +48,9 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
                 <:title>paperize: true (default)</:title>
                 <p class="text-sm text-pp-on-surface/70">
                   Renders with PhoenixPaper's Material Design classes: color, elevation,
-                  shape, typography. Your own class attribute still merges on top, last
-                  conflicting utility wins.
+                  shape, typography. Your own class attribute is appended on top: it
+                  reliably adds utilities, but to replace a built-in one for the same
+                  property, prefix yours with Tailwind's ! modifier (!bg-red-500).
                 </p>
               </.pp_card>
             </.pp_grid_item>
@@ -94,7 +92,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     """
     defp deps do
       [
-        {:phoenix_paper, "~> 0.2.2"}
+        {:phoenix_paper, "~> 0.2.4"}
       ]
     end\
     """
@@ -114,8 +112,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
   defp css_snippet do
     """
     @import "tailwindcss";
-    @import "../../deps/phoenix_paper/priv/static/phoenix_paper.css";
-    @source "../../deps/phoenix_paper/lib";\
+    @import "../../deps/phoenix_paper/priv/static/phoenix_paper.css";\
     """
   end
 end

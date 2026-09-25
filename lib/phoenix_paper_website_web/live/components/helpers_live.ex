@@ -16,15 +16,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.HelpersLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:helpers}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Helpers</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Helpers">
           PhoenixPaper.Ripple, Elevation, and Shape: the plumbing every visual component in
           this library is built on. Color theming has its own <.link
             navigate={~p"/theming"}
             class="text-pp-primary hover:underline"
           >guide</.link>.
-        </p>
+        </.page_header>
 
         <.section
           title="Ripple"

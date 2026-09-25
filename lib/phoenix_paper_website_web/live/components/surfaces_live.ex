@@ -9,15 +9,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:surfaces}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Surfaces</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
-          PhoenixPaper.Paper, Typography, and Accordion.
-        </p>
+        <.page_header eyebrow="Components" title="Surfaces">
+          PhoenixPaper.Paper, Typography, Accordion, and Collapse.
+        </.page_header>
 
         <.section
           title="Paper"
-          description="The base surface (a background, an elevation shadow, and rounded corners). No padding, no slots. Card is built by composing this instead of duplicating its classes."
+          description="The base surface (a background, an elevation shadow, and rounded corners). No padding, no slots. Card is built by composing this instead of duplicating its classes. In dark mode a surface also gets lighter as its elevation goes up (MUI's elevation overlay), since a shadow barely shows on a dark page: switch this site to dark mode to compare the elevations below."
           props={[
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"shape", "corner radius token (default: :lg)"},
@@ -36,15 +34,17 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
         <.section
           title="Typography"
-          description="variant picks both the rendered tag and the text classes together: h1..h6, subtitle1/2, body1/2, caption, overline, button, code."
+          description="variant picks both the rendered tag and the text classes together: h1..h6, subtitle1/2, body1/2, caption, overline, button, code. caption and overline are block-level, so an eyebrow or caption sits on its own line without a wrapper (class=&quot;!inline&quot; keeps one inline). color sets the text color without a class override."
           props={[
             {"variant",
              "h1..h6 | subtitle1 | subtitle2 | body1 | body2 | caption | overline | button | code (default: body1)"},
+            {"color",
+             "primary | secondary | accent | error | muted (default: unset, inherits the surrounding color; caption stays muted)"},
             {"paperize", "boolean (default: true)"}
           ]}
           code={typography_code()}
         >
-          <.demo_group label="Scale" class="flex-col items-start gap-2">
+          <.demo_group label="Scale" direction="column" spacing={:sm} class="items-start">
             <.pp_typography variant="h1">h1. Heading</.pp_typography>
             <.pp_typography variant="h2">h2. Heading</.pp_typography>
             <.pp_typography variant="h3">h3. Heading</.pp_typography>
@@ -68,6 +68,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
             <.pp_typography variant="button">button. Save changes</.pp_typography>
             <.pp_typography variant="code">mix phx.new my_app</.pp_typography>
           </.demo_group>
+
+          <.demo_group label="color" direction="column" spacing={:sm} class="items-start">
+            <.pp_typography :for={color <- ~w(primary secondary accent error muted)} color={color}>
+              color="{color}"
+            </.pp_typography>
+          </.demo_group>
         </.section>
 
         <.section
@@ -83,7 +89,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
           ]}
           code={accordion_code()}
         >
-          <.demo_group label="Try it" class="flex-col items-stretch">
+          <.demo_group label="Try it" direction="column">
             <.pp_accordion id="acc1-demo">
               <.pp_accordion_summary id="acc1-demo">Accordion 1</.pp_accordion_summary>
               <.pp_accordion_details id="acc1-demo">
@@ -108,7 +114,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
           <.demo_group
             label="Exclusive group (radios, name=&quot;faq-demo&quot;)"
-            class="flex-col items-stretch"
+            direction="column"
           >
             <.pp_accordion id="faq1-demo" name="faq-demo">
               <.pp_accordion_summary id="faq1-demo">FAQ 1</.pp_accordion_summary>
@@ -128,6 +134,42 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
             exclusive group can't return to "all collapsed": a known, permanent difference from
             MUI's JS-driven version, not a bug.
           </p>
+        </.section>
+
+        <.section
+          title="Collapse"
+          description="A trigger that shows and hides a block of content (MUI's Collapse): the lighter option when Accordion's surface and summary/details split are more than you need. One component, one id, a :trigger slot. Pure CSS: the height animates open and closed, and content can't be tabbed into while closed. Every Show code toggle on this site is one."
+          props={[
+            {"id", "required: wires the trigger to the content"},
+            {"default_open", "boolean (default: false); uncontrolled after the first render"},
+            {"icon", "boolean (default: true): the chevron on the trigger, flips when open"},
+            {"trigger_class / content_class", "extra classes for the trigger label / content"},
+            {"paperize", "boolean (default: true): only the trigger's look; the show/hide stays"}
+          ]}
+          slots={[
+            {":trigger", "the clickable label that toggles the content"},
+            {":inner_block", "the content shown while open"}
+          ]}
+          code={collapse_code()}
+        >
+          <.demo_group label="Basic" direction="column">
+            <.pp_collapse id="collapse-demo-advanced">
+              <:trigger>Advanced options</:trigger>
+              <.pp_stack spacing={:md} class="py-3">
+                <.pp_input name="collapse_demo_timeout" label="Timeout (ms)" value="5000" />
+                <.pp_switch name="collapse_demo_retry" label="Retry on failure" />
+              </.pp_stack>
+            </.pp_collapse>
+          </.demo_group>
+
+          <.demo_group label="default_open, icon={false}" direction="column">
+            <.pp_collapse id="collapse-demo-open" default_open icon={false}>
+              <:trigger>Release notes (click to hide)</:trigger>
+              <.pp_typography variant="body2" color="muted">
+                Open on first render; after that it's the visitor's to toggle.
+              </.pp_typography>
+            </.pp_collapse>
+          </.demo_group>
         </.section>
       </.pp_container>
     </Layouts.app>
@@ -155,7 +197,26 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
     <.pp_typography variant="caption">caption. Last updated 2 minutes ago</.pp_typography>
     <.pp_typography variant="overline">overline. New</.pp_typography>
     <.pp_typography variant="button">button. Save changes</.pp_typography>
-    <.pp_typography variant="code">mix phx.new my_app</.pp_typography>\
+    <.pp_typography variant="code">mix phx.new my_app</.pp_typography>
+
+    <.pp_typography :for={color <- ~w(primary secondary accent error muted)} color={color}>
+      color="{color}"
+    </.pp_typography>\
+    """
+  end
+
+  defp collapse_code do
+    """
+    <.pp_collapse id="advanced">
+      <:trigger>Advanced options</:trigger>
+      <.pp_input name="timeout" label="Timeout (ms)" />
+      <.pp_switch name="retry" label="Retry on failure" />
+    </.pp_collapse>
+
+    <.pp_collapse id="notes" default_open icon={false}>
+      <:trigger>Release notes</:trigger>
+      Open on first render; after that it's the visitor's to toggle.
+    </.pp_collapse>\
     """
   end
 

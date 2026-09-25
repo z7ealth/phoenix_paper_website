@@ -9,13 +9,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:forms}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Forms</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Forms">
           PhoenixPaper.Input, Select, NumberField, Checkbox, Switch, ThemeToggle, RadioGroup,
           Slider, Rating, Autocomplete, TransferList. Every one of these also accepts a field
           from to_form/2, the same way a generated core_components.ex input does.
-        </p>
+        </.page_header>
 
         <.section
           title="Input"
@@ -212,34 +210,31 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Theme Toggle"
-          description="A light/dark mode toggle built on top of Switch's own markup (sun/moon icons live inside the sliding thumb). Wired with a small vanilla onclick that flips data-theme on the target element, computing the effective theme itself rather than trusting the checkbox, no server round-trip needed."
+          description="Sets data-theme on <html>, the attribute daisyUI and Phoenix 1.8's app.css already key off. The default is a System / Light / Dark segmented control, like the one in Phoenix 1.8's generated layout, with System selected: it removes data-theme so the page follows the OS, live. Which option is selected is pure CSS (read from data-theme), so every toggle on the page agrees and a LiveView re-render can't reset it. The choice is saved in localStorage under phx:theme, the key a Phoenix 1.8 root layout restores on load. variant=&quot;switch&quot; keeps the older two-state sun/moon switch."
           props={[
-            {"label", "text next to the switch (default: \"Dark mode\"), nil for icon-only"},
-            {"default_checked", "boolean, initial visual state, uncontrolled (default: false)"},
-            {"target", "CSS selector for the element to toggle data-theme on (default: \"html\")"},
+            {"variant",
+             "segmented | switch (default: segmented). segmented = System/Light/Dark buttons; switch = two-state light/dark"},
+            {"label",
+             "visible text next to the control (default: none for segmented, \"Dark mode\" for switch); nil hides it"},
+            {"target", "CSS selector for the element to set data-theme on (default: \"html\")"},
             {"on_toggle",
-             "extra JS commands run before the built-in flip, e.g. to persist server-side"},
+             "extra JS commands run before the built-in flip; each button sends phx-value-theme (system/light/dark), so JS.push(\"save_theme\") receives the choice"},
+            {"default_checked",
+             "switch only: initial checkbox attribute, mostly cosmetic with JS (default: false)"},
             {"ripple / paperize", "same as Switch"}
           ]}
           code={theme_toggle_code()}
         >
-          <.demo_group label="Try it (flips this whole page's theme)">
-            <div class="flex flex-col items-center gap-2">
-              <.pp_theme_toggle />
-              <span class="text-xs text-pp-on-surface/60">default label</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-              <.pp_theme_toggle label={nil} />
-              <span class="text-xs text-pp-on-surface/60">icon-only (label: nil)</span>
-            </div>
+          <.demo_group label="Try it (changes this whole page's theme)">
+            <.pp_theme_toggle id="theme-toggle-demo-segmented" />
+            <.pp_theme_toggle id="theme-toggle-demo-switch" variant="switch" />
+            <.pp_theme_toggle id="theme-toggle-demo-icon" variant="switch" label={nil} />
           </.demo_group>
-          <p class="text-sm text-pp-on-surface/60">
-            This site's own toggle in the top-right corner is this exact component. It doesn't
-            persist across a full page reload by default (that's what on_toggle is for, e.g.
-            JS.push to save the choice server-side); within a session, LiveView's own
-            navigate-based routing keeps it in place as you move between pages, and it already
-            falls back to the OS/browser's color-scheme preference with zero clicks, via CSS.
-          </p>
+          <.pp_typography variant="body2" color="muted">
+            All three change the same data-theme, so they stay in sync with each other and with
+            the theme picker in the top-right corner. Pick Light or Dark and reload: the choice
+            is restored before first paint. Pick System to follow your OS again.
+          </.pp_typography>
         </.section>
 
         <.section
@@ -486,15 +481,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
   defp theme_toggle_code do
     """
+    <%!-- System / Light / Dark, System selected by default --%>
     <.pp_theme_toggle />
 
-    <%!-- accurate initial state, a scoped target, and persisting the choice server-side --%>
-    <.pp_theme_toggle
-      label="Dark mode"
-      default_checked={@dark_mode?}
-      target="#preview"
-      on_toggle={JS.push("save_theme_preference")}
-    />\
+    <%!-- The two-state sun/moon switch, with or without its label --%>
+    <.pp_theme_toggle variant="switch" />
+    <.pp_theme_toggle variant="switch" label={nil} />
+
+    <%!-- Also save the choice server-side: receives %{"theme" => "dark"} --%>
+    <.pp_theme_toggle on_toggle={JS.push("save_theme")} />\
     """
   end
 

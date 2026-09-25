@@ -1,27 +1,52 @@
 defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
+  @formats ~w(bold italic underline)
+  @views [
+    {"columns", "hero-view-columns", "Columns"},
+    {"grid", "hero-squares-2x2", "Grid"},
+    {"group", "hero-rectangle-group", "Grouped"}
+  ]
+
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Actions")}
+    {:ok,
+     socket
+     |> assign(:page_title, "Actions")
+     |> assign(:formats, MapSet.new(["bold"]))
+     |> assign(:view, "columns")}
+  end
+
+  # Toggle Button is controlled: its pressed state lives in these assigns.
+  def handle_event("toggle_format", %{"format" => format}, socket) when format in @formats do
+    formats =
+      if MapSet.member?(socket.assigns.formats, format),
+        do: MapSet.delete(socket.assigns.formats, format),
+        else: MapSet.put(socket.assigns.formats, format)
+
+    {:noreply, assign(socket, :formats, formats)}
+  end
+
+  def handle_event("set_view", %{"view" => view}, socket) do
+    view = if view in Enum.map(@views, &elem(&1, 0)), do: view, else: socket.assigns.view
+    {:noreply, assign(socket, :view, view)}
   end
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:actions}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Actions</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Actions">
           PhoenixPaper.Button, PhoenixPaper.ButtonGroup, PhoenixPaper.Fab, PhoenixPaper.SpeedDial,
           PhoenixPaper.ToggleButton.
-        </p>
+        </.page_header>
 
         <.section
           title="Button"
           description="Five classic Material variants, each available in four colors. Ripples on click or tap by default (see the Helpers page). Passing href, navigate or patch switches it to link mode, rendering an anchor instead of a button element, keeping every variant/color/ripple: for a button that navigates, without nesting a button inside a link."
           props={[
             {"variant", "raised | flat | outlined | text | icon (default: raised)"},
-            {"color", "primary | secondary | accent | error (default: primary)"},
+            {"color",
+             "primary | secondary | accent | error | inherit (default: primary). inherit follows the surrounding text color: text/outlined/icon buttons stay visible on a colored AppBar, Drawer, Card, Alert or Snackbar; on raised/flat it's a neutral chip"},
             {"size", "small | medium | large (default: medium)"},
             {"elevation", "override the resting elevation, 0-24 (default: nil, variant decides)"},
             {"shape", ":none | :xs | :sm | :md | :lg | :xl | :full (default: :full, a pill)"},
@@ -48,6 +73,19 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
               <.pp_icon :if={variant == "icon"} name="hero-star" />
               <span :if={variant != "icon"}>{color}</span>
             </.pp_button>
+          </.demo_group>
+
+          <.demo_group label="color=&quot;inherit&quot; (on a colored surface)" direction="column">
+            <.pp_app_bar color="secondary">
+              Inbox
+              <:actions>
+                <.pp_button variant="text" color="inherit">Mark all read</.pp_button>
+                <.pp_button variant="outlined" color="inherit">Filter</.pp_button>
+                <.pp_button variant="icon" color="inherit" aria-label="More">
+                  <.pp_icon name="hero-ellipsis-vertical" />
+                </.pp_button>
+              </:actions>
+            </.pp_app_bar>
           </.demo_group>
 
           <.demo_group label="Sizes">
@@ -196,9 +234,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Toggle Button"
-          description="A button with a boolean pressed state, filled when pressed. Combine several inside a Button Group for a segmented toggle."
+          description="A button with a boolean pressed state, filled when pressed. Two modes. Controlled (the default): pressed comes from your assigns, so pair it with phx-click and flip the assign in handle_event; use it when the state is app state. Client-side: toggle makes the button flip itself on click with no server round trip (pressed is then the initial state), and toggle_group makes a set exclusive like radio buttons. Combine several inside a Button Group for a segmented toggle."
           props={[
-            {"pressed", "boolean (default: false)"},
+            {"pressed",
+             "boolean (default: false): the pressed state from your assigns, or with toggle, the initial state"},
+            {"toggle", "boolean (default: false): flip pressed client-side on click, no round trip"},
+            {"toggle_group",
+             "string (default: nil): exclusive client-side group, pressing one un-presses the rest; implies toggle. Names are page-wide"},
+            {"on_toggle",
+             "JS (toggle mode only): commands run after the flip, e.g. JS.push(\"format_changed\"); use it instead of phx-click"},
             {"color", "primary | secondary | accent | error (default: primary)"},
             {"shape", "corner radius token (default: :md)"},
             {"ripple", "boolean (default: true)"},
@@ -206,10 +250,36 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
           ]}
           code={toggle_button_code()}
         >
-          <.demo_group label="Standalone">
-            <.pp_toggle_button pressed>Bold</.pp_toggle_button>
-            <.pp_toggle_button>Italic</.pp_toggle_button>
-            <.pp_toggle_button>Underline</.pp_toggle_button>
+          <.demo_group label="Controlled, standalone (independent: any combination)">
+            <.pp_toggle_button
+              :for={format <- ~w(bold italic underline)}
+              id={"toggle-format-#{format}"}
+              pressed={format in @formats}
+              phx-click="toggle_format"
+              phx-value-format={format}
+            >
+              {String.capitalize(format)}
+            </.pp_toggle_button>
+          </.demo_group>
+
+          <.demo_group label="Client-side, standalone (toggle)">
+            <.pp_toggle_button id="client-toggle-bold" toggle pressed>Bold</.pp_toggle_button>
+            <.pp_toggle_button id="client-toggle-italic" toggle>Italic</.pp_toggle_button>
+            <.pp_toggle_button id="client-toggle-underline" toggle>Underline</.pp_toggle_button>
+          </.demo_group>
+
+          <.demo_group label="Client-side, grouped (toggle_group)">
+            <.pp_button_group>
+              <.pp_toggle_button
+                :for={{view, icon, label} <- views()}
+                id={"client-toggle-view-#{view}"}
+                toggle_group="client-view-demo"
+                pressed={view == "columns"}
+                aria-label={label}
+              >
+                <.pp_icon name={icon} />
+              </.pp_toggle_button>
+            </.pp_button_group>
           </.demo_group>
 
           <.demo_group label="Colors, pressed">
@@ -222,11 +292,18 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             </.pp_toggle_button>
           </.demo_group>
 
-          <.demo_group label="Grouped">
+          <.demo_group label="Controlled, grouped (exclusive: one at a time)">
             <.pp_button_group>
-              <.pp_toggle_button pressed><.pp_icon name="hero-view-columns" /></.pp_toggle_button>
-              <.pp_toggle_button><.pp_icon name="hero-squares-2x2" /></.pp_toggle_button>
-              <.pp_toggle_button><.pp_icon name="hero-rectangle-group" /></.pp_toggle_button>
+              <.pp_toggle_button
+                :for={{view, icon, label} <- views()}
+                id={"toggle-view-#{view}"}
+                pressed={@view == view}
+                phx-click="set_view"
+                phx-value-view={view}
+                aria-label={label}
+              >
+                <.pp_icon name={icon} />
+              </.pp_toggle_button>
             </.pp_button_group>
           </.demo_group>
         </.section>
@@ -234,6 +311,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
     </Layouts.app>
     """
   end
+
+  defp views, do: @views
 
   defp button_code do
     """
@@ -262,7 +341,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
     <%!-- href/navigate/patch render an <a> (Phoenix.Component.link/1), so a
           "button" that navigates never nests <button> inside <a> --%>
     <.pp_button href={~p"/getting-started"} variant="text">Getting started</.pp_button>
-    <.pp_button navigate={~p"/components"}>Browse components</.pp_button>\
+    <.pp_button navigate={~p"/components"}>Browse components</.pp_button>
+
+    <%!-- color="inherit" follows the surrounding text color --%>
+    <.pp_app_bar color="secondary">
+      Inbox
+      <:actions>
+        <.pp_button variant="text" color="inherit">Mark all read</.pp_button>
+        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-ellipsis-vertical" /></.pp_button>
+      </:actions>
+    </.pp_app_bar>\
     """
   end
 
@@ -323,13 +411,51 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
   defp toggle_button_code do
     """
-    <.pp_toggle_button pressed={@bold_pressed} phx-click="toggle_bold">
-      Bold
+    <%!-- Independent toggles: @formats is a MapSet in your assigns --%>
+    <.pp_toggle_button
+      :for={format <- ~w(bold italic underline)}
+      pressed={format in @formats}
+      phx-click="toggle_format"
+      phx-value-format={format}
+    >
+      {String.capitalize(format)}
     </.pp_toggle_button>
+
+    <%!-- Exclusive, in a Button Group: one @view at a time --%>
+    <.pp_button_group>
+      <.pp_toggle_button pressed={@view == "columns"} phx-click="set_view" phx-value-view="columns">
+        <.pp_icon name="hero-view-columns" />
+      </.pp_toggle_button>
+      <.pp_toggle_button pressed={@view == "grid"} phx-click="set_view" phx-value-view="grid">
+        <.pp_icon name="hero-squares-2x2" />
+      </.pp_toggle_button>
+    </.pp_button_group>
 
     <.pp_toggle_button :for={color <- ~w(primary secondary accent error)} pressed color={color}>
       {color}
-    </.pp_toggle_button>\
+    </.pp_toggle_button>
+
+    <%!-- Client-side: no assigns, no handle_event. pressed is the initial state --%>
+    <.pp_toggle_button toggle pressed>Bold</.pp_toggle_button>
+    <.pp_toggle_button toggle>Italic</.pp_toggle_button>
+
+    <%!-- Exclusive client-side group; on_toggle tells the server if you want --%>
+    <.pp_button_group>
+      <.pp_toggle_button toggle_group="view" pressed>Columns</.pp_toggle_button>
+      <.pp_toggle_button toggle_group="view" on_toggle={JS.push("view_changed")} phx-value-view="grid">
+        Grid
+      </.pp_toggle_button>
+    </.pp_button_group>
+
+    # In the LiveView (controlled examples only):
+    def handle_event("toggle_format", %{"format" => format}, socket) do
+      formats = socket.assigns.formats
+      formats = if format in formats, do: MapSet.delete(formats, format), else: MapSet.put(formats, format)
+      {:noreply, assign(socket, :formats, formats)}
+    end
+
+    def handle_event("set_view", %{"view" => view}, socket),
+      do: {:noreply, assign(socket, :view, view)}\
     """
   end
 end

@@ -31,17 +31,18 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:data_display}>
       <.pp_container max_width="lg">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-pp-primary">Components</p>
-        <h1 class="mb-4 text-3xl font-semibold tracking-tight">Data Display</h1>
-        <p class="mb-12 max-w-2xl text-pp-on-surface/70">
+        <.page_header eyebrow="Components" title="Data Display">
           PhoenixPaper.Card, Avatar, Badge, Chip, Tooltip, Icon, ImageList / ImageListItem, and
           the Table family.
-        </p>
+        </.page_header>
 
         <.section
           title="Card"
-          description="A surface container with optional title and actions slots."
+          description="A surface container with optional title and actions slots. Give it href, navigate or patch and the title and body become one link (MUI's CardActionArea), with a hover tint, focus ring and ripple; :actions stay outside the link, so buttons in them remain valid HTML."
           props={[
+            {"href / navigate / patch",
+             "makes the title and body a link: a plain href, a LiveView navigation, or a patch (default: nil)"},
+            {"ripple", "the Material ripple on click in link mode (default: true)"},
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"padding", "a Spacing token (default: :md)"},
             {"shape", "corner radius token (default: :lg)"},
@@ -56,6 +57,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
               You have no pending invoices this month.
               <:actions>
                 <.pp_button variant="text">Dismiss</.pp_button>
+              </:actions>
+            </.pp_card>
+          </.demo_group>
+
+          <.demo_group label="Link mode (navigate)" class="items-start">
+            <.pp_card id="card-link-demo" navigate="/components/layout" class="w-72">
+              <:title>Layout components</:title>
+              Box, Container, Stack, Grid, Divider. The whole card is one link.
+              <:actions>
+                <.pp_button variant="text" href="/components/surfaces">Surfaces</.pp_button>
               </:actions>
             </.pp_card>
           </.demo_group>
@@ -76,6 +87,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           description="A user's profile picture, initials, or icon, in the spirit of MUI's Avatar. No src falls back to the :inner_block slot (initials or an icon); no :inner_block either falls back further, to a generic person icon. A broken image also falls back to the same slot underneath it: a small vanilla onerror, no JS hook, no LiveView round-trip."
           props={[
             {"src / alt", "an image, with alt text (default: nil, falls back to :inner_block)"},
+            {"color",
+             "default | primary | secondary | accent | error (default: default, neutral grey): the fallback's background and foreground"},
             {"variant", "circular | rounded | square (default: circular)"},
             {"size", "small | medium | large (default: medium)"},
             {"paperize", "boolean (default: true)"}
@@ -89,6 +102,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             <.pp_avatar src={@photo_1} alt="A placeholder photo" />
             <.pp_avatar>OP</.pp_avatar>
             <.pp_avatar />
+          </.demo_group>
+
+          <.demo_group label="color">
+            <.pp_avatar :for={color <- ~w(default primary secondary accent error)} color={color}>
+              <.pp_icon name="hero-sparkles" />
+            </.pp_avatar>
           </.demo_group>
 
           <.demo_group label="variant">
@@ -180,11 +199,17 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Tooltip"
-          description="A short text label shown on hover/focus, in the spirit of MUI's Tooltip. Pure CSS (group-hover/group-focus-within): no JS, no collision detection/auto-flip."
+          description="A short text label shown on hover/focus, in the spirit of MUI's Tooltip. Pure CSS (group-hover/group-focus-within): no JS, no collision detection/auto-flip. Styled with the same attrs as Button: color, variant, size and shape; the arrow matches the bubble, outlined border included."
           props={[
             {"title", "the tooltip text: nil or \"\" disables the tooltip (default: nil)"},
             {"placement", "top | bottom | left | right (default: top)"},
-            {"arrow", "a small triangle pointing at the trigger (default: false)"}
+            {"arrow", "a small triangle pointing at the trigger (default: false)"},
+            {"color",
+             "default | primary | secondary | accent | error (default: default, the inverted Material tooltip)"},
+            {"variant", "raised | flat | outlined (default: raised)"},
+            {"size", "small | medium | large (default: medium)"},
+            {"shape", "corner radius token (default: :sm)"},
+            {"paperize", "boolean (default: true)"}
           ]}
           code={tooltip_code()}
         >
@@ -197,6 +222,35 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             </.pp_tooltip>
             <.pp_tooltip title="With an arrow" arrow>
               <.pp_button variant="outlined">Arrow</.pp_button>
+            </.pp_tooltip>
+          </.demo_group>
+
+          <.demo_group label="color (hover each)">
+            <.pp_tooltip
+              :for={color <- ~w(default primary secondary accent error)}
+              title={color}
+              color={color}
+              arrow
+            >
+              <.pp_button variant="outlined">{color}</.pp_button>
+            </.pp_tooltip>
+          </.demo_group>
+
+          <.demo_group label="variant, size and shape">
+            <.pp_tooltip
+              :for={variant <- ~w(raised flat outlined)}
+              title={variant}
+              variant={variant}
+              color="primary"
+              arrow
+            >
+              <.pp_button variant="text">{variant}</.pp_button>
+            </.pp_tooltip>
+            <.pp_tooltip :for={size <- ~w(small medium large)} title={"size: #{size}"} size={size}>
+              <.pp_button variant="text">{size}</.pp_button>
+            </.pp_tooltip>
+            <.pp_tooltip title="shape: :full" shape={:full}>
+              <.pp_button variant="text">full</.pp_button>
             </.pp_tooltip>
           </.demo_group>
         </.section>
@@ -229,7 +283,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           ]}
           code={image_list_code()}
         >
-          <.demo_group label="cols={3}" class="flex-col items-stretch">
+          <.demo_group label="cols={3}" direction="column">
             <.pp_image_list cols={3}>
               <.pp_image_list_item src={@photo_1} title="Breakfast" />
               <.pp_image_list_item src={@photo_2} title="Burger" subtitle="Restaurant" />
@@ -253,7 +307,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           ]}
           code={table_code()}
         >
-          <.demo_group label="Try it" class="flex-col items-stretch">
+          <.demo_group label="Try it" direction="column">
             <.pp_table_container>
               <.pp_table>
                 <.pp_table_head>
@@ -290,7 +344,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             </.pp_table_container>
           </.demo_group>
 
-          <.demo_group label="dense + sticky_header (scroll the box)" class="flex-col items-stretch">
+          <.demo_group label="dense + sticky_header (scroll the box)" direction="column">
             <.pp_table_container class="max-h-40 overflow-y-auto">
               <.pp_table dense sticky_header>
                 <.pp_table_head>
@@ -334,6 +388,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
     <.pp_card :for={padding <- ~w(none xs sm md lg xl 2xl)a} padding={padding}>
       padding: {padding}
+    </.pp_card>
+
+    <%!-- The title and body become one link; :actions stay outside it --%>
+    <.pp_card navigate={~p"/components/layout"}>
+      <:title>Layout components</:title>
+      Box, Container, Stack, Grid, Divider.
+      <:actions>
+        <.pp_button variant="text" href={~p"/components/surfaces"}>Surfaces</.pp_button>
+      </:actions>
     </.pp_card>\
     """
   end
@@ -348,7 +411,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
     <.pp_avatar variant="square">OP</.pp_avatar>
 
     <.pp_avatar size="small">OP</.pp_avatar>
-    <.pp_avatar size="large">OP</.pp_avatar>\
+    <.pp_avatar size="large">OP</.pp_avatar>
+
+    <.pp_avatar :for={color <- ~w(default primary secondary accent error)} color={color}>
+      <.pp_icon name="hero-sparkles" />
+    </.pp_avatar>\
     """
   end
 
@@ -410,6 +477,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
     <.pp_tooltip title="With an arrow" arrow>
       <.pp_button variant="outlined">Arrow</.pp_button>
+    </.pp_tooltip>
+
+    <%!-- Same styling attrs as pp_button --%>
+    <.pp_tooltip title="Saved" color="accent" variant="outlined" size="large" shape={:full} arrow>
+      <.pp_button variant="outlined">Styled</.pp_button>
     </.pp_tooltip>\
     """
   end

@@ -84,8 +84,6 @@ defmodule PhoenixPaperWebsiteWeb do
 
       # HTML escaping functionality
       import Phoenix.HTML
-      # Core UI components
-      import PhoenixPaperWebsiteWeb.CoreComponents
       # PhoenixPaper's Material Design components (pp_button, pp_card, pp_icon, ...)
       use PhoenixPaper.Components
       # This showcase site's own presentational helpers (not part of PhoenixPaper)

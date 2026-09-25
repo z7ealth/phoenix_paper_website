@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,6 +9,16 @@
     <link rel="icon" href={~p"/favicon.ico"} sizes="any" />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    </script>
+    <%!-- No data-theme by default: the page follows the OS (System), which is
+          PhoenixPaper.ThemeToggle's default. A Light/Dark choice made with the
+          toggle or the theme picker is saved under "phx:theme"; restore it
+          before first paint so there's no flash. --%>
+    <script>
+      (() => {
+        const theme = localStorage.getItem("phx:theme");
+        if (theme) document.documentElement.setAttribute("data-theme", theme);
+      })();
     </script>
   </head>
   <body>
