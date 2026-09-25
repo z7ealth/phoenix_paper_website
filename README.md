@@ -4,7 +4,7 @@ The showcase site for [PhoenixPaper](https://github.com/z7ealth/phoenix_paper): 
 
 ## Running locally
 
-This app depends on the published [`phoenix_paper`](https://hex.pm/packages/phoenix_paper) hex package (`{:phoenix_paper, "~> 0.2.5"}` in `mix.exs`).
+This app depends on the published [`phoenix_paper`](https://hex.pm/packages/phoenix_paper) hex package (`{:phoenix_paper, "~> 0.2.7"}` in `mix.exs`).
 
 * Run `mix setup` to install and set up dependencies (this includes `npm install` in `assets/` for highlight.js, so Node.js/npm must be installed)
 * Start the server with `mix phx.server` (or `iex -S mix phx.server` from IEx)

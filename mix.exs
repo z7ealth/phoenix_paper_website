@@ -42,7 +42,7 @@ defmodule PhoenixPaperWebsite.MixProject do
     [
       {:phoenix, "~> 1.8.12"},
       {:phoenix_html, "~> 4.1"},
-      {:phoenix_paper, "~> 0.2.5"},
+      {:phoenix_paper, "~> 0.2.7"},
       # {:phoenix_paper, path: "../phoenix_paper"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2.0"},

@@ -61,10 +61,14 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
               <%= for item <- section.items do %>
                 <%= cond do %>
                   <% item[:href] -> %>
-                    <%!-- External (e.g. the Changelog on GitHub): a plain href.
-                          pp_list_item doesn't accept target/rel, so it opens in
-                          the same tab; the trailing icon marks it as external. --%>
-                    <.pp_list_item id={"nav-#{item.id}"} href={item.href}>
+                    <%!-- External (e.g. the Changelog on GitHub): opens in a new
+                          tab; the trailing icon marks it as external. --%>
+                    <.pp_list_item
+                      id={"nav-#{item.id}"}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <:leading><.pp_icon name={item.icon} /></:leading>
                       {item.label}
                       <:trailing><.pp_icon name="hero-arrow-top-right-on-square-mini" /></:trailing>

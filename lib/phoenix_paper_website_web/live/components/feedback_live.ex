@@ -85,6 +85,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
           props={[
             {"id", "required: targeted by show/1 and hide/1"},
             {"show", "boolean (default: false): open immediately when the dialog first mounts"},
+            {"max_width",
+             "xs | sm | md (default) | lg | xl | 2xl | 3xl | 4xl | 5xl | full: the panel's maximum width"},
             {"on_cancel", "a JS command run (in addition to hiding) on backdrop click/Escape"},
             {"paperize", "boolean (default: true)"}
           ]}
@@ -300,6 +302,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
       Delete
     </.pp_button>
 
+    <%!-- max_width="lg" etc. for a wider panel (default: md) --%>
     <.pp_dialog id="confirm-delete">
       <:title>Delete this item?</:title>
       This can't be undone.

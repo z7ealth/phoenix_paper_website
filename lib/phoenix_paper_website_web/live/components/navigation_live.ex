@@ -296,6 +296,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             {"pp_list inset",
              "boolean (default: false): line up items without a leading icon with those that have one"},
             {"pp_list_item href/navigate/patch", "makes it a link; active/disabled/ripple as usual"},
+            {"pp_list_item target / rel / download / method / replace",
+             "link attrs, passed through to the link (e.g. target=\"_blank\" for an external link, like this site's Changelog entry)"},
             {"pp_list_item dense", "boolean (default: false): a compact row, for one item alone"},
             {"pp_list_group",
              "a list item that expands to show a nested list (MUI's nested List + Collapse): id (required), default_open, dense. The sidebar on this page is built from these"},

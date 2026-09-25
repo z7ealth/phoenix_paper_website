@@ -43,6 +43,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {"href / navigate / patch",
              "makes the whole card clickable: a plain href, a LiveView navigation, or a patch (default: nil)"},
             {"ripple", "the Material ripple on click in link mode (default: true)"},
+            {"target / rel",
+             "link mode: forwarded to the link, e.g. target=\"_blank\" rel=\"noopener\" (default: nil)"},
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"padding", "a Spacing token (default: :md)"},
             {"shape", "corner radius token (default: :lg)"},

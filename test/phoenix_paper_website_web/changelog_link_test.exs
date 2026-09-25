@@ -9,5 +9,6 @@ defmodule PhoenixPaperWebsiteWeb.ChangelogLinkTest do
     {:ok, view, _html} = live(conn, "/getting-started")
 
     assert has_element?(view, ~s|#nav-changelog[href="#{Nav.changelog_url()}"]|)
+    assert has_element?(view, ~s|#nav-changelog[target="_blank"][rel="noopener noreferrer"]|)
   end
 end

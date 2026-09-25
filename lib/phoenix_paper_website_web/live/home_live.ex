@@ -1,6 +1,8 @@
 defmodule PhoenixPaperWebsiteWeb.HomeLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
+  alias PhoenixPaperWebsiteWeb.PaperBird
+
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :page_title, "Material Design for Phoenix")}
   end
@@ -8,6 +10,8 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.landing flash={@flash}>
+      <%!-- Easter egg: click the hero bird five times. --%>
+      <PaperBird.game />
       <.pp_container max_width="lg" class="py-20">
         <div class="relative mb-14">
           <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -39,7 +43,9 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_stack>
             </div>
 
-            <.hero_mark class="hidden shrink-0 lg:block lg:size-56 xl:size-64" />
+            <PaperBird.hero_egg class="hidden shrink-0 lg:block">
+              <.hero_mark class="lg:size-56 xl:size-64" />
+            </PaperBird.hero_egg>
           </div>
         </div>
 
