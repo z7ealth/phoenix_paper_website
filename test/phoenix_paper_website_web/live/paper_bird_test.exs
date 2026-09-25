@@ -9,6 +9,13 @@ defmodule PhoenixPaperWebsiteWeb.PaperBirdTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert has_element?(view, "#hero-egg[phx-hook][data-open] svg.pp-hero-mark")
+    # The small bird next to the headline is the trigger phones can reach.
+    assert has_element?(view, "#hero-egg-mobile[phx-hook][data-open] svg.pp-hero-mark")
+
+    # Two hero marks on one page: each needs its own gradient id, or the
+    # desktop one would resolve url(#...) to the (hidden) mobile one's.
+    assert has_element?(view, "#hero-egg linearGradient#pp-hero-gradient")
+    assert has_element?(view, "#hero-egg-mobile linearGradient#pp-hero-mobile-gradient")
     assert has_element?(view, "#paper-bird-dialog")
 
     assert has_element?(

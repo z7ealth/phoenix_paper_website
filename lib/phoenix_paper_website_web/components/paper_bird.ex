@@ -10,8 +10,10 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
   component can draw a game. It's fully client-side: no LiveView events,
   no server state.
 
-  - `hero_egg/1` wraps the hero mark and counts clicks (reset after
-    1.5s idle); the fifth runs `PhoenixPaper.Dialog.show/1`.
+  - `hero_egg/1` wraps a trigger and counts clicks (reset after 1.5s
+    idle); the fifth runs `PhoenixPaper.Dialog.show/1`. The home page has
+    two: the big hero bird (`lg` up) and a small one next to the headline
+    (below `lg`, so phones can reach it).
   - `game/1` is the dialog. The canvas is `phx-update="ignore"` so
     LiveView never patches it, and reads the `--color-pp-*` tokens when a
     round starts, so the bird and pipes follow the theme picker and dark
@@ -28,7 +30,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
   attr :class, :any, default: nil
   slot :inner_block, required: true, doc: "the hero mark"
 
-  @doc "Wraps the hero mark; five quick clicks open the game."
+  @doc "Wraps a hero mark; five quick clicks open the game."
   def hero_egg(assigns) do
     assigns = assign(assigns, :open, Dialog.show(@dialog_id))
 
@@ -82,7 +84,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           phx-hook=".PaperBird"
           tabindex="0"
           aria-label="Paper Bird game. Press Space, Arrow Up, click or tap to flap."
-          class="block aspect-[4/3] w-full cursor-pointer rounded-lg"
+          class="block aspect-[3/4] w-full cursor-pointer touch-manipulation rounded-lg sm:aspect-[4/3]"
         ></canvas>
       </div>
       <.pp_typography variant="caption" class="mt-3">
@@ -95,11 +97,26 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
       </:actions>
     </.pp_dialog>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".PaperBird">
-      // Logical playfield (landscape); the canvas is scaled to its CSS size and the device pixel ratio.
-      const W = 640, H = 480
-      const GRAVITY = 1500, FLAP = -440, MAX_FALL = 640
-      const PIPE_W = 72, GAP = 165, SPACING = 270, SPEED = 190
-      const BIRD_X = 150, BIRD_SIZE = 64, HIT_R = 19
+      // Logical playfield: always 480 tall, as wide as the canvas's CSS aspect
+      // ratio (4:3 landscape from sm up, 3:4 portrait on phones, see the
+      // canvas classes), then scaled to its CSS size and the device pixel ratio.
+      // Keeping a phone at 360 logical px wide (instead of a shrunk 640) keeps
+      // the text readable and the pipes a fair size.
+      const H = 480
+      const GRAVITY = 1500, FLAP = -440, MAX_FALL = 640, GAP = 165
+      let W = 640, PIPE_W, SPACING, SPEED, BIRD_X, BIRD_SIZE, HIT_R
+
+      const layout = (width) => {
+        W = width
+        const compact = W < 480
+        PIPE_W = compact ? 60 : 72
+        SPACING = compact ? 220 : 270
+        SPEED = compact ? 160 : 190
+        BIRD_X = Math.round(W * 0.24)
+        BIRD_SIZE = compact ? 48 : 64
+        HIT_R = compact ? 15 : 19
+      }
+      layout(W)
       const BEST_KEY = "paper-bird:best"
 
       // The hero mark's own paths (DocsComponents.hero_mark/1, 64x64 viewBox).
@@ -162,7 +179,15 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           // clientWidth, not getBoundingClientRect(): the dialog scales in, and a
           // mid-animation (transformed) size would lock in a blurry resolution.
           const w = this.el.clientWidth, h = this.el.clientHeight
-          if (!w) return
+          if (!w || !h) return
+          const width = Math.round(H * (w / h))
+          if (width !== W) {
+            layout(width)
+            // A new playfield shape mid-round (e.g. rotating a phone) would leave
+            // pipes in odd places: start over from the ready screen.
+            if (this.state !== "playing") this.reset()
+            else this.state = "paused"
+          }
           const dpr = window.devicePixelRatio || 1
           this.el.width = Math.round(w * dpr)
           this.el.height = Math.round(h * dpr)
@@ -278,7 +303,8 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
             c.save()
             c.globalAlpha = 0.9
             c.fillStyle = k.surface
-            this.roundRect(W / 2 - 170, H / 2 - 88, 340, 136, 16)
+            const cardW = Math.min(340, W - 24)
+            this.roundRect(W / 2 - cardW / 2, H / 2 - 88, cardW, 136, 16)
             c.restore()
             c.fillStyle = k.onSurface
             c.font = `600 28px ${k.font}`

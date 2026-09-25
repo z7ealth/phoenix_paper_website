@@ -22,9 +22,19 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
             <div class="max-w-2xl">
-              <h1 class="mb-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-                Material Design, built for Phoenix.
-              </h1>
+              <div class="mb-4 flex items-center gap-3">
+                <h1 class="text-3xl font-semibold tracking-tight sm:text-5xl">
+                  Material Design, built for Phoenix.
+                </h1>
+                <%!-- Mobile trigger: a small bird next to the headline (the big one
+                      is lg-only). --%>
+                <PaperBird.hero_egg
+                  id="hero-egg-mobile"
+                  class="shrink-0 touch-manipulation select-none lg:hidden"
+                >
+                  <.hero_mark id="pp-hero-mobile" class="size-14 sm:size-20" />
+                </PaperBird.hero_egg>
+              </div>
               <p class="mb-8 max-w-2xl text-lg text-pp-on-surface/70">
                 A component library for Phoenix and Phoenix LiveView, in the spirit of
                 <span class="whitespace-nowrap text-pp-on-surface">ember-paper</span>
@@ -43,6 +53,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </.pp_stack>
             </div>
 
+            <%!-- Desktop trigger; below lg, the small bird by the headline is. --%>
             <PaperBird.hero_egg class="hidden shrink-0 lg:block">
               <.hero_mark class="lg:size-56 xl:size-64" />
             </PaperBird.hero_egg>
