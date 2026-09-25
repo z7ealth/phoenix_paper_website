@@ -19,6 +19,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
           props={[
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"shape", "corner radius token (default: :lg)"},
+            {"color",
+             "surface (default) | primary | secondary | accent | error: the background/foreground pair"},
             {"component",
              "overrides the data-pp-component marker, used by components like Card (default: \"paper\")"},
             {"paperize", "boolean (default: true)"}
@@ -28,6 +30,23 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
           <.demo_group label="Try it">
             <.pp_paper elevation={4} class="p-4">
               A raised surface: Card is built on this.
+            </.pp_paper>
+          </.demo_group>
+
+          <.demo_group label="elevation (compare in dark mode)">
+            <.pp_paper :for={elevation <- [0, 1, 4, 8, 16, 24]} elevation={elevation} class="p-4">
+              {elevation}
+            </.pp_paper>
+          </.demo_group>
+
+          <.demo_group label="color">
+            <.pp_paper
+              :for={color <- ~w(surface primary secondary accent error)}
+              color={color}
+              elevation={2}
+              class="p-4"
+            >
+              {color}
             </.pp_paper>
           </.demo_group>
         </.section>
@@ -85,6 +104,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
             {"default_expanded", "boolean, initial checked state, uncontrolled (default: false)"},
             {"disabled", "boolean (default: false)"},
             {"disable_gutters", "boolean, skip the extra margin an expanded accordion normally gets"},
+            {"variant", "raised (default) | flat | outlined"},
+            {"color",
+             "default | primary | secondary | accent | error (default: default): fills the panel for raised/flat, colors the border and summary for outlined"},
             {"elevation / shape / paperize", "same as Card; Accordion is a Paper underneath"}
           ]}
           code={accordion_code()}
@@ -127,6 +149,29 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
             <.pp_accordion id="faq3-demo" name="faq-demo">
               <.pp_accordion_summary id="faq3-demo">FAQ 3</.pp_accordion_summary>
               <.pp_accordion_details id="faq3-demo">Answer 3</.pp_accordion_details>
+            </.pp_accordion>
+          </.demo_group>
+
+          <.demo_group label="variant and color" direction="column">
+            <.pp_accordion
+              :for={
+                {variant, color} <- [
+                  {"raised", "primary"},
+                  {"flat", "accent"},
+                  {"outlined", "secondary"},
+                  {"outlined", "error"}
+                ]
+              }
+              id={"acc-style-#{variant}-#{color}"}
+              variant={variant}
+              color={color}
+            >
+              <.pp_accordion_summary id={"acc-style-#{variant}-#{color}"}>
+                variant="{variant}" color="{color}"
+              </.pp_accordion_summary>
+              <.pp_accordion_details id={"acc-style-#{variant}-#{color}"}>
+                Filled variants paint the whole panel; outlined colors the border and summary.
+              </.pp_accordion_details>
             </.pp_accordion>
           </.demo_group>
           <p class="text-sm text-pp-on-surface/60">
@@ -178,7 +223,15 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
   defp paper_code do
     """
-    <.pp_paper elevation={4} class="p-4">A raised surface: Card is built on this.</.pp_paper>\
+    <.pp_paper elevation={4} class="p-4">A raised surface: Card is built on this.</.pp_paper>
+
+    <.pp_paper :for={elevation <- [0, 1, 4, 8, 16, 24]} elevation={elevation} class="p-4">
+      {elevation}
+    </.pp_paper>
+
+    <.pp_paper :for={color <- ~w(surface primary secondary accent error)} color={color} class="p-4">
+      {color}
+    </.pp_paper>\
     """
   end
 
@@ -251,6 +304,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
     <.pp_accordion id="faq2" name="faq">
       <.pp_accordion_summary id="faq2">FAQ 2</.pp_accordion_summary>
       <.pp_accordion_details id="faq2">Answer 2</.pp_accordion_details>
+    </.pp_accordion>
+
+    <%!-- variant + color, like pp_button --%>
+    <.pp_accordion id="billing" variant="outlined" color="secondary">
+      <.pp_accordion_summary id="billing">Billing</.pp_accordion_summary>
+      <.pp_accordion_details id="billing">Next invoice on the 1st.</.pp_accordion_details>
     </.pp_accordion>\
     """
   end

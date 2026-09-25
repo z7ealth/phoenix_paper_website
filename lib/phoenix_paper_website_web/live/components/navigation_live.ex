@@ -232,28 +232,31 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="Menu"
-          description="A trigger that reveals a small anchored popover list of actions, in the spirit of MUI's Menu/MenuItem: an overflow (...) menu, a profile menu, anything where clicking a button reveals a short list of things to do next. Built with plain Phoenix.LiveView.JS commands and phx-click-away, not a hook: closes on selecting an item, clicking outside, or Escape."
+          description="A trigger that reveals a small anchored popover list of actions, in the spirit of MUI's Menu/MenuItem: an overflow (...) menu, a profile menu, anything where clicking a button reveals a short list of things to do next. Built with plain Phoenix.LiveView.JS commands and phx-click-away, not a hook: closes on selecting an item, clicking outside, or Escape. The trigger is a real pp_button (hover tint, focus ring, ripple): :trigger is only its content, styled with the trigger_* attrs. Don't put a button or link inside :trigger, it would be nested in the trigger button."
           props={[
             {"id", "required"},
             {"anchor",
              "bottom-start (default) | bottom-end | top-start | top-end, relative to the trigger"},
             {"elevation", "resting elevation, 0-24 (default: 8)"},
             {"shape", "corner radius token (default: :sm)"},
+            {"trigger_variant",
+             "icon (default) | text | outlined | raised | flat | none: the trigger pp_button's variant; none = a bare unstyled button for a fully custom trigger"},
+            {"trigger_color", "primary (default) | secondary | accent | error | inherit"},
+            {"trigger_size", "small | medium (default) | large"},
+            {"trigger_class", "extra classes for the trigger button"},
             {"paperize", "boolean (default: true)"}
           ]}
           slots={[
-            {":trigger", "required: the clickable content that opens the menu"},
+            {":trigger",
+             "required: the trigger button's content (text and/or icon), never a button or link"},
             {":inner_block", "required: the popover's content, typically a pp_list"}
           ]}
           code={menu_code()}
         >
           <.demo_group label="Try it">
-            <.pp_menu id="demo-menu">
+            <.pp_menu id="demo-menu" trigger_variant="outlined">
               <:trigger>
-                <.pp_button variant="outlined">
-                  Actions
-                  <:end_icon><.pp_icon name="hero-chevron-down" /></:end_icon>
-                </.pp_button>
+                Actions <.pp_icon name="hero-chevron-down" class="size-4" />
               </:trigger>
               <.pp_list>
                 <.pp_list_item>
@@ -273,9 +276,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_menu>
 
             <.pp_menu id="demo-menu-icon" anchor="bottom-end">
-              <:trigger>
-                <.pp_button variant="icon"><.pp_icon name="hero-ellipsis-vertical" /></.pp_button>
-              </:trigger>
+              <:trigger><.pp_icon name="hero-ellipsis-vertical" /></:trigger>
               <.pp_list>
                 <.pp_list_item href="#">Profile</.pp_list_item>
                 <.pp_list_item href="#">Settings</.pp_list_item>
@@ -477,6 +478,16 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
   defp menu_code do
     """
+    <%!-- :trigger is the trigger pp_button's content; style it with trigger_* --%>
+    <.pp_menu id="actions-menu" trigger_variant="outlined">
+      <:trigger>Actions <.pp_icon name="hero-chevron-down" class="size-4" /></:trigger>
+      <.pp_list>
+        <.pp_list_item phx-click="edit">Edit</.pp_list_item>
+        <.pp_list_item phx-click="duplicate">Duplicate</.pp_list_item>
+      </.pp_list>
+    </.pp_menu>
+
+    <%!-- Default trigger_variant="icon": an overflow menu --%>
     <.pp_menu id="profile-menu" anchor="bottom-end">
       <:trigger><.pp_icon name="hero-ellipsis-vertical" /></:trigger>
       <.pp_list>

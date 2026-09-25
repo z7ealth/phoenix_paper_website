@@ -92,7 +92,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     """
     defp deps do
       [
-        {:phoenix_paper, "~> 0.2.4"}
+        {:phoenix_paper, "~> 0.2.5"}
       ]
     end\
     """

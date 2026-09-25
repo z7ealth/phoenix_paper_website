@@ -38,10 +38,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Card"
-          description="A surface container with optional title and actions slots. Give it href, navigate or patch and the title and body become one link (MUI's CardActionArea), with a hover tint, focus ring and ripple; :actions stay outside the link, so buttons in them remain valid HTML."
+          description="A surface container with optional title and actions slots. Give it href, navigate or patch and the whole card becomes clickable (MUI's CardActionArea): the hover tint and focus ring cover the entire card, and a click anywhere except on an action button follows the link. :actions stay outside the <a> (valid HTML); the link is stretched over the card and the actions sit above it."
           props={[
             {"href / navigate / patch",
-             "makes the title and body a link: a plain href, a LiveView navigation, or a patch (default: nil)"},
+             "makes the whole card clickable: a plain href, a LiveView navigation, or a patch (default: nil)"},
             {"ripple", "the Material ripple on click in link mode (default: true)"},
             {"elevation", "resting elevation, 0-24 (default: 1)"},
             {"padding", "a Spacing token (default: :md)"},
@@ -64,7 +64,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
           <.demo_group label="Link mode (navigate)" class="items-start">
             <.pp_card id="card-link-demo" navigate="/components/layout" class="w-72">
               <:title>Layout components</:title>
-              Box, Container, Stack, Grid, Divider. The whole card is one link.
+              Box, Container, Stack, Grid, Divider. Click anywhere on the card except the button.
               <:actions>
                 <.pp_button variant="text" href="/components/surfaces">Surfaces</.pp_button>
               </:actions>
@@ -390,7 +390,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
       padding: {padding}
     </.pp_card>
 
-    <%!-- The title and body become one link; :actions stay outside it --%>
+    <%!-- The whole card is clickable; :actions stay outside the link --%>
     <.pp_card navigate={~p"/components/layout"}>
       <:title>Layout components</:title>
       Box, Container, Stack, Grid, Divider.
