@@ -107,6 +107,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
             </:leading>
             <:actions>
               <.github_link />
+              <.hex_link />
               <.theme_picker />
             </:actions>
           </.pp_app_bar>
@@ -148,6 +149,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
 
       <div class="fixed top-4 right-4 z-30 flex items-center gap-1">
         <.github_link />
+        <.hex_link />
         <.theme_picker />
       </div>
 
@@ -237,6 +239,45 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     >
       <.github_mark class="size-6" />
     </.pp_button>
+    """
+  end
+
+  # A link to the phoenix_paper package on hex.pm, next to github_link/1:
+  # the same pp_button icon button in link mode.
+  defp hex_link(assigns) do
+    ~H"""
+    <.pp_button
+      id="hex-link"
+      variant="icon"
+      color="inherit"
+      href="https://hex.pm/packages/phoenix_paper"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="PhoenixPaper on Hex"
+    >
+      <.hex_mark class="size-6" />
+    </.pp_button>
+    """
+  end
+
+  attr :class, :any, default: nil
+
+  # Hex's hexagon mark -- inlined for the same currentColor reason as
+  # github_mark/1 (heroicons has no Hex logo).
+  defp hex_mark(assigns) do
+    ~H"""
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linejoin="round"
+      role="img"
+      aria-hidden="true"
+      class={@class}
+    >
+      <path d="M12 2.5 20.25 7.25v9.5L12 21.5l-8.25-4.75v-9.5Z" />
+    </svg>
     """
   end
 
