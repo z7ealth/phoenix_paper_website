@@ -9,6 +9,10 @@ defmodule PhoenixPaperWebsiteWeb.PaperBirdTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert has_element?(view, "#hero-egg[phx-hook][data-open] svg.pp-hero-mark")
+
+    # Both triggers look clickable
+    assert has_element?(view, "#hero-egg.cursor-pointer")
+    assert has_element?(view, "#hero-egg-mobile.cursor-pointer")
     # The small bird next to the headline is the trigger phones can reach.
     assert has_element?(view, "#hero-egg-mobile[phx-hook][data-open] svg.pp-hero-mark")
 

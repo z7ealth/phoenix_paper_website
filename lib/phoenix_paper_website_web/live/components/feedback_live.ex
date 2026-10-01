@@ -356,10 +356,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
   end
 
   defp flash_code do
-    ~S'''
-    # Drop pp_flash_group once, where a generated <.flash_group> goes.
-    # auto_hide_duration is opt-in; dismissal needs no handler (lv:clear-flash).
-    # connection_notices adds the generated flash_group's connection-lost chips.
+    String.trim_trailing(~S'''
+    <%!-- Drop pp_flash_group once, where a generated <.flash_group> goes.
+          auto_hide_duration is opt-in; dismissal needs no handler (lv:clear-flash).
+          connection_notices adds the generated flash_group's connection-lost chips. --%>
     <.pp_flash_group
       flash={@flash}
       auto_hide_duration={6000}
@@ -367,12 +367,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
       client_error_title={gettext("We can't find the internet")}
     />
 
-    # ...then anywhere, an ordinary put_flash/3 shows a chip:
+    # In the LiveView: an ordinary put_flash/3 shows a chip
     def handle_event("flash_info", _params, socket),
       do: {:noreply, put_flash(socket, :info, "Workbook saved.")}
 
     def handle_event("flash_error", _params, socket),
       do: {:noreply, put_flash(socket, :error, "Could not reach the guest agent.")}
-    '''
+    ''')
   end
 end

@@ -40,6 +40,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
           title="Setting your colors"
           description="Add your overrides to app.css after the phoenix_paper import. Two blocks: light on :root, dark on the data-theme block the toggle switches. Every token phoenix_paper defines is listed below at its default value, so the whole set is in front of you: edit the hexes you want and delete the lines you don't (a line you drop keeps phoenix_paper's own value)."
           code={override_css()}
+          code_language="css"
         >
           <p class="text-sm text-pp-on-surface/70">
             That is the entire theming API. There is no config file and no JS: the components
@@ -101,7 +102,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
               </div>
 
               <div>
-                <p class="mb-2 text-xs font-medium text-pp-on-surface/60">Surface / neutral</p>
+                <p class="mb-2 text-xs font-medium text-pp-on-surface/60">Surface</p>
                 <div class="flex flex-wrap gap-2">
                   <div class="flex min-w-32 flex-col gap-0.5 rounded-lg border border-pp-outline/30 bg-pp-surface px-3 py-2 text-xs text-pp-on-surface">
                     <span class="font-semibold">pp-surface</span>
@@ -137,6 +138,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
           title="Light and dark: how the switch works"
           description="Three CSS selectors decide which values are live. Light is the unconditional default. An explicit data-theme on the html element (or any ancestor) always wins. A prefers-color-scheme media query is the fallback used only when no explicit choice has been made."
           code={mechanism_css()}
+          code_language="css"
         >
           <.demo_group label="Flip this whole page">
             <.pp_button variant="outlined" phx-click={set_mode("light")}>Light</.pp_button>

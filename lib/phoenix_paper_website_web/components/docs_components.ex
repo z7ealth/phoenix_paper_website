@@ -50,6 +50,10 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     default: nil,
     doc: "the HEEx snippet that produced the demo, rendered behind a Show code toggle"
 
+  attr :code_language, :string,
+    default: "elixir",
+    doc: "highlight.js language for code (elixir, css or javascript)"
+
   slot :inner_block, required: true
 
   @doc """
@@ -94,7 +98,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
       {render_slot(@inner_block)}
       <.api_table :if={@props != []} id={"#{slug(@title)}-options"} label="Option" rows={@props} />
       <.api_table :if={@slots != []} id={"#{slug(@title)}-slots"} label="Slot" rows={@slots} />
-      <.demo_code :if={@code} id={slug(@title)} text={@code} />
+      <.demo_code :if={@code} id={slug(@title)} text={@code} language={@code_language} />
     </section>
     """
   end
@@ -174,6 +178,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
 
   attr :id, :string, required: true
   attr :text, :string, required: true
+  attr :language, :string, default: "elixir"
 
   @doc """
   A "Show code" toggle revealing a `<.code>` block -- a
@@ -183,7 +188,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     ~H"""
     <.pp_collapse id={"#{@id}-code"} class="mt-4">
       <:trigger>Show code</:trigger>
-      <.code text={@text} />
+      <.code text={@text} language={@language} />
     </.pp_collapse>
     """
   end
@@ -226,6 +231,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   end
 
   attr :text, :string, required: true
+  attr :language, :string, default: "elixir", values: ~w(elixir css javascript)
 
   @doc """
   A syntax-highlighted code block for shell/CSS/config/usage snippets.
@@ -263,7 +269,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         phx-update="ignore"
         phx-hook=".Highlight"
         class="overflow-hidden rounded-lg border border-pp-outline/15 text-sm leading-relaxed"
-      ><code class="language-elixir">{@text}</code></pre>
+      ><code class={"language-#{@language}"}>{@text}</code></pre>
       <.pp_button
         id={"#{@id}-copy"}
         variant="icon"

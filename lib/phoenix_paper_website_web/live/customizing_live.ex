@@ -167,6 +167,7 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           title="Site-wide tweaks in app.css"
           description="To change a component everywhere at once, target its marker instead of editing every call site: each component renders a data-pp-component attribute (button, card, list-item, ...). Put the rule after the phoenix_paper import in app.css. For colors, change the --color-pp-* tokens instead (see Theming): they reach every component, in light and dark."
           code={site_wide_code()}
+          code_language="css"
         >
         </.section>
 

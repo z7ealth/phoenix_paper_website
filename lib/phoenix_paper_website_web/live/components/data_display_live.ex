@@ -271,7 +271,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Icon"
-          description="Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency. Size it with size, not class: a plain class=&quot;size-4&quot; loses to the built-in size-5."
+          description={
+            ~S|Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency. Size it with size, not class: a plain class="size-4" loses to the built-in size-5.|
+          }
           props={[
             {"name", "a heroicon class, e.g. \"hero-check\" (required)"},
             {"size",
@@ -477,6 +479,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
       on_rows_per_page_change="set_rows"
     />
 
+    # In the LiveView (event examples):
     def handle_event("set_page", %{"page" => page}, socket),
       do: {:noreply, assign(socket, :page, String.to_integer(page))}
 

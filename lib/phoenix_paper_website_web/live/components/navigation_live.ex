@@ -59,7 +59,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_app_bar>
           </.demo_group>
 
-          <.demo_group label="With leading/actions (color=&quot;inherit&quot;)" direction="column">
+          <.demo_group label={~S|With leading/actions (color="inherit")|} direction="column">
             <.pp_app_bar>
               <:leading>
                 <.pp_drawer_toggle for="site-drawer" />
@@ -158,7 +158,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             </.pp_tabs>
           </.demo_group>
 
-          <.demo_group label="variant=&quot;full_width&quot;" direction="column">
+          <.demo_group label={~S|variant="full_width"|} direction="column">
             <.pp_tabs id="full-width-tabs" variant="full_width">
               <.pp_tab id="full-width-tabs" value="one" default_selected>One</.pp_tab>
               <.pp_tab id="full-width-tabs" value="two">Two</.pp_tab>
@@ -432,13 +432,14 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
   defp pagination_code do
     """
     <%!-- Links (the common case): patch to ?page=N, read it in handle_params --%>
-    <.pp_pagination page={@page} count={@total_pages} path={&~p"/posts?page=\#{&1}"} />
+    <.pp_pagination
+      page={@page}
+      count={@total_pages}
+      path={fn page -> ~p"/posts?page=\#{page}" end}
+    />
 
     <%!-- Events instead of links --%>
     <.pp_pagination page={@page} count={20} on_change="set_page" />
-
-    def handle_event("set_page", %{"page" => page}, socket),
-      do: {:noreply, assign(socket, :page, String.to_integer(page))}
 
     <.pp_pagination
       page={@page}
@@ -448,7 +449,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       shape="rounded"
       show_first_button
       show_last_button
-    />\
+    />
+
+    # In the LiveView (event examples):
+    def handle_event("set_page", %{"page" => page}, socket),
+      do: {:noreply, assign(socket, :page, String.to_integer(page))}\
     """
   end
 

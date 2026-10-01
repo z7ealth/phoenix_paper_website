@@ -10,8 +10,10 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   `Primary`/`Secondary`/`Accent` brand colors (`--color-pp-primary`,
   `--color-pp-secondary`, `--color-pp-accent`, and their `on-*` pairs), the
   `--color-pp-surface`/`--color-pp-on-surface`/`--color-pp-surface-variant`/
-  `--color-pp-outline` neutral tones, and the page's font stack -- the same
-  idea as Nuxt UI's own theme picker. Every option is a plain `data-pp-*`
+  `--color-pp-outline` surface tones (shown as "Surface"; the attribute is
+  still `data-pp-neutral`) -- the same idea as Nuxt UI's own theme picker.
+  Only PhoenixPaper's own tokens: there's no font option, since the library
+  has no font token (components inherit the page's font). Every option is a plain `data-pp-*`
   attribute set on `<html>`; the actual color values live in this app's own
   `assets/css/app.css` (see its "Theme picker" section), not in
   `phoenix_paper`'s CSS -- following that file's own documented guidance to
@@ -67,9 +69,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   same key `PhoenixPaper.ThemeToggle` uses and `root.html.heex` restores
   before first paint, so the picker and every toggle on the site stay in
   agreement across reloads. System (the default) removes the key. The
-  colors and font aren't saved -- a hard reload lands back on the site
-  defaults (Violet primary, Indigo secondary, Teal accent, Zinc neutral,
-  Sans font). Within a session, the attributes set on `<html>` survive live
+  colors aren't saved -- a hard reload lands back on the site defaults
+  (Violet primary, Indigo secondary, Teal accent, Zinc surface). Within a session, the attributes set on `<html>` survive live
   navigation between pages (it's outside any LiveView's own DOM, see
   above).
   """
@@ -77,6 +78,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
 
   import PhoenixPaper.Icon, only: [pp_icon: 1]
   import PhoenixPaper.Stack, only: [pp_stack: 1]
+  import PhoenixPaper.Button, only: [pp_button: 1]
 
   # Shared by all three color-role rows -- values are the swatch dot's
   # (light-mode) hex, kept in sync with each hue's actual override in
@@ -118,13 +120,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
     {"stone", "Stone", "#78716c"}
   ]
 
-  @fonts [
-    {"sans", "Sans", "ui-sans-serif, system-ui, sans-serif"},
-    {"serif", "Serif", ~s(ui-serif, Georgia, Cambria, "Times New Roman", Times, serif)},
-    {"mono", "Mono", "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"},
-    {"rounded", "Rounded", ~s(ui-rounded, "SF Pro Rounded", system-ui, sans-serif)}
-  ]
-
   # Same order and default as PhoenixPaper.ThemeToggle: System first.
   @modes [
     {"system", "System", "hero-computer-desktop-mini"},
@@ -143,7 +138,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
       |> assign(:hues, @hues)
       |> assign(:color_roles, @color_roles)
       |> assign(:neutrals, @neutrals)
-      |> assign(:fonts, @fonts)
 
     ~H"""
     <div
@@ -213,37 +207,28 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
           </fieldset>
 
           <fieldset class="m-0 border-0 p-0">
-            <legend class="mb-2.5 text-xs font-medium text-pp-on-surface/60">Neutral</legend>
+            <legend class="mb-2.5 text-xs font-medium text-pp-on-surface/60">Surface</legend>
             <div class="flex flex-wrap gap-2.5">
               <button
                 :for={{value, label, hex} <- @neutrals}
                 type="button"
                 data-pp-swatch={"neutral:#{value}"}
                 title={label}
-                aria-label={"#{label} neutral tone"}
+                aria-label={"#{label} surface tone"}
                 onclick={neutral_apply_js(value)}
                 style={"background-color: #{hex}"}
                 class="size-6 shrink-0 cursor-pointer rounded-full ring-1 ring-inset ring-black/10 transition-transform hover:scale-110"
               />
             </div>
           </fieldset>
-
-          <fieldset class="m-0 border-0 p-0">
-            <legend class="mb-2.5 text-xs font-medium text-pp-on-surface/60">Font</legend>
-            <div class="flex flex-wrap gap-2">
-              <button
-                :for={{value, label, stack} <- @fonts}
-                type="button"
-                data-pp-swatch={"font:#{value}"}
-                onclick={font_apply_js(value)}
-                style={"font-family: #{stack}"}
-                class="rounded-lg border border-pp-outline/30 px-2.5 py-1.5 text-xs transition-colors hover:bg-pp-on-surface/5"
-              >
-                {label}
-              </button>
-            </div>
-          </fieldset>
         </.pp_stack>
+
+        <div class="border-t border-pp-outline/10 p-3">
+          <.pp_button id="create-theme-link" variant="text" navigate="/theme-creator" class="w-full">
+            <:start_icon><.pp_icon name="hero-sparkles" size="sm" /></:start_icon>
+            Create your theme
+          </.pp_button>
+        </div>
       </div>
 
       <script :type={Phoenix.LiveView.ColocatedHook} name=".ThemeSettings">
@@ -289,17 +274,11 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
   defp neutral_apply_js(value),
     do: "document.documentElement.setAttribute('data-pp-neutral',#{inspect(value)});"
 
-  defp font_apply_js("sans"), do: "document.documentElement.removeAttribute('data-pp-font');"
-
-  defp font_apply_js(value),
-    do: "document.documentElement.setAttribute('data-pp-font',#{inspect(value)});"
-
   defp reset_js do
     mode_apply_js("system") <>
       "document.documentElement.removeAttribute('data-pp-accent');" <>
       "document.documentElement.removeAttribute('data-pp-secondary');" <>
       "document.documentElement.removeAttribute('data-pp-tertiary');" <>
-      "document.documentElement.removeAttribute('data-pp-neutral');" <>
-      "document.documentElement.removeAttribute('data-pp-font');"
+      "document.documentElement.removeAttribute('data-pp-neutral');"
   end
 end

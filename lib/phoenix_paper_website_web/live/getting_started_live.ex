@@ -31,7 +31,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
           title="3. Wire up the Tailwind theme"
           description="After the tailwindcss import, in assets/css/app.css:"
         >
-          <.code text={css_snippet()} />
+          <.code text={css_snippet()} language="css" />
           <p class="mt-3 text-sm text-pp-on-surface/60">
             No separate @source line is needed: since 0.2.3, phoenix_paper.css declares
             its own, so Tailwind scans PhoenixPaper's source files wherever the package
@@ -80,7 +80,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
           title="5. A loading bar in your primary color (Optional)"
           description="Phoenix shows a thin topbar at the top of the page during LiveView navigation, in a hardcoded blue. Point it at --color-pp-primary instead: read the token at every navigation, so the bar also follows your light/dark palettes and any theme switching, with no rebuild."
         >
-          <.code text={topbar_snippet()} />
+          <.code text={topbar_snippet()} language="javascript" />
           <.pp_typography variant="body2" color="muted" class="mt-3">
             This site does exactly this: switch the primary color in the theme picker, then
             navigate to another page to watch the bar change.

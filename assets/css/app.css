@@ -331,30 +331,10 @@
   [data-pp-neutral="stone"]:not([data-theme="light"]) { --color-pp-surface: #1c1917; --color-pp-on-surface: #e7e5e4; --color-pp-surface-variant: #292524; --color-pp-outline: #a8a29e; }
 }
 
-/* Font -- a --pp-font-family custom property so `body` (and anything under
-   it) can pick it up as one declaration; unrelated to Tailwind's own
-   --font-sans theme variable, kept separate so this never touches
-   Tailwind's own utility generation. */
-:root {
-  --pp-font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-[data-pp-font="serif"] {
-  --pp-font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-}
-[data-pp-font="mono"] {
-  --pp-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-}
-[data-pp-font="rounded"] {
-  --pp-font-family: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
-}
-body {
-  font-family: var(--pp-font-family);
-}
-
 /* Theme picker swatches (data-pp-swatch="group:value", see ThemePicker) --
    the active one in each group gets a ring, derived purely from <html>'s
    current data-theme/data-pp-accent/data-pp-secondary/data-pp-tertiary/
-   data-pp-neutral/data-pp-font attribute so there's no JS state to keep in
+   data-pp-neutral attribute so there's no JS state to keep in
    sync (see ThemePicker's moduledoc). */
 :is(
   html:not([data-pp-accent]) [data-pp-swatch="accent:violet"],
@@ -403,10 +383,6 @@ body {
 }
 
 :is(
-  html:not([data-pp-font]) [data-pp-swatch="font:sans"],
-  html[data-pp-font="serif"] [data-pp-swatch="font:serif"],
-  html[data-pp-font="mono"] [data-pp-swatch="font:mono"],
-  html[data-pp-font="rounded"] [data-pp-swatch="font:rounded"],
   html:not([data-theme]) [data-pp-swatch="mode:system"],
   html[data-theme="light"] [data-pp-swatch="mode:light"],
   html[data-theme="dark"] [data-pp-swatch="mode:dark"]

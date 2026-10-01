@@ -108,8 +108,8 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               Colors are Tailwind v4 theme tokens, namespaced
               <.pp_typography variant="code">pp-</.pp_typography>
               so they never collide with daisyUI; this site ships both, side by side. Try the
-              theme picker in the top right corner: color mode, primary accent, neutral tone,
-              and font are all live.
+              theme picker in the top right corner: color mode, the brand colors and the
+              surface tone are all live.
             </.pp_card>
           </.pp_grid_item>
 

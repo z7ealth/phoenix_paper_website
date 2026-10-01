@@ -77,7 +77,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             </.pp_button>
           </.demo_group>
 
-          <.demo_group label="color=&quot;inherit&quot; (on a colored surface)" direction="column">
+          <.demo_group label={~S|color="inherit" (on a colored surface)|} direction="column">
             <.pp_app_bar color="secondary">
               Inbox
               <:actions>
@@ -168,7 +168,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Floating Action Button"
-          description="A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner: use position=&quot;fixed&quot; plus offsets in class."
+          description={
+            ~S|A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner: use position="fixed" plus offsets in class.|
+          }
           props={[
             {"color", "primary | secondary | accent | error (default: secondary)"},
             {"size", "sm | md | lg (default: md)"},
@@ -399,7 +401,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
   end
 
   defp speed_dial_code do
-    ~S'''
+    String.trim_trailing(~S'''
     <%!-- position="fixed" + offsets anchor it; direction fans the actions from there.
           Opens on hover, click/tap, or keyboard focus -- pure CSS, no JS.
           class goes on the root; style the trigger FAB with trigger_class. --%>
@@ -418,7 +420,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
       <:open_icon><.pp_icon name="hero-x-mark" /></:open_icon>
       <:action label="Share"><.pp_icon name="hero-share" /></:action>
     </.pp_speed_dial>
-    '''
+    ''')
   end
 
   defp toggle_button_code do

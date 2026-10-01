@@ -53,7 +53,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
 
         <.section
           title="Typography"
-          description="variant picks both the rendered tag and the text classes together: h1..h6, subtitle1/2, body1/2, caption, overline, button, code. caption and overline are block-level, so an eyebrow or caption sits on its own line without a wrapper (class=&quot;!inline&quot; keeps one inline). color sets the text color without a class override."
+          description={
+            ~S|variant picks both the rendered tag and the text classes together: h1..h6, subtitle1/2, body1/2, caption, overline, button, code. caption and overline are block-level, so an eyebrow or caption sits on its own line without a wrapper (class="!inline" keeps one inline). color sets the text color without a class override.|
+          }
           props={[
             {"variant",
              "h1..h6 | subtitle1 | subtitle2 | body1 | body2 | caption | overline | button | code (default: body1)"},
@@ -135,7 +137,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
           </.demo_group>
 
           <.demo_group
-            label="Exclusive group (radios, name=&quot;faq-demo&quot;)"
+            label={~S|Exclusive group (radios, name="faq-demo")|}
             direction="column"
           >
             <.pp_accordion id="faq1-demo" name="faq-demo">

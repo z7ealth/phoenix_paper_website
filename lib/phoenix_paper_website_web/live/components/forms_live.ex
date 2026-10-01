@@ -346,7 +346,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Theme Toggle"
-          description="Sets data-theme on <html>, the attribute daisyUI and Phoenix 1.8's app.css already key off. The default is a System / Light / Dark segmented control, like the one in Phoenix 1.8's generated layout, with System selected: it removes data-theme so the page follows the OS, live. Which option is selected is pure CSS (read from data-theme), so every toggle on the page agrees and a LiveView re-render can't reset it. The choice is saved in localStorage under phx:theme, the key a Phoenix 1.8 root layout restores on load. variant=&quot;switch&quot; keeps the older two-state sun/moon switch."
+          description={
+            ~S|Sets data-theme on <html>, the attribute daisyUI and Phoenix 1.8's app.css already key off. The default is a System / Light / Dark segmented control, like the one in Phoenix 1.8's generated layout, with System selected: it removes data-theme so the page follows the OS, live. Which option is selected is pure CSS (read from data-theme), so every toggle on the page agrees and a LiveView re-render can't reset it. The choice is saved in localStorage under phx:theme, the key a Phoenix 1.8 root layout restores on load. variant="switch" keeps the older two-state sun/moon switch.|
+          }
           props={[
             {"variant",
              "segmented | switch (default: segmented). segmented = System/Light/Dark buttons; switch = two-state light/dark"},

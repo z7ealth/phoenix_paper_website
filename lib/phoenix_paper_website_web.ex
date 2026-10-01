@@ -88,7 +88,7 @@ defmodule PhoenixPaperWebsiteWeb do
       use PhoenixPaper.Components
       # This showcase site's own presentational helpers (not part of PhoenixPaper)
       import PhoenixPaperWebsiteWeb.DocsComponents
-      # This showcase site's own live theme picker (color mode/accent/neutral/font)
+      # This showcase site's own live theme picker (color mode, brand colors, surface tone)
       import PhoenixPaperWebsiteWeb.ThemePicker
 
       # Common modules used in templates

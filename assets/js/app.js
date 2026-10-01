@@ -31,7 +31,11 @@ import topbar from "../vendor/topbar"
 // same core + language grammar instead of re-registering it per snippet.
 import hljs from "highlight.js/lib/core"
 import elixir from "highlight.js/lib/languages/elixir"
+import css from "highlight.js/lib/languages/css"
+import javascript from "highlight.js/lib/languages/javascript"
 hljs.registerLanguage("elixir", elixir)
+hljs.registerLanguage("css", css)
+hljs.registerLanguage("javascript", javascript)
 window.hljs = hljs
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

@@ -35,7 +35,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
     assigns = assign(assigns, :open, Dialog.show(@dialog_id))
 
     ~H"""
-    <div id={@id} phx-hook=".HeroEgg" data-open={@open} class={@class}>
+    <div id={@id} phx-hook=".HeroEgg" data-open={@open} class={["cursor-pointer", @class]}>
       {render_slot(@inner_block)}
     </div>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".HeroEgg">

@@ -56,6 +56,12 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
             icon: "hero-paint-brush"
           },
           %{
+            id: :theme_creator,
+            label: "Theme Creator",
+            path: "/theme-creator",
+            icon: "hero-sparkles"
+          },
+          %{
             id: :changelog,
             label: "Changelog",
             href: @changelog_url,
