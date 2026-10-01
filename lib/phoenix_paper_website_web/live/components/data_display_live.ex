@@ -14,7 +14,19 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
      socket
      |> assign(page_title: "Data Display")
      |> assign(chips: ["React", "Elixir", "Phoenix", "LiveView"])
-     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)}
+     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)
+     |> assign(tp_page: 1, tp_rows: 5)}
+  end
+
+  @tp_users for n <- 1..47, do: %{id: n, name: "User #{n}", email: "user#{n}@example.com"}
+
+  # Table Pagination demo: events carry phx-value-page / phx-value-rows_per_page.
+  def handle_event("tp_page", %{"page" => page}, socket) do
+    {:noreply, assign(socket, :tp_page, String.to_integer(page))}
+  end
+
+  def handle_event("tp_rows", %{"rows_per_page" => rows}, socket) do
+    {:noreply, assign(socket, tp_rows: String.to_integer(rows), tp_page: 1)}
   end
 
   # Table's sortable header cells are presentation-only -- this demo doesn't
@@ -32,7 +44,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
     <Layouts.app flash={@flash} current_page={:data_display}>
       <.pp_container max_width="lg">
         <.page_header eyebrow="Components" title="Data Display">
-          PhoenixPaper.Card, Avatar, Badge, Chip, Tooltip, Icon, ImageList / ImageListItem, and
+          PhoenixPaper.Card, Avatar, Badge, Chip, Tooltip, Icon, ImageList / ImageListItem, TablePagination, and
           the Table family.
         </.page_header>
 
@@ -259,9 +271,11 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
         <.section
           title="Icon"
-          description="Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency."
+          description="Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency. Size it with size, not class: a plain class=&quot;size-4&quot; loses to the built-in size-5."
           props={[
             {"name", "a heroicon class, e.g. \"hero-check\" (required)"},
+            {"size",
+             "xs | sm | md | lg | xl (default: md): size-3 / size-4 / size-5 / size-6 / size-8; none emits no size class, for your own"},
             {"paperize", "boolean, only affects default sizing, not which icon shows (default: true)"}
           ]}
           code={icon_code()}
@@ -271,6 +285,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             <.pp_icon name="hero-star" class="text-pp-secondary" />
             <.pp_icon name="hero-home" class="text-pp-primary" />
             <.pp_icon name="hero-bell" class="text-pp-error" />
+          </.demo_group>
+
+          <.demo_group label="size">
+            <.pp_icon :for={size <- ~w(xs sm md lg xl)} name="hero-star" size={size} />
           </.demo_group>
         </.section>
 
@@ -373,8 +391,97 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             </.pp_table_container>
           </.demo_group>
         </.section>
+
+        <.section
+          title="Table Pagination"
+          description="A table footer (MUI's TablePagination): a rows-per-page picker, the 1–10 of 47 range, and previous/next buttons. Each control is a link built by path (a function (page, rows_per_page) -> URL) or fires an event. Pages are 1-based; labels are customizable for translation. For page numbers, see Pagination."
+          props={[
+            {"id", "required: used for the rows-per-page menu"},
+            {"page / count / rows_per_page",
+             "required: the current page (1-based), total rows, rows per page"},
+            {"rows_per_page_options",
+             "the page sizes offered (default: [10, 25, 50, 100]); [] hides the picker"},
+            {"path", "function (page, rows_per_page) -> URL: every control becomes a link"},
+            {"link", "patch (default) | navigate | href"},
+            {"on_page_change / on_rows_per_page_change / target",
+             "events instead of links: phx-value-page / phx-value-rows_per_page"},
+            {"label_rows_per_page", "default: \"Rows per page:\""},
+            {"label_displayed_rows", "function %{from, to, count} -> text (default: \"1–10 of 47\")"},
+            {"show_first_button / show_last_button", "booleans (default: false)"},
+            {"paperize", "boolean (default: true)"}
+          ]}
+          code={table_pagination_code()}
+        >
+          <.demo_group label="Try it: 47 rows" direction="column">
+            <.pp_table_container id="tp-table">
+              <.pp_table dense>
+                <.pp_table_head>
+                  <.pp_table_row>
+                    <.pp_table_cell variant="head">#</.pp_table_cell>
+                    <.pp_table_cell variant="head">Name</.pp_table_cell>
+                    <.pp_table_cell variant="head">Email</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_head>
+                <.pp_table_body>
+                  <.pp_table_row :for={user <- tp_rows(@tp_page, @tp_rows)}>
+                    <.pp_table_cell>{user.id}</.pp_table_cell>
+                    <.pp_table_cell>{user.name}</.pp_table_cell>
+                    <.pp_table_cell>{user.email}</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_body>
+              </.pp_table>
+              <.pp_table_pagination
+                id="tp-demo"
+                page={@tp_page}
+                count={47}
+                rows_per_page={@tp_rows}
+                rows_per_page_options={[5, 10, 25]}
+                on_page_change="tp_page"
+                on_rows_per_page_change="tp_rows"
+                show_first_button
+                show_last_button
+              />
+            </.pp_table_container>
+          </.demo_group>
+        </.section>
       </.pp_container>
     </Layouts.app>
+    """
+  end
+
+  defp tp_rows(page, per_page), do: Enum.slice(@tp_users, (page - 1) * per_page, per_page)
+
+  defp table_pagination_code do
+    """
+    <.pp_table_container>
+      <.pp_table>...</.pp_table>
+
+      <%!-- Links: patch to ?page=..&per=.., read them in handle_params --%>
+      <.pp_table_pagination
+        id="users-pagination"
+        page={@page}
+        count={@total_rows}
+        rows_per_page={@per_page}
+        path={fn page, per -> ~p"/users?page=\#{page}&per=\#{per}" end}
+      />
+    </.pp_table_container>
+
+    <%!-- Or events --%>
+    <.pp_table_pagination
+      id="users-pagination"
+      page={@page}
+      count={47}
+      rows_per_page={@per_page}
+      rows_per_page_options={[5, 10, 25]}
+      on_page_change="set_page"
+      on_rows_per_page_change="set_rows"
+    />
+
+    def handle_event("set_page", %{"page" => page}, socket),
+      do: {:noreply, assign(socket, :page, String.to_integer(page))}
+
+    def handle_event("set_rows", %{"rows_per_page" => rows}, socket),
+      do: {:noreply, assign(socket, per_page: String.to_integer(rows), page: 1)}\
     """
   end
 
@@ -490,7 +597,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
   defp icon_code do
     """
-    <.pp_icon name="hero-check" class="text-pp-accent" />\
+    <.pp_icon name="hero-check" class="text-pp-accent" />
+
+    <%!-- size, not class="size-4" (which loses to the built-in size-5) --%>
+    <.pp_icon :for={size <- ~w(xs sm md lg xl)} name="hero-star" size={size} />\
     """
   end
 

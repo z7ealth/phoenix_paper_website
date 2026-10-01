@@ -9,6 +9,30 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
 
   @changelog_url "https://github.com/z7ealth/phoenix_paper/blob/master/CHANGELOG.md"
 
+  # Components added or changed in the latest release, keyed by section
+  # title: drives the "New"/"Updated" chips on section headers
+  # (DocsComponents.section/1) and in the sidebar. Reset it each release.
+  @release "0.3.0"
+  @statuses %{
+    "Form" => :new,
+    "Power Select" => :new,
+    "Pagination" => :new,
+    "Table Pagination" => :new,
+    "Input" => :updated,
+    "Autocomplete" => :updated,
+    "Button" => :updated,
+    "Floating Action Button" => :updated,
+    "Speed Dial" => :updated,
+    "Drawer" => :updated,
+    "Icon" => :updated
+  }
+
+  @doc "The release the New/Updated chips refer to."
+  def release, do: @release
+
+  @doc "`:new`, `:updated` or `nil` for a component section titled `title`."
+  def status(title), do: Map.get(@statuses, title)
+
   @doc "phoenix_paper's CHANGELOG.md on GitHub, linked from the sidebar."
   def changelog_url, do: @changelog_url
 
@@ -25,6 +49,12 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
             icon: "hero-book-open"
           },
           %{id: :theming, label: "Theming", path: "/theming", icon: "hero-swatch"},
+          %{
+            id: :customizing,
+            label: "Customizing",
+            path: "/customizing",
+            icon: "hero-paint-brush"
+          },
           %{
             id: :changelog,
             label: "Changelog",
@@ -49,7 +79,11 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
     Enum.map(categories(), fn category ->
       children =
         Enum.map(category.components, fn title ->
-          %{label: title, path: "#{category.path}##{DocsComponents.slug(title)}"}
+          %{
+            label: title,
+            path: "#{category.path}##{DocsComponents.slug(title)}",
+            status: status(title)
+          }
         end)
 
       category
@@ -79,8 +113,10 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         path: "/components/forms",
         icon: "hero-pencil-square",
         components: [
+          "Form",
           "Input",
           "Select",
+          "Power Select",
           "Number Field",
           "Checkbox",
           "Switch",
@@ -97,7 +133,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Navigation",
         path: "/components/navigation",
         icon: "hero-bars-3-bottom-left",
-        components: ["App Bar", "Drawer", "Tabs", "Breadcrumbs", "Menu", "List"]
+        components: ["App Bar", "Drawer", "Tabs", "Breadcrumbs", "Pagination", "Menu", "List"]
       },
       %{
         id: :layout,
@@ -111,7 +147,17 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Data Display",
         path: "/components/data-display",
         icon: "hero-rectangle-group",
-        components: ["Card", "Avatar", "Badge", "Chip", "Tooltip", "Icon", "Image List", "Table"]
+        components: [
+          "Card",
+          "Avatar",
+          "Badge",
+          "Chip",
+          "Tooltip",
+          "Icon",
+          "Image List",
+          "Table",
+          "Table Pagination"
+        ]
       },
       %{
         id: :surfaces,

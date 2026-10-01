@@ -2,7 +2,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Navigation")}
+    {:ok, assign(socket, page_title: "Navigation", page: 5)}
+  end
+
+  # Pagination demo: on_change sends the page as phx-value-page.
+  def handle_event("set_page", %{"page" => page}, socket) do
+    {:noreply, assign(socket, :page, String.to_integer(page))}
   end
 
   def render(assigns) do
@@ -10,7 +15,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     <Layouts.app flash={@flash} current_page={:navigation}>
       <.pp_container max_width="lg">
         <.page_header eyebrow="Components" title="Navigation">
-          PhoenixPaper.AppBar, Drawer, Menu, Tabs, Breadcrumbs, and the List family.
+          PhoenixPaper.AppBar, Drawer, Menu, Tabs, Breadcrumbs, Pagination, and the List family.
         </.page_header>
 
         <.section
@@ -77,7 +82,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="Drawer"
-          description="A vertical navigation panel, persistent on large screens and toggled by a mobile drawer below that breakpoint: pure CSS via a hidden checkbox, no JS."
+          description="A vertical navigation panel, persistent on large screens and toggled by a mobile drawer below that breakpoint: pure CSS via a hidden checkbox, no JS. Its body is inset (px-3 py-2), so lists don't sit flush and the active item's pill clears the edges; the :header row grows with taller content (min-h-16). pp_drawer_toggle's hover tint follows the text color, so it reads on a colored app bar too."
           props={[
             {"id", "required: builds the mobile toggle checkbox's id as \"\#{id}-toggle\""},
             {"color",
@@ -208,7 +213,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
           <.demo_group label="Custom separator" direction="column" class="items-start">
             <.pp_breadcrumbs>
-              <:separator><.pp_icon name="hero-chevron-right" class="size-4" /></:separator>
+              <:separator><.pp_icon name="hero-chevron-right" size="sm" /></:separator>
               <:item href="#">Home</:item>
               <:item href="#">Settings</:item>
               <:item>Profile</:item>
@@ -227,6 +232,53 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
               <:item href="#">Four</:item>
               <:item>Five</:item>
             </.pp_breadcrumbs>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Pagination"
+          description="Page numbers between previous/next buttons, collapsed with an ellipsis when there are many (MUI's Pagination). Stateless and 1-based: it renders the page you pass, and each button is either a link (path, a function page -> URL, patch by default) or fires on_change with phx-value-page. For a table footer's rows-per-page and range, see Table Pagination."
+          props={[
+            {"page / count", "required: the current page (1-based) and the number of pages"},
+            {"path", "function page -> URL: every page becomes a link"},
+            {"link", "patch (default) | navigate | href: the kind of link path makes"},
+            {"on_change / target",
+             "an event (or JS) for phx-click instead of links; the page arrives as phx-value-page"},
+            {"sibling_count / boundary_count",
+             "pages shown around the current one / at each end before an ellipsis (default: 1 / 1)"},
+            {"variant", "text | outlined (default: text)"},
+            {"shape", "circular | rounded (default: circular)"},
+            {"size", "small | medium | large (default: medium)"},
+            {"color",
+             "standard | primary | secondary | accent (default: primary), the selected page"},
+            {"show_first_button / show_last_button / hide_prev_button / hide_next_button",
+             "booleans (default: false)"},
+            {"disabled / paperize", "booleans"}
+          ]}
+          code={pagination_code()}
+        >
+          <.demo_group label="Try it (on_change)">
+            <.pp_pagination id="pagination-demo" page={@page} count={20} on_change="set_page" />
+          </.demo_group>
+
+          <.demo_group label="outlined, rounded, first/last buttons" direction="column">
+            <.pp_pagination
+              page={@page}
+              count={20}
+              on_change="set_page"
+              variant="outlined"
+              shape="rounded"
+              show_first_button
+              show_last_button
+            />
+            <.pp_pagination
+              page={@page}
+              count={20}
+              on_change="set_page"
+              size="small"
+              color="secondary"
+              sibling_count={0}
+            />
           </.demo_group>
         </.section>
 
@@ -256,7 +308,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
           <.demo_group label="Try it">
             <.pp_menu id="demo-menu" trigger_variant="outlined">
               <:trigger>
-                Actions <.pp_icon name="hero-chevron-down" class="size-4" />
+                Actions <.pp_icon name="hero-chevron-down" size="sm" />
               </:trigger>
               <.pp_list>
                 <.pp_list_item>
@@ -377,6 +429,29 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     """
   end
 
+  defp pagination_code do
+    """
+    <%!-- Links (the common case): patch to ?page=N, read it in handle_params --%>
+    <.pp_pagination page={@page} count={@total_pages} path={&~p"/posts?page=\#{&1}"} />
+
+    <%!-- Events instead of links --%>
+    <.pp_pagination page={@page} count={20} on_change="set_page" />
+
+    def handle_event("set_page", %{"page" => page}, socket),
+      do: {:noreply, assign(socket, :page, String.to_integer(page))}
+
+    <.pp_pagination
+      page={@page}
+      count={20}
+      on_change="set_page"
+      variant="outlined"
+      shape="rounded"
+      show_first_button
+      show_last_button
+    />\
+    """
+  end
+
   defp app_bar_code do
     """
     <.pp_app_bar position="sticky">
@@ -461,7 +536,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
     <%!-- custom separator slot, e.g. an icon --%>
     <.pp_breadcrumbs>
-      <:separator><.pp_icon name="hero-chevron-right" class="size-4" /></:separator>
+      <:separator><.pp_icon name="hero-chevron-right" size="sm" /></:separator>
       <:item navigate="/">Home</:item>
       <:item navigate="/settings">Settings</:item>
       <:item>Profile</:item>
@@ -482,7 +557,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     """
     <%!-- :trigger is the trigger pp_button's content; style it with trigger_* --%>
     <.pp_menu id="actions-menu" trigger_variant="outlined">
-      <:trigger>Actions <.pp_icon name="hero-chevron-down" class="size-4" /></:trigger>
+      <:trigger>Actions <.pp_icon name="hero-chevron-down" size="sm" /></:trigger>
       <.pp_list>
         <.pp_list_item phx-click="edit">Edit</.pp_list_item>
         <.pp_list_item phx-click="duplicate">Duplicate</.pp_list_item>

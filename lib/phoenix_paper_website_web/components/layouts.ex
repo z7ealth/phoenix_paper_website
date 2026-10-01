@@ -92,6 +92,9 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
                       <:label>{item.label}</:label>
                       <.pp_list_item :for={child <- item.children} navigate={child.path}>
                         {child.label}
+                        <:trailing :if={child.status}>
+                          <.status_chip status={child.status} />
+                        </:trailing>
                       </.pp_list_item>
                     </.pp_list_group>
                 <% end %>

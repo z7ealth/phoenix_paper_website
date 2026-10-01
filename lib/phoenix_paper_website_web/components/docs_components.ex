@@ -64,6 +64,8 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   shouldn't have to notice a leading colon to tell the two apart.
   """
   def section(assigns) do
+    assigns = assign(assigns, :status, PhoenixPaperWebsiteWeb.Nav.status(assigns.title))
+
     ~H"""
     <section id={slug(@title)} class="mb-16 scroll-mt-20">
       <.pp_typography :if={@eyebrow} variant="overline" color="primary">
@@ -79,6 +81,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         >
           LiveComponent
         </.pp_chip>
+        <.status_chip status={@status} />
       </.pp_stack>
       <.pp_typography
         :if={@description}
@@ -121,6 +124,39 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         </.pp_table_body>
       </.pp_table>
     </.pp_table_container>
+    """
+  end
+
+  attr :status, :atom, default: nil, values: [nil, :new, :updated]
+
+  @doc """
+  The "New"/"Updated" chip for a component added or changed in the latest
+  release (`PhoenixPaperWebsiteWeb.Nav.status/1`), on section headers and in
+  the sidebar. Renders nothing for `nil`.
+  """
+  def status_chip(assigns) do
+    assigns = assign(assigns, :release, PhoenixPaperWebsiteWeb.Nav.release())
+
+    ~H"""
+    <.pp_chip
+      :if={@status == :new}
+      size="small"
+      color="success"
+      title={"New in v#{@release}"}
+      data-pp-status="new"
+    >
+      New
+    </.pp_chip>
+    <.pp_chip
+      :if={@status == :updated}
+      size="small"
+      color="info"
+      variant="outlined"
+      title={"Updated in v#{@release}"}
+      data-pp-status="updated"
+    >
+      Updated
+    </.pp_chip>
     """
   end
 
@@ -209,15 +245,90 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   plain, unhighlighted HTML, since the server has no idea the client already
   highlighted it) would wipe the highlighting back out a moment after it
   appeared.
+
+  Every block has a copy button (a `pp_button` icon button, top-right)
+  wired to the ".CopyCode" hook (`position="absolute"`, not
+  `class="absolute"`: the ripple's own `relative` would outrank it): it copies the `<code>` element's text
+  (highlight.js only wraps it in spans, so the text is the original
+  snippet) and swaps the clipboard icon for a check for 2s via a
+  `data-copied` attribute and `group-data-copied:` variants.
   """
   def code(assigns) do
+    assigns = assign(assigns, :id, "code-#{:erlang.phash2(assigns.text)}")
+
     ~H"""
-    <pre
-      id={"code-#{:erlang.phash2(@text)}"}
-      phx-update="ignore"
-      phx-hook=".Highlight"
-      class="overflow-hidden rounded-lg border border-pp-outline/15 text-sm leading-relaxed"
-    ><code class="language-elixir">{@text}</code></pre>
+    <div class="relative">
+      <pre
+        id={@id}
+        phx-update="ignore"
+        phx-hook=".Highlight"
+        class="overflow-hidden rounded-lg border border-pp-outline/15 text-sm leading-relaxed"
+      ><code class="language-elixir">{@text}</code></pre>
+      <.pp_button
+        id={"#{@id}-copy"}
+        variant="icon"
+        size="small"
+        position="absolute"
+        phx-hook=".CopyCode"
+        data-target={@id}
+        aria-label="Copy code"
+        title="Copy code"
+        class="group top-2 right-2"
+      >
+        <%!-- The show/hide lives on wrapper spans: pp_icon's own inline-block
+              would outrank a hidden on the icon itself. --%>
+        <span class="group-data-copied:hidden"><.pp_icon name="hero-clipboard-document" /></span>
+        <span class="hidden group-data-copied:inline"><.pp_icon name="hero-check" /></span>
+      </.pp_button>
+    </div>
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".CopyCode">
+      // navigator.clipboard needs a secure context (https or localhost);
+      // fall back to a hidden textarea + execCommand elsewhere.
+      const copy = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text)
+        const area = document.createElement("textarea")
+        area.value = text
+        area.setAttribute("readonly", "")
+        area.style.position = "fixed"
+        area.style.opacity = "0"
+        document.body.appendChild(area)
+        area.select()
+        const ok = document.execCommand("copy")
+        area.remove()
+        if (!ok) throw new Error("copy failed")
+      }
+
+      export default {
+        mounted() {
+          this.onClick = async () => {
+            const code = document.querySelector(`#${this.el.dataset.target} code`)
+            if (!code) return
+            try {
+              await copy(code.textContent)
+              this.flash("Copied", true)
+            } catch {
+              this.flash("Copy failed", false)
+            }
+          }
+          this.el.addEventListener("click", this.onClick)
+        },
+        flash(label, copied) {
+          clearTimeout(this.timer)
+          this.el.setAttribute("aria-label", label)
+          this.el.setAttribute("title", label)
+          if (copied) this.el.setAttribute("data-copied", "")
+          this.timer = setTimeout(() => {
+            this.el.removeAttribute("data-copied")
+            this.el.setAttribute("aria-label", "Copy code")
+            this.el.setAttribute("title", "Copy code")
+          }, 2000)
+        },
+        destroyed() {
+          clearTimeout(this.timer)
+          this.el.removeEventListener("click", this.onClick)
+        }
+      }
+    </script>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".Highlight">
       export default {
         mounted() {

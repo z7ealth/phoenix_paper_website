@@ -122,9 +122,9 @@
  * than forking phoenix_paper's CSS, per that file's own documented
  * guidance: "To build a fully custom theme, don't fork this file --
  * override the --color-pp-* variables from your own app.css instead."
- * Structured exactly like that file's own [data-theme="dark"] /
- * [data-pp-theme="teal"] blocks: a plain attribute selector for light
- * values, an explicit-dark selector, and a `prefers-color-scheme` fallback
+ * Structured like that file's own light/[data-theme="dark"] blocks: a
+ * plain attribute selector for light values, an explicit-dark selector,
+ * and a `prefers-color-scheme` fallback
  * for dark-OS users who haven't picked a mode explicitly yet.
  *
  * This site's shipped defaults are Violet primary / Indigo secondary /

@@ -191,7 +191,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemePicker do
                 onclick={mode_apply_js(value)}
                 class="flex items-center justify-center gap-1.5 rounded-lg border border-pp-outline/30 px-2 py-1.5 text-xs font-medium transition-colors hover:bg-pp-on-surface/5"
               >
-                <.pp_icon name={icon} class="size-3.5" />{label}
+                <.pp_icon name={icon} size="xs" />{label}
               </button>
             </div>
           </fieldset>

@@ -57,6 +57,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             {"href / navigate / patch",
              "any set renders an anchor (Phoenix.Component.link/1) instead of a button, same styling. method/download/target/rel pass through"},
             {"type", "button | submit | reset (default: button, ignored in link mode)"},
+            {"position",
+             "relative (default) | fixed | absolute | sticky: anchor it with offsets in class, e.g. position=\"absolute\" class=\"top-2 right-2\" (a class=\"absolute\" would lose to the ripple's own relative)"},
             {"paperize", "boolean (default: true)"},
             {"class",
              "plain string concatenation on top of the built-in classes; prefix an override with ! (Tailwind's important modifier) to reliably beat a built-in utility for the same property"}
@@ -166,11 +168,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Floating Action Button"
-          description="A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner."
+          description="A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner: use position=&quot;fixed&quot; plus offsets in class."
           props={[
             {"color", "primary | secondary | accent | error (default: secondary)"},
             {"size", "sm | md | lg (default: md)"},
             {"extended", "boolean, labeled pill instead of a fixed circle (default: false)"},
+            {"position",
+             "relative (default) | fixed | absolute | sticky: e.g. position=\"fixed\" class=\"bottom-6 right-6\" for a corner FAB"},
             {"ripple", "boolean (default: true)"},
             {"disabled", "boolean (default: false)"},
             {"paperize", "boolean (default: true)"}
@@ -200,6 +204,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
             {"direction", "up (default) | down | left | right"},
             {"color", "primary | secondary | accent | error (default: secondary), the trigger"},
             {"size", "sm | md | lg (default: md), the trigger"},
+            {"position",
+             "relative (default) | fixed | absolute | sticky: the root's position; position=\"fixed\" class=\"bottom-6 right-6\" anchors it to a corner"},
+            {"class", "goes on the root (around the trigger and the actions), e.g. corner offsets"},
+            {"trigger_class", "added to the trigger FAB (since 0.3.0, class no longer lands there)"},
             {"ripple", "boolean (default: true), off whenever paperize is false"},
             {"paperize", "boolean (default: true)"}
           ]}
@@ -383,15 +391,19 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
     </.pp_fab>
     <.pp_fab extended color="primary">
       <.pp_icon name="hero-star" /> Create
-    </.pp_fab>\
+    </.pp_fab>
+
+    <%!-- Anchored to the screen corner --%>
+    <.pp_fab position="fixed" class="bottom-6 right-6"><.pp_icon name="hero-plus" /></.pp_fab>\
     """
   end
 
   defp speed_dial_code do
     ~S'''
-    <%!-- Anchor the whole thing yourself; direction fans the actions from there.
-          Opens on hover, click/tap, or keyboard focus -- pure CSS, no JS. --%>
-    <.pp_speed_dial id="create" label="Create" class="fixed bottom-6 right-6">
+    <%!-- position="fixed" + offsets anchor it; direction fans the actions from there.
+          Opens on hover, click/tap, or keyboard focus -- pure CSS, no JS.
+          class goes on the root; style the trigger FAB with trigger_class. --%>
+    <.pp_speed_dial id="create" label="Create" position="fixed" class="bottom-6 right-6">
       <:action label="New workbook" navigate={~p"/workbooks/new"}>
         <.pp_icon name="hero-document-plus" />
       </:action>

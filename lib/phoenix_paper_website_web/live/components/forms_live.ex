@@ -2,7 +2,29 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Forms")}
+    {:ok,
+     socket
+     |> assign(:page_title, "Forms")
+     |> assign(:profile_form, to_form(%{"name" => "", "email" => ""}, as: :profile))
+     |> assign(:languages, ["elixir"])}
+  end
+
+  def handle_event("validate_profile", %{"profile" => params}, socket) do
+    {:noreply, assign(socket, :profile_form, to_form(params, as: :profile))}
+  end
+
+  def handle_event("save_profile", %{"profile" => params}, socket) do
+    name = if params["name"] in [nil, ""], do: "there", else: params["name"]
+
+    {:noreply,
+     socket
+     |> assign(:profile_form, to_form(params, as: :profile))
+     |> put_flash(:info, "Saved. Hi, #{name}!")}
+  end
+
+  # PowerSelect's on_change runs in this LiveView's process.
+  def handle_info({:languages_changed, values}, socket) do
+    {:noreply, assign(socket, :languages, values)}
   end
 
   def render(assigns) do
@@ -10,17 +32,53 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
     <Layouts.app flash={@flash} current_page={:forms}>
       <.pp_container max_width="lg">
         <.page_header eyebrow="Components" title="Forms">
-          PhoenixPaper.Input, Select, NumberField, Checkbox, Switch, ThemeToggle, RadioGroup,
-          Slider, Rating, Autocomplete, TransferList. Every one of these also accepts a field
+          PhoenixPaper.Form, Input, Select, PowerSelect, NumberField, Checkbox, Switch,
+          ThemeToggle, RadioGroup, Slider, Rating, Autocomplete, TransferList. Every one of these also accepts a field
           from to_form/2, the same way a generated core_components.ex input does.
         </.page_header>
+
+        <.section
+          title="Form"
+          description="A thin layer over Phoenix's own <.form>: the same for/as/action/:let API, plus consistent spacing between fields and a right-aligned :actions row for the submit/cancel buttons. Plain <.form> keeps working with every pp_* control; use pp_form when you want the layout for free."
+          props={[
+            {"for", "required: the form source, usually from to_form/2"},
+            {"as / action / method / multipart / csrf_token / errors",
+             "same as Phoenix.Component.form/1"},
+            {"spacing", "gap between fields, a Spacing token (default: :md)"},
+            {"phx-change / phx-submit / id / ...", "passed through to the <form>, like <.form>"},
+            {"paperize", "boolean (default: true)"}
+          ]}
+          slots={[
+            {":inner_block", "the fields; receives the form via :let"},
+            {":actions", "submit/cancel buttons, right-aligned after the fields"}
+          ]}
+          code={form_code()}
+        >
+          <.demo_group label="Try it (Save shows a flash message)" direction="column">
+            <.pp_form
+              for={@profile_form}
+              id="profile-form"
+              phx-change="validate_profile"
+              phx-submit="save_profile"
+              class="max-w-md"
+            >
+              <.pp_input field={@profile_form[:name]} label="Name" />
+              <.pp_input field={@profile_form[:email]} type="email" label="Email" />
+              <:actions>
+                <.pp_button variant="text" type="reset">Reset</.pp_button>
+                <.pp_button type="submit">Save</.pp_button>
+              </:actions>
+            </.pp_form>
+          </.demo_group>
+        </.section>
 
         <.section
           title="Input"
           description="Modeled on MUI's TextField. Three variants (outlined, filled, standard), pure-CSS floating label, no JavaScript."
           props={[
             {"label / value / name / id", "standard text field attrs"},
-            {"type", "any input type, e.g. text | email | password (default: text)"},
+            {"type",
+             "any input type, e.g. text | email | password | datetime-local (default: text); datetime-local formats a NaiveDateTime/DateTime value for you"},
             {"variant", "outlined | filled | standard (default: outlined)"},
             {"color", "primary | secondary | accent | error (default: primary), focus/label accent"},
             {"size", "medium | small (default: medium)"},
@@ -88,7 +146,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
           <.demo_group label="hide_label (inline filter toolbar)">
             <.pp_input hide_label label="Search" name="dense_search_demo" size="small" class="w-48">
               <:start_adornment>
-                <.pp_icon name="hero-magnifying-glass" class="size-4" />
+                <.pp_icon name="hero-magnifying-glass" size="sm" />
               </:start_adornment>
             </.pp_input>
             <.pp_select
@@ -147,6 +205,84 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               prompt="Any"
               options={["Active", "Archived", "Draft"]}
             />
+          </.demo_group>
+        </.section>
+
+        <.section
+          live_component
+          title="Power Select"
+          description="A searchable select in the spirit of ember-power-select: open it, filter by typing (case- and accent-insensitive, so mexico finds México), move with the arrow keys, group options, and with multiple pick several as chips. Search can also run on the server (search, a function term -> options, run as an async task). A Phoenix.LiveComponent, LiveView only. Reach for it over Autocomplete when the value must come from a known set."
+          props={[
+            {"options",
+             "strings, {label, value} tuples, or maps/structs; %{group_name: ..., options: [...]} makes a (nestable) group; disabled: true disables an option or group"},
+            {"field / name / value",
+             "form integration: hidden inputs carry the values (name[] for multiple), and the surrounding form's phx-change runs on every change"},
+            {"multiple", "boolean (default: false): pick several, shown as chips in the trigger"},
+            {"search_enabled",
+             "boolean (default: false): a search box; matching ignores case and accents"},
+            {"search",
+             "function term -> options: server search in an async task, only the latest term's results shown"},
+            {"search_field / label_field / value_field",
+             "keys to read on map options (defaults: the label, :label, :value)"},
+            {"matcher", "function (option, term) -> boolean, replaces the matching rule"},
+            {"allow_clear", "boolean (default: false): a ✕ to clear the selection"},
+            {"on_change",
+             "function called in the LiveView's process with the new value(s), for use outside a form"},
+            {"debounce", "ms between server searches (default: 300)"},
+            {"label / placeholder / search_placeholder / helper_text / errors",
+             "same intent as Input"},
+            {"no_matches_message / loading_message / search_message",
+             "the list's messages, translatable"},
+            {"variant / shape / disabled / paperize",
+             "outlined | filled (default: outlined); same as other form controls"}
+          ]}
+          slots={[
+            {":option", "renders each option; receives %{option, label, search, selected}"},
+            {":selected_item", "renders the selection in a single select's trigger"}
+          ]}
+          code={power_select_code()}
+        >
+          <.demo_group label="Searchable, grouped, clearable (try typing mexico)">
+            <.pp_box class="w-full max-w-sm">
+              <.live_component
+                module={PhoenixPaper.PowerSelect}
+                id="country-power-select"
+                name="country"
+                label="Country"
+                placeholder="Pick a country"
+                search_enabled
+                allow_clear
+                options={[
+                  %{group_name: "North America", options: ["Canada", "México", "United States"]},
+                  %{group_name: "South America", options: ["Argentina", "Brasil", "Perú"]},
+                  %{group_name: "Europe", options: ["España", "France", "Österreich"]}
+                ]}
+              />
+            </.pp_box>
+          </.demo_group>
+
+          <.demo_group label="multiple, with on_change" direction="column">
+            <.pp_box class="w-full max-w-sm">
+              <.live_component
+                module={PhoenixPaper.PowerSelect}
+                id="languages-power-select"
+                label="Languages"
+                multiple
+                search_enabled
+                value={@languages}
+                on_change={fn values -> send(self(), {:languages_changed, values}) end}
+                options={[
+                  {"Elixir", "elixir"},
+                  {"Erlang", "erlang"},
+                  {"Gleam", "gleam"},
+                  {"JavaScript", "javascript"},
+                  {"Rust", "rust"}
+                ]}
+              />
+            </.pp_box>
+            <.pp_typography id="languages-selected" variant="caption">
+              on_change got: {inspect(@languages)}
+            </.pp_typography>
           </.demo_group>
         </.section>
 
@@ -367,7 +503,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
         <.section
           live_component
           title="Autocomplete"
-          description="A text field with a filtered dropdown, filtered entirely server-side over phx-change/phx-debounce. Unlike everything above, this needs interactive state, so it's a Phoenix.LiveComponent, fully live on this page, since it's a real LiveView. Type to filter."
+          description="A free text field with a filtered dropdown of suggestions, filtered server-side as you type (phx-keyup, debounced). The query input is detached from any surrounding form, so it's safe inside your own <.form> and never submitted with it. Needs interactive state, so it's a Phoenix.LiveComponent, fully live on this page. Type to filter. When the value must come from a known set, use Power Select."
           props={[
             {"options", "list of {label, value} tuples, or plain values"},
             {"value / name / label / placeholder", "same intent as Input"},
@@ -534,6 +670,60 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
     """
     <.pp_rating id="stars" name="stars" value={3} />
     <.pp_rating readonly value={4} />\
+    """
+  end
+
+  defp form_code do
+    """
+    <.pp_form for={@form} id="profile-form" phx-change="validate" phx-submit="save">
+      <.pp_input field={@form[:name]} label="Name" />
+      <.pp_input field={@form[:email]} type="email" label="Email" />
+      <:actions>
+        <.pp_button variant="text" type="reset">Reset</.pp_button>
+        <.pp_button type="submit">Save</.pp_button>
+      </:actions>
+    </.pp_form>\
+    """
+  end
+
+  defp power_select_code do
+    """
+    <%!-- Single, searchable (accent-insensitive), grouped, clearable --%>
+    <.live_component
+      module={PhoenixPaper.PowerSelect}
+      id="country"
+      field={@form[:country]}
+      label="Country"
+      search_enabled
+      allow_clear
+      options={[
+        %{group_name: "North America", options: ["Canada", "México", "United States"]},
+        %{group_name: "Europe", options: ["España", "France"]}
+      ]}
+    />
+
+    <%!-- Multiple, outside a form: on_change runs in your LiveView --%>
+    <.live_component
+      module={PhoenixPaper.PowerSelect}
+      id="languages"
+      label="Languages"
+      multiple
+      search_enabled
+      value={@languages}
+      on_change={fn values -> send(self(), {:languages_changed, values}) end}
+      options={[{"Elixir", "elixir"}, {"Erlang", "erlang"}, {"Gleam", "gleam"}]}
+    />
+
+    <%!-- Server search: an async task per term --%>
+    <.live_component
+      module={PhoenixPaper.PowerSelect}
+      id="user"
+      field={@form[:user_id]}
+      label="User"
+      search={fn term -> MyApp.Accounts.search_users(term) end}
+      label_field={:name}
+      value_field={:id}
+    />\
     """
   end
 

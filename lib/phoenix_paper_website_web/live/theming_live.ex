@@ -37,6 +37,32 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
         </.page_header>
 
         <.section
+          title="Setting your colors"
+          description="Add your overrides to app.css after the phoenix_paper import. Two blocks: light on :root, dark on the data-theme block the toggle switches. Every token phoenix_paper defines is listed below at its default value, so the whole set is in front of you: edit the hexes you want and delete the lines you don't (a line you drop keeps phoenix_paper's own value)."
+          code={override_css()}
+        >
+          <p class="text-sm text-pp-on-surface/70">
+            That is the entire theming API. There is no config file and no JS: the components
+            resolve
+            <.pp_typography variant="code">var(--color-pp-primary)</.pp_typography>
+            at paint time, so a token change takes effect on the next repaint with no rebuild.
+            Do not edit
+            <.pp_typography variant="code">
+              deps/phoenix_paper/priv/static/phoenix_paper.css
+            </.pp_typography>
+            directly: your changes belong in your app so an upgrade never clobbers them.
+          </p>
+          <p class="mt-3 text-sm text-pp-on-surface/70">
+            These two blocks cover an explicit <.pp_typography variant="code">data-theme</.pp_typography>. ThemeToggle's
+            default, System, has no
+            <.pp_typography variant="code">data-theme</.pp_typography>
+            at all (this site starts that way), so to follow the OS also add the
+            <.pp_typography variant="code">@media (prefers-color-scheme: dark)</.pp_typography>
+            block from Light and dark: how the switch works, below, with the same dark values.
+          </p>
+        </.section>
+
+        <.section
           title="The token model"
           description="A small, fixed set of role-based tokens, not a full color scale. Each is a --color-pp-* custom property that the components read; each ships as a background/foreground pair. Override a token and every component that uses it updates at once."
           props={[
@@ -137,32 +163,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
         </.section>
 
         <.section
-          title="Setting your colors"
-          description="Add your overrides to app.css after the phoenix_paper import. Two blocks: light on :root, dark on the data-theme block the toggle switches. Every token phoenix_paper defines is listed below at its default value, so the whole set is in front of you: edit the hexes you want and delete the lines you don't (a line you drop keeps phoenix_paper's own value)."
-          code={override_css()}
-        >
-          <p class="text-sm text-pp-on-surface/70">
-            That is the entire theming API. There is no config file and no JS: the components
-            resolve
-            <.pp_typography variant="code">var(--color-pp-primary)</.pp_typography>
-            at paint time, so a token change takes effect on the next repaint with no rebuild.
-            Do not edit
-            <.pp_typography variant="code">
-              deps/phoenix_paper/priv/static/phoenix_paper.css
-            </.pp_typography>
-            directly: your changes belong in your app so an upgrade never clobbers them.
-          </p>
-          <p class="mt-3 text-sm text-pp-on-surface/70">
-            These two blocks cover an explicit <.pp_typography variant="code">data-theme</.pp_typography>. ThemeToggle's
-            default, System, has no
-            <.pp_typography variant="code">data-theme</.pp_typography>
-            at all (this site starts that way), so to follow the OS also add the
-            <.pp_typography variant="code">@media (prefers-color-scheme: dark)</.pp_typography>
-            block from the section above, with the same dark values.
-          </p>
-        </.section>
-
-        <.section
           title="Pairing foregrounds"
           description="Every brand/status token has an on- counterpart for text and icons drawn on top of it. When you change a background token, change its on- token too, and check the contrast: aim for at least 4.5:1 for body text, 3:1 for large text and icons. The components only ever use on-primary on primary, on-surface on surface, and so on, so a bad pair shows up everywhere that color appears."
         >
@@ -184,27 +184,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
           <.demo_group label="Both variants (they share data-theme with this site's theme picker)">
             <.pp_theme_toggle id="theming-toggle-segmented" />
             <.pp_theme_toggle id="theming-toggle-switch" variant="switch" />
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="The alternate bundled palette"
-          description="phoenix_paper.css ships one non-default palette, a teal and amber scheme, behind a data-pp-theme attribute set to teal on any ancestor. It is a shortcut for a common look; a real custom theme still means overriding the tokens as above. Your own overrides and this attribute compose: set both and your --color-pp-* rules win by source order."
-          code={alt_palette_css()}
-        >
-          <.demo_group label="Try it (also flips back)">
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.set_attribute({"data-pp-theme", "teal"}, to: "html")}
-            >
-              Teal palette
-            </.pp_button>
-            <.pp_button
-              variant="outlined"
-              phx-click={JS.remove_attribute("data-pp-theme", to: "html")}
-            >
-              Default
-            </.pp_button>
           </.demo_group>
         </.section>
 
@@ -364,16 +343,6 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
     <div id="preview">
       <.pp_theme_toggle target="#preview" on_toggle={JS.push("save_theme")} />
     </div>\
-    """
-  end
-
-  defp alt_palette_css do
-    """
-    <%!-- root.html.heex, or any ancestor element --%>
-    <html data-pp-theme="teal">
-
-    /* It only redefines the brand tokens; surface/outline stay as-is.
-       Composes with your own :root / [data-theme="dark"] overrides. */
     """
   end
 end
