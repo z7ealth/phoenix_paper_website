@@ -29,8 +29,9 @@ defmodule PhoenixPaperWebsiteWeb.PaperBirdTest do
 
     assert has_element?(view, "#paper-bird-close")
 
-    # The width lives on the centred container (phoenix_paper 0.2.7), so the
-    # canvas, which has no natural width, can't collapse the dialog.
-    assert has_element?(view, "#paper-bird-dialog-container.w-full.max-w-2xl")
+    # The width lives on the centred container: MD3's basic dialog is w-full
+    # up to 560px (0.5.0 dropped max_width), so the canvas, which has no
+    # natural width, can't collapse it.
+    assert has_element?(view, ~s|#paper-bird-dialog-container.w-full[class~="max-w-[560px]"]|)
   end
 end

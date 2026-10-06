@@ -3,7 +3,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
 
   alias Phoenix.LiveView.JS
 
-  # Small placeholder "photos" for the ImageList demo -- inline SVG data URIs
+  # Small placeholder "photos" for the Card and Carousel demos -- inline SVG data URIs
   # so the page stays fully self-contained, no external image fetch.
   @photo_1 ~s(data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%233f51b5"/></svg>)
   @photo_2 ~s(data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%23ff4081"/></svg>)
@@ -14,24 +14,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
      socket
      |> assign(page_title: "Data Display")
      |> assign(chips: ["React", "Elixir", "Phoenix", "LiveView"])
-     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)
-     |> assign(tp_page: 1, tp_rows: 5)}
+     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)}
   end
-
-  @tp_users for n <- 1..47, do: %{id: n, name: "User #{n}", email: "user#{n}@example.com"}
-
-  # Table Pagination demo: events carry phx-value-page / phx-value-rows_per_page.
-  def handle_event("tp_page", %{"page" => page}, socket) do
-    {:noreply, assign(socket, :tp_page, String.to_integer(page))}
-  end
-
-  def handle_event("tp_rows", %{"rows_per_page" => rows}, socket) do
-    {:noreply, assign(socket, tp_rows: String.to_integer(rows), tp_page: 1)}
-  end
-
-  # Table's sortable header cells are presentation-only -- this demo doesn't
-  # actually reorder rows, just proves the click reaches the LiveView.
-  def handle_event("sort", _params, socket), do: {:noreply, socket}
 
   def handle_event("delete_chip", %{"chip" => chip}, socket) do
     {:noreply, update(socket, :chips, &List.delete(&1, chip))}
@@ -42,612 +26,297 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:data_display}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Data Display">
-          PhoenixPaper.Card, Avatar, Badge, Chip, Tooltip, Icon, ImageList / ImageListItem, TablePagination, and
-          the Table family.
+          PhoenixPaper.Card, Badge, Chip, Tooltip, Icon and Carousel. For tabular data, MD3 has no
+          table component: use a plain &lt;table&gt; with the pp-* tokens, like the options
+          tables on these pages.
         </.page_header>
 
         <.section
           title="Card"
-          description="A surface container with optional title and actions slots. Give it href, navigate or patch and the whole card becomes clickable (MUI's CardActionArea): the hover tint and focus ring cover the entire card, and a click anywhere except on an action button follows the link. :actions stay outside the <a> (valid HTML); the link is stretched over the card and the actions sit above it."
-          props={[
-            {"href / navigate / patch",
-             "makes the whole card clickable: a plain href, a LiveView navigation, or a patch (default: nil)"},
-            {"ripple", "the Material ripple on click in link mode (default: true)"},
-            {"target / rel",
-             "link mode: forwarded to the link, e.g. target=\"_blank\" rel=\"noopener\" (default: nil)"},
-            {"elevation", "resting elevation, 0-24 (default: 1)"},
-            {"padding", "a Spacing token (default: :md)"},
-            {"shape", "corner radius token (default: :lg)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[{":title", "a heading above the body"}, {":actions", "trailing buttons"}]}
+          api={[{PhoenixPaper.Card, :pp_card}]}
+          description="MD3's three card styles: elevated (surface-container-low with a level-1 shadow), filled (surface-container-highest) and outlined (outline-variant border). Slots for :media (edge to edge on top), :title, :subhead and :actions. Give it href, navigate or patch and the whole card becomes clickable, with a state layer and focus ring; :actions stay outside the link."
           code={card_code()}
         >
-          <.demo_group label="Basic" class="items-start">
+          <.demo_group label="variant" class="items-stretch">
+            <.pp_card :for={variant <- ~w(elevated filled outlined)} variant={variant} class="w-56">
+              <:title>{variant}</:title>
+              <:subhead>Card variant</:subhead>
+              Body text on the card's own surface.
+            </.pp_card>
+          </.demo_group>
+
+          <.demo_group label=":media, and link mode (navigate)" class="items-start">
             <.pp_card class="w-72">
-              <:title>Account</:title>
-              You have no pending invoices this month.
+              <:media><img src={@photo_1} alt="" class="h-36 w-full object-cover" /></:media>
+              <:title>Breakfast</:title>
+              <:subhead>Open until 11am</:subhead>
+              Pancakes, eggs and fresh coffee.
               <:actions>
-                <.pp_button variant="text">Dismiss</.pp_button>
+                <.pp_button variant="text">Directions</.pp_button>
+                <.pp_button variant="tonal">Book</.pp_button>
               </:actions>
             </.pp_card>
-          </.demo_group>
-
-          <.demo_group label="Link mode (navigate)" class="items-start">
-            <.pp_card id="card-link-demo" navigate="/components/layout" class="w-72">
-              <:title>Layout components</:title>
-              Box, Container, Stack, Grid, Divider. Click anywhere on the card except the button.
-              <:actions>
-                <.pp_button variant="text" href="/components/surfaces">Surfaces</.pp_button>
-              </:actions>
-            </.pp_card>
-          </.demo_group>
-
-          <.demo_group label="Padding tokens">
             <.pp_card
-              :for={padding <- ~w(none xs sm md lg xl 2xl)a}
-              padding={padding}
-              class="w-24 text-center text-xs"
+              id="card-link-demo"
+              variant="outlined"
+              navigate="/components/surfaces"
+              class="w-72"
             >
-              {padding}
+              <:title>Surfaces</:title>
+              Typography, Divider and the sheets. Click anywhere except the button.
+              <:actions>
+                <.pp_button variant="text" href="/components/feedback">Feedback</.pp_button>
+              </:actions>
             </.pp_card>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Avatar"
-          description="A user's profile picture, initials, or icon, in the spirit of MUI's Avatar. No src falls back to the :inner_block slot (initials or an icon); no :inner_block either falls back further, to a generic person icon. A broken image also falls back to the same slot underneath it: a small vanilla onerror, no JS hook, no LiveView round-trip."
-          props={[
-            {"src / alt", "an image, with alt text (default: nil, falls back to :inner_block)"},
-            {"color",
-             "default | primary | secondary | accent | error (default: default, neutral grey): the fallback's background and foreground"},
-            {"variant", "circular | rounded | square (default: circular)"},
-            {"size", "small | medium | large (default: medium)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":inner_block", "initials or an icon: shown with no src, or if the image fails to load"}
-          ]}
-          code={avatar_code()}
-        >
-          <.demo_group label="Fallback chain: image, initials, icon">
-            <.pp_avatar src={@photo_1} alt="A placeholder photo" />
-            <.pp_avatar>OP</.pp_avatar>
-            <.pp_avatar />
-          </.demo_group>
-
-          <.demo_group label="color">
-            <.pp_avatar :for={color <- ~w(default primary secondary accent error)} color={color}>
-              <.pp_icon name="hero-sparkles" />
-            </.pp_avatar>
-          </.demo_group>
-
-          <.demo_group label="variant">
-            <.pp_avatar variant="circular">OP</.pp_avatar>
-            <.pp_avatar variant="rounded">OP</.pp_avatar>
-            <.pp_avatar variant="square">OP</.pp_avatar>
-          </.demo_group>
-
-          <.demo_group label="size">
-            <.pp_avatar size="small">OP</.pp_avatar>
-            <.pp_avatar size="medium">OP</.pp_avatar>
-            <.pp_avatar size="large">OP</.pp_avatar>
           </.demo_group>
         </.section>
 
         <.section
           title="Badge"
-          description="A small count/status indicator overlapping the corner of its child, in the spirit of MUI's Badge."
-          props={[
-            {"content", "badge content: a number or short string (default: nil)"},
-            {"max", "caps a numeric content at max+, e.g. 99+ (default: 99)"},
-            {"show_zero", "show the badge when content is the integer 0 (default: false)"},
-            {"variant", "standard | dot (default: standard)"},
-            {"color",
-             "primary | secondary | accent | error | success | warning | info (default: error)"},
-            {"overlap",
-             "rectangular | circular, pulls the badge inward onto a circular child (default: rectangular)"},
-            {"anchor_origin", "which corner (default: top-right)"},
-            {"invisible", "force-hide the badge (default: false)"}
-          ]}
+          api={[{PhoenixPaper.Badge, :pp_badge}]}
+          description="MD3's two badges, anchored to the corner of their child, always in the error color. Without content it's the small 6dp dot; with content it's the large badge holding a count or short label. Counts above max (999 by default) show as 999+, and a count of 0 hides the badge. invisible hides it without removing it."
           code={badge_code()}
         >
-          <.demo_group label="Variants">
-            <.pp_badge content={4}>
-              <.pp_icon name="hero-bell" />
-            </.pp_badge>
-            <.pp_badge content={150}>
-              <.pp_icon name="hero-bell" />
-            </.pp_badge>
-            <.pp_badge variant="dot" color="success">
-              <.pp_icon name="hero-user" />
-            </.pp_badge>
-            <.pp_badge content={1} overlap="circular" color="primary">
-              <.pp_avatar />
-            </.pp_badge>
+          <.demo_group label="Small (no content) and large (content)">
+            <.pp_badge><.pp_icon name="hero-chat-bubble-left" /></.pp_badge>
+            <.pp_badge content={4}><.pp_icon name="hero-envelope" /></.pp_badge>
+            <.pp_badge content="New"><.pp_icon name="hero-sparkles" /></.pp_badge>
+          </.demo_group>
+          <.demo_group label="max and zero">
+            <.pp_badge content={1500}><.pp_icon name="hero-bell" /></.pp_badge>
+            <.pp_badge content={150} max={99}><.pp_icon name="hero-inbox" /></.pp_badge>
+            <.pp_badge content={0}><.pp_icon name="hero-shopping-cart" /></.pp_badge>
           </.demo_group>
         </.section>
 
         <.section
           title="Chip"
-          description="A compact element for input, attribute, or action, in the spirit of MUI's Chip."
-          props={[
-            {"variant", "filled | outlined (default: filled)"},
-            {"color",
-             "default | primary | secondary | accent | error | success | warning | info (default: default)"},
-            {"size", "small | medium (default: medium)"},
-            {"clickable",
-             "renders a real button with a ripple, for filter/action chips (default: false)"},
-            {"deletable", "renders a trailing delete control wired to on_delete (default: false)"},
-            {"on_delete", "JS command run when the delete control is clicked"},
-            {"disabled", "dims and disables the chip and its delete control (default: false)"}
-          ]}
-          slots={[{":icon", "a leading icon or avatar"}]}
+          api={[{PhoenixPaper.Chip, :pp_chip}]}
+          description="MD3's four chips: assist (a smart action with a leading icon), filter (toggles; a check appears when selected), input (a user-entered value, removable) and suggestion (a generated reply or query). 32dp, 8dp corners, outlined; elevated swaps the outline for a filled shadowed chip. Filter chips toggle like buttons: selected + phx-click, or toggle on the client."
           code={chip_code()}
         >
-          <.demo_group label="Variants">
-            <.pp_chip>Basic</.pp_chip>
-            <.pp_chip variant="outlined" color="primary">Outlined</.pp_chip>
-            <.pp_chip color="success">Success</.pp_chip>
-            <.pp_chip size="small">Small</.pp_chip>
-            <.pp_chip>
-              Tagged
-              <:icon><.pp_icon name="hero-check" /></:icon>
+          <.demo_group label="assist and suggestion">
+            <.pp_chip variant="assist">
+              <:icon><.pp_icon name="hero-calendar" size="sm" /></:icon>
+              Add to calendar
+            </.pp_chip>
+            <.pp_chip variant="assist" elevated>
+              <:icon><.pp_icon name="hero-map-pin" size="sm" /></:icon>
+              Directions
+            </.pp_chip>
+            <.pp_chip variant="suggestion">Sounds good</.pp_chip>
+            <.pp_chip variant="suggestion">See you then</.pp_chip>
+          </.demo_group>
+          <.demo_group label="filter (click to toggle)">
+            <.pp_chip
+              :for={{label, on} <- [{"Unread", true}, {"Starred", false}, {"Attachments", false}]}
+              variant="filter"
+              toggle
+              selected={on}
+            >
+              {label}
             </.pp_chip>
           </.demo_group>
-
-          <.demo_group label="Deletable, clickable">
+          <.demo_group label="input (✕ removes)">
             <.pp_chip
-              :for={tag <- @chips}
+              :for={chip <- @chips}
+              id={"chip-#{chip}"}
+              variant="input"
               deletable
-              on_delete={JS.push("delete_chip", value: %{chip: tag})}
+              on_delete={JS.push("delete_chip", value: %{chip: chip})}
             >
-              {tag}
+              {chip}
             </.pp_chip>
-            <.pp_chip clickable phx-click="select_filter">Clickable</.pp_chip>
-            <.pp_chip clickable disabled>Disabled</.pp_chip>
           </.demo_group>
         </.section>
 
         <.section
           title="Tooltip"
-          description="A short text label shown on hover/focus, in the spirit of MUI's Tooltip. Pure CSS (group-hover/group-focus-within): no JS, no collision detection/auto-flip. Styled with the same attrs as Button: color, variant, size and shape; the arrow matches the bubble, outlined border included."
-          props={[
-            {"title", "the tooltip text: nil or \"\" disables the tooltip (default: nil)"},
-            {"placement", "top | bottom | left | right (default: top)"},
-            {"arrow", "a small triangle pointing at the trigger (default: false)"},
-            {"color",
-             "default | primary | secondary | accent | error (default: default, the inverted Material tooltip)"},
-            {"variant", "raised | flat | outlined (default: raised)"},
-            {"size", "small | medium | large (default: medium)"},
-            {"shape", "corner radius token (default: :sm)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
+          api={[{PhoenixPaper.Tooltip, :pp_tooltip}]}
+          description="A label shown on hover/focus. plain is MD3's small inverse-surface tooltip for a short title; rich is a surface-container card with a subhead, supporting text and optional :actions, for more context. Pure CSS (group-hover/group-focus-within), no collision detection."
           code={tooltip_code()}
         >
-          <.demo_group label="Try hovering">
+          <.demo_group label="plain (hover each)">
             <.pp_tooltip title="Delete">
-              <.pp_button variant="icon"><.pp_icon name="hero-trash" /></.pp_button>
+              <.pp_icon_button icon="hero-trash" label="Delete" title={false} />
             </.pp_tooltip>
-            <.pp_tooltip title="Bottom" placement="bottom">
-              <.pp_button variant="outlined">Bottom</.pp_button>
-            </.pp_tooltip>
-            <.pp_tooltip title="With an arrow" arrow>
-              <.pp_button variant="outlined">Arrow</.pp_button>
+            <.pp_tooltip
+              :for={placement <- ~w(bottom left right)}
+              title={placement}
+              placement={placement}
+            >
+              <.pp_button variant="outlined">{placement}</.pp_button>
             </.pp_tooltip>
           </.demo_group>
-
-          <.demo_group label="color (hover each)">
+          <.demo_group label="rich">
             <.pp_tooltip
-              :for={color <- ~w(default primary secondary accent error)}
-              title={color}
-              color={color}
-              arrow
+              variant="rich"
+              subhead="Rich tooltip"
+              title="Supporting text that explains a little more about the control it's attached to."
             >
-              <.pp_button variant="outlined">{color}</.pp_button>
-            </.pp_tooltip>
-          </.demo_group>
-
-          <.demo_group label="variant, size and shape">
-            <.pp_tooltip
-              :for={variant <- ~w(raised flat outlined)}
-              title={variant}
-              variant={variant}
-              color="primary"
-              arrow
-            >
-              <.pp_button variant="text">{variant}</.pp_button>
-            </.pp_tooltip>
-            <.pp_tooltip :for={size <- ~w(small medium large)} title={"size: #{size}"} size={size}>
-              <.pp_button variant="text">{size}</.pp_button>
-            </.pp_tooltip>
-            <.pp_tooltip title="shape: :full" shape={:full}>
-              <.pp_button variant="text">full</.pp_button>
+              <.pp_button variant="tonal">Hover me</.pp_button>
+              <:actions><.pp_button variant="text" size="xs">Learn more</.pp_button></:actions>
             </.pp_tooltip>
           </.demo_group>
         </.section>
 
         <.section
           title="Icon"
+          api={[{PhoenixPaper.Icon, :pp_icon}]}
           description={
-            ~S|Just renders the app's existing heroicon classes: no bundled icon set, no extra dependency. Size it with size, not class: a plain class="size-4" loses to the built-in size-5.|
+            ~S|Renders the app's own heroicon classes: no bundled icon set, no extra dependency. Size it with size (MD3's 24dp is md, the default), not class: a plain class="size-4" would lose to the built-in size.|
           }
-          props={[
-            {"name", "a heroicon class, e.g. \"hero-check\" (required)"},
-            {"size",
-             "xs | sm | md | lg | xl (default: md): size-3 / size-4 / size-5 / size-6 / size-8; none emits no size class, for your own"},
-            {"paperize", "boolean, only affects default sizing, not which icon shows (default: true)"}
-          ]}
           code={icon_code()}
         >
-          <.demo_group label="Try it">
-            <.pp_icon name="hero-check" class="text-pp-accent" />
+          <.demo_group label="Colors via text color">
+            <.pp_icon name="hero-check" class="text-pp-tertiary" />
             <.pp_icon name="hero-star" class="text-pp-secondary" />
             <.pp_icon name="hero-home" class="text-pp-primary" />
             <.pp_icon name="hero-bell" class="text-pp-error" />
           </.demo_group>
-
           <.demo_group label="size">
             <.pp_icon :for={size <- ~w(xs sm md lg xl)} name="hero-star" size={size} />
           </.demo_group>
         </.section>
 
         <.section
-          title="Image List"
-          description="A grid gallery of images, in the spirit of MUI's ImageList (the standard variant; masonry/quilted/woven aren't implemented). Tiles below are generated placeholder SVGs, not real photos."
-          props={[
-            {"pp_image_list cols", "1-6 (default: 3)"},
-            {"pp_image_list_item src / alt", "the image"},
-            {"pp_image_list_item title / subtitle",
-             "an overlay bar along the bottom edge, omitted if no title"}
-          ]}
-          code={image_list_code()}
+          title="Carousel"
+          api={[{PhoenixPaper.Carousel, :pp_carousel}]}
+          description="An M3 Expressive carousel: a horizontally scrolling row of visual items with snap points. multi_browse items narrow as they reach the edges and open up as they scroll in (a CSS scroll-timeline mask); hero shows one large item plus a peek; uncontained is plain fixed-size items; full_screen is one item per screen. controls adds previous/next buttons for mice."
+          code={carousel_code()}
         >
-          <.demo_group label="cols={3}" direction="column">
-            <.pp_image_list cols={3}>
-              <.pp_image_list_item src={@photo_1} title="Breakfast" />
-              <.pp_image_list_item src={@photo_2} title="Burger" subtitle="Restaurant" />
-              <.pp_image_list_item src={@photo_3} />
-            </.pp_image_list>
+          <.demo_group label="multi_browse, with controls" direction="column">
+            <.pp_carousel id="carousel-demo" label="Photos" controls>
+              <:item :for={{photo, label} <- carousel_items(assigns)} label={label}>
+                <img src={photo} alt="" class="size-full object-cover" />
+              </:item>
+            </.pp_carousel>
+          </.demo_group>
+          <.demo_group label="hero" direction="column">
+            <.pp_carousel id="carousel-hero" layout="hero" height="sm" label="Featured">
+              <:item :for={{photo, label} <- carousel_items(assigns)} label={label}>
+                <img src={photo} alt="" class="size-full object-cover" />
+              </:item>
+            </.pp_carousel>
           </.demo_group>
         </.section>
-
-        <.section
-          title="Table"
-          description="A family of small components: Table, TableContainer, TableHead, TableBody, TableRow, TableCell, TableFooter, composed by hand like MUI's own Table parts. dense/sticky_header/striped cascade to descendant cells via CSS, not a prop threaded through every cell."
-          props={[
-            {"pp_table dense / sticky_header",
-             "tighter cell padding / pins the header while scrolling"},
-            {"pp_table_body striped", "alternating row background"},
-            {"pp_table_row selected", "a stronger, persistent highlight"},
-            {"pp_table_cell variant", "head (th) | body (td, default)"},
-            {"pp_table_cell align", "left | center | right"},
-            {"pp_table_cell sortable / sort_direction",
-             "a clickable header arrow: wire your own phx-click, presentation only"}
-          ]}
-          code={table_code()}
-        >
-          <.demo_group label="Try it" direction="column">
-            <.pp_table_container>
-              <.pp_table>
-                <.pp_table_head>
-                  <.pp_table_row>
-                    <.pp_table_cell variant="head" sortable sort_direction="asc" phx-click="sort">
-                      Dessert
-                    </.pp_table_cell>
-                    <.pp_table_cell variant="head" align="right" sortable phx-click="sort">
-                      Calories
-                    </.pp_table_cell>
-                    <.pp_table_cell variant="head" align="right">Fat (g)</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_head>
-                <.pp_table_body striped>
-                  <.pp_table_row>
-                    <.pp_table_cell>Frozen yoghurt</.pp_table_cell>
-                    <.pp_table_cell align="right">159</.pp_table_cell>
-                    <.pp_table_cell align="right">6.0</.pp_table_cell>
-                  </.pp_table_row>
-                  <.pp_table_row selected>
-                    <.pp_table_cell>Ice cream sandwich</.pp_table_cell>
-                    <.pp_table_cell align="right">237</.pp_table_cell>
-                    <.pp_table_cell align="right">9.0</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_body>
-                <.pp_table_footer>
-                  <.pp_table_row>
-                    <.pp_table_cell>Total</.pp_table_cell>
-                    <.pp_table_cell align="right">396</.pp_table_cell>
-                    <.pp_table_cell align="right">15.0</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_footer>
-              </.pp_table>
-            </.pp_table_container>
-          </.demo_group>
-
-          <.demo_group label="dense + sticky_header (scroll the box)" direction="column">
-            <.pp_table_container class="max-h-40 overflow-y-auto">
-              <.pp_table dense sticky_header>
-                <.pp_table_head>
-                  <.pp_table_row>
-                    <.pp_table_cell variant="head">Dessert</.pp_table_cell>
-                    <.pp_table_cell variant="head" align="right">Calories</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_head>
-                <.pp_table_body>
-                  <.pp_table_row :for={
-                    {name, cal} <- [
-                      {"Frozen yoghurt", 159},
-                      {"Ice cream sandwich", 237},
-                      {"Eclair", 262},
-                      {"Cupcake", 305},
-                      {"Gingerbread", 356}
-                    ]
-                  }>
-                    <.pp_table_cell>{name}</.pp_table_cell>
-                    <.pp_table_cell align="right">{cal}</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_body>
-              </.pp_table>
-            </.pp_table_container>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Table Pagination"
-          description="A table footer (MUI's TablePagination): a rows-per-page picker, the 1–10 of 47 range, and previous/next buttons. Each control is a link built by path (a function (page, rows_per_page) -> URL) or fires an event. Pages are 1-based; labels are customizable for translation. For page numbers, see Pagination."
-          props={[
-            {"id", "required: used for the rows-per-page menu"},
-            {"page / count / rows_per_page",
-             "required: the current page (1-based), total rows, rows per page"},
-            {"rows_per_page_options",
-             "the page sizes offered (default: [10, 25, 50, 100]); [] hides the picker"},
-            {"path", "function (page, rows_per_page) -> URL: every control becomes a link"},
-            {"link", "patch (default) | navigate | href"},
-            {"on_page_change / on_rows_per_page_change / target",
-             "events instead of links: phx-value-page / phx-value-rows_per_page"},
-            {"label_rows_per_page", "default: \"Rows per page:\""},
-            {"label_displayed_rows", "function %{from, to, count} -> text (default: \"1–10 of 47\")"},
-            {"show_first_button / show_last_button", "booleans (default: false)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          code={table_pagination_code()}
-        >
-          <.demo_group label="Try it: 47 rows" direction="column">
-            <.pp_table_container id="tp-table">
-              <.pp_table dense>
-                <.pp_table_head>
-                  <.pp_table_row>
-                    <.pp_table_cell variant="head">#</.pp_table_cell>
-                    <.pp_table_cell variant="head">Name</.pp_table_cell>
-                    <.pp_table_cell variant="head">Email</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_head>
-                <.pp_table_body>
-                  <.pp_table_row :for={user <- tp_rows(@tp_page, @tp_rows)}>
-                    <.pp_table_cell>{user.id}</.pp_table_cell>
-                    <.pp_table_cell>{user.name}</.pp_table_cell>
-                    <.pp_table_cell>{user.email}</.pp_table_cell>
-                  </.pp_table_row>
-                </.pp_table_body>
-              </.pp_table>
-              <.pp_table_pagination
-                id="tp-demo"
-                page={@tp_page}
-                count={47}
-                rows_per_page={@tp_rows}
-                rows_per_page_options={[5, 10, 25]}
-                on_page_change="tp_page"
-                on_rows_per_page_change="tp_rows"
-                show_first_button
-                show_last_button
-              />
-            </.pp_table_container>
-          </.demo_group>
-        </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
-    """
-  end
-
-  defp tp_rows(page, per_page), do: Enum.slice(@tp_users, (page - 1) * per_page, per_page)
-
-  defp table_pagination_code do
-    """
-    <.pp_table_container>
-      <.pp_table>...</.pp_table>
-
-      <%!-- Links: patch to ?page=..&per=.., read them in handle_params --%>
-      <.pp_table_pagination
-        id="users-pagination"
-        page={@page}
-        count={@total_rows}
-        rows_per_page={@per_page}
-        path={fn page, per -> ~p"/users?page=\#{page}&per=\#{per}" end}
-      />
-    </.pp_table_container>
-
-    <%!-- Or events --%>
-    <.pp_table_pagination
-      id="users-pagination"
-      page={@page}
-      count={47}
-      rows_per_page={@per_page}
-      rows_per_page_options={[5, 10, 25]}
-      on_page_change="set_page"
-      on_rows_per_page_change="set_rows"
-    />
-
-    # In the LiveView (event examples):
-    def handle_event("set_page", %{"page" => page}, socket),
-      do: {:noreply, assign(socket, :page, String.to_integer(page))}
-
-    def handle_event("set_rows", %{"rows_per_page" => rows}, socket),
-      do: {:noreply, assign(socket, per_page: String.to_integer(rows), page: 1)}\
     """
   end
 
   defp card_code do
     """
-    <.pp_card>
-      <:title>Account</:title>
-      You have no pending invoices.
-      <:actions>
-        <.pp_button variant="text">Dismiss</.pp_button>
-      </:actions>
+    <.pp_card :for={variant <- ~w(elevated filled outlined)} variant={variant}>
+      <:title>{variant}</:title>
+      <:subhead>Card variant</:subhead>
+      Body text on the card's own surface.
     </.pp_card>
 
-    <.pp_card :for={padding <- ~w(none xs sm md lg xl 2xl)a} padding={padding}>
-      padding: {padding}
+    <.pp_card>
+      <:media><img src="/images/1.jpg" alt="" class="h-36 w-full object-cover" /></:media>
+      <:title>Breakfast</:title>
+      <:subhead>Open until 11am</:subhead>
+      Pancakes, eggs and fresh coffee.
+      <:actions>
+        <.pp_button variant="text">Directions</.pp_button>
+        <.pp_button variant="tonal">Book</.pp_button>
+      </:actions>
     </.pp_card>
 
     <%!-- The whole card is clickable; :actions stay outside the link --%>
-    <.pp_card navigate={~p"/components/layout"}>
-      <:title>Layout components</:title>
-      Box, Container, Stack, Grid, Divider.
-      <:actions>
-        <.pp_button variant="text" href={~p"/components/surfaces"}>Surfaces</.pp_button>
-      </:actions>
+    <.pp_card variant="outlined" navigate={~p"/components/surfaces"}>
+      <:title>Surfaces</:title>
+      Typography, Divider and the sheets.
     </.pp_card>\
-    """
-  end
-
-  defp avatar_code do
-    """
-    <.pp_avatar src="/images/1.jpg" alt="A profile photo" />
-    <.pp_avatar>OP</.pp_avatar>
-    <.pp_avatar />
-
-    <.pp_avatar variant="rounded">OP</.pp_avatar>
-    <.pp_avatar variant="square">OP</.pp_avatar>
-
-    <.pp_avatar size="small">OP</.pp_avatar>
-    <.pp_avatar size="large">OP</.pp_avatar>
-
-    <.pp_avatar :for={color <- ~w(default primary secondary accent error)} color={color}>
-      <.pp_icon name="hero-sparkles" />
-    </.pp_avatar>\
     """
   end
 
   defp badge_code do
     """
-    <.pp_badge content={4}>
-      <.pp_icon name="hero-bell" />
-    </.pp_badge>
+    <%!-- small badge: no content --%>
+    <.pp_badge><.pp_icon name="hero-chat-bubble-left" /></.pp_badge>
 
-    <.pp_badge content={150}>
-      <.pp_icon name="hero-bell" />
-    </.pp_badge>
+    <%!-- large badge: a count or short label --%>
+    <.pp_badge content={4}><.pp_icon name="hero-envelope" /></.pp_badge>
+    <.pp_badge content={150} max={99}><.pp_icon name="hero-inbox" /></.pp_badge>
 
-    <.pp_badge variant="dot" color="success">
-      <.pp_icon name="hero-user" />
-    </.pp_badge>
-
-    <%!-- overlap="circular" pulls the badge inward to sit on a circular avatar --%>
-    <.pp_badge content={1} overlap="circular" color="primary">
-      <.pp_avatar />
-    </.pp_badge>\
+    <%!-- a count of 0 hides it --%>
+    <.pp_badge content={@unread}><.pp_icon name="hero-bell" /></.pp_badge>\
     """
   end
 
   defp chip_code do
     """
-    <.pp_chip>Basic</.pp_chip>
-    <.pp_chip variant="outlined" color="primary">Outlined</.pp_chip>
-    <.pp_chip color="success">Success</.pp_chip>
-    <.pp_chip size="small">Small</.pp_chip>
-
-    <.pp_chip>
-      Tagged
-      <:icon><.pp_icon name="hero-check" /></:icon>
+    <.pp_chip variant="assist" phx-click="add_to_calendar">
+      <:icon><.pp_icon name="hero-calendar" size="sm" /></:icon>
+      Add to calendar
     </.pp_chip>
 
-    <.pp_chip
-      :for={tag <- @chips}
-      deletable
-      on_delete={JS.push("delete_chip", value: %{chip: tag})}
-    >
-      {tag}
+    <%!-- filter: a client-side toggle (or selected={@unread} + phx-click) --%>
+    <.pp_chip variant="filter" toggle selected={false}>Unread</.pp_chip>
+
+    <%!-- input: removable --%>
+    <.pp_chip variant="input" deletable on_delete={JS.push("remove_tag", value: %{tag: "elixir"})}>
+      elixir
     </.pp_chip>
 
-    <.pp_chip clickable phx-click="select_filter">Clickable</.pp_chip>
-    <.pp_chip clickable disabled>Disabled</.pp_chip>\
+    <.pp_chip variant="suggestion" phx-click="reply" phx-value-text="Sounds good">Sounds good</.pp_chip>\
     """
   end
 
   defp tooltip_code do
     """
     <.pp_tooltip title="Delete">
-      <.pp_button variant="icon"><.pp_icon name="hero-trash" /></.pp_button>
+      <.pp_icon_button icon="hero-trash" label="Delete" title={false} />
     </.pp_tooltip>
 
     <.pp_tooltip title="Bottom" placement="bottom">
       <.pp_button variant="outlined">Bottom</.pp_button>
     </.pp_tooltip>
 
-    <.pp_tooltip title="With an arrow" arrow>
-      <.pp_button variant="outlined">Arrow</.pp_button>
-    </.pp_tooltip>
-
-    <%!-- Same styling attrs as pp_button --%>
-    <.pp_tooltip title="Saved" color="accent" variant="outlined" size="large" shape={:full} arrow>
-      <.pp_button variant="outlined">Styled</.pp_button>
+    <.pp_tooltip variant="rich" subhead="Rich tooltip" title="Supporting text with more context.">
+      <.pp_button variant="tonal">Hover me</.pp_button>
+      <:actions><.pp_button variant="text" size="xs">Learn more</.pp_button></:actions>
     </.pp_tooltip>\
     """
   end
 
   defp icon_code do
     """
-    <.pp_icon name="hero-check" class="text-pp-accent" />
+    <.pp_icon name="hero-check" class="text-pp-tertiary" />
 
-    <%!-- size, not class="size-4" (which loses to the built-in size-5) --%>
+    <%!-- size, not class="size-4" (which loses to the built-in size) --%>
     <.pp_icon :for={size <- ~w(xs sm md lg xl)} name="hero-star" size={size} />\
     """
   end
 
-  defp image_list_code do
-    """
-    <.pp_image_list cols={3}>
-      <.pp_image_list_item src="/images/1.jpg" title="Breakfast" />
-      <.pp_image_list_item src="/images/2.jpg" title="Burger" subtitle="Restaurant" />
-    </.pp_image_list>\
-    """
+  defp carousel_items(assigns) do
+    [
+      {assigns.photo_1, "Breakfast"},
+      {assigns.photo_2, "Burger"},
+      {assigns.photo_3, "Camera"},
+      {assigns.photo_1, "Morning"},
+      {assigns.photo_2, "Lunch"},
+      {assigns.photo_3, "Gear"}
+    ]
   end
 
-  defp table_code do
+  defp carousel_code do
     """
-    <.pp_table_container>
-      <.pp_table>
-        <.pp_table_head>
-          <.pp_table_row>
-            <.pp_table_cell variant="head" sortable sort_direction="asc" phx-click="sort">Dessert</.pp_table_cell>
-            <.pp_table_cell variant="head" align="right" sortable phx-click="sort">Calories</.pp_table_cell>
-            <.pp_table_cell variant="head" align="right">Fat (g)</.pp_table_cell>
-          </.pp_table_row>
-        </.pp_table_head>
-        <.pp_table_body striped>
-          <.pp_table_row>
-            <.pp_table_cell>Frozen yoghurt</.pp_table_cell>
-            <.pp_table_cell align="right">159</.pp_table_cell>
-            <.pp_table_cell align="right">6.0</.pp_table_cell>
-          </.pp_table_row>
-          <.pp_table_row selected>
-            <.pp_table_cell>Ice cream sandwich</.pp_table_cell>
-            <.pp_table_cell align="right">237</.pp_table_cell>
-            <.pp_table_cell align="right">9.0</.pp_table_cell>
-          </.pp_table_row>
-        </.pp_table_body>
-        <.pp_table_footer>
-          <.pp_table_row>
-            <.pp_table_cell>Total</.pp_table_cell>
-            <.pp_table_cell align="right">396</.pp_table_cell>
-            <.pp_table_cell align="right">15.0</.pp_table_cell>
-          </.pp_table_row>
-        </.pp_table_footer>
-      </.pp_table>
-    </.pp_table_container>\
+    <.pp_carousel id="featured" label="Featured places" controls>
+      <:item :for={place <- @places} label={place.name} navigate={~p"/places/\#{place.id}"}>
+        <img src={place.photo} alt="" class="size-full object-cover" />
+      </:item>
+    </.pp_carousel>
+
+    <.pp_carousel id="hero" layout="hero" height="sm" label="Featured">
+      <:item :for={place <- @places} label={place.name}>
+        <img src={place.photo} alt="" class="size-full object-cover" />
+      </:item>
+    </.pp_carousel>\
     """
   end
 end

@@ -10,21 +10,25 @@ defmodule PhoenixPaperWebsiteWeb.Components.IndexLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Every component, in one place">
           Pick a category to see it live: real PhoenixPaper components, not screenshots.
         </.page_header>
 
-        <.pp_grid spacing={:md}>
-          <.pp_grid_item :for={item <- @items} span={12} md={6}>
+        <div class="grid grid-cols-12 gap-4">
+          <div :for={item <- @items} class="col-span-12 md:col-span-6">
             <.pp_card id={"category-#{item.id}"} navigate={item.path} class="h-full">
               <:title>{item.label}</:title>
-              <.pp_avatar color="primary" class="mb-3"><.pp_icon name={item.icon} /></.pp_avatar>
-              <.pp_typography variant="body2" color="muted">{item.blurb}</.pp_typography>
+              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container mb-3"><.pp_icon name={
+                item.icon
+              } /></span>
+              <.pp_typography variant="body-medium" color="on-surface-variant">
+                {item.blurb}
+              </.pp_typography>
             </.pp_card>
-          </.pp_grid_item>
-        </.pp_grid>
-      </.pp_container>
+          </div>
+        </div>
+      </div>
     </Layouts.app>
     """
   end

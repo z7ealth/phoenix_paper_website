@@ -1,6 +1,8 @@
 defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
+  alias Phoenix.LiveView.JS
+
   @formats ~w(bold italic underline)
   @views [
     {"columns", "hero-view-columns", "Columns"},
@@ -16,7 +18,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
      |> assign(:view, "columns")}
   end
 
-  # Toggle Button is controlled: its pressed state lives in these assigns.
+  # Controlled toggle buttons: their selected state lives in these assigns.
   def handle_event("toggle_format", %{"format" => format}, socket) when format in @formats do
     formats =
       if MapSet.member?(socket.assigns.formats, format),
@@ -31,137 +33,202 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
     {:noreply, assign(socket, :view, view)}
   end
 
+  def handle_event("demo_action", %{"action" => action}, socket) do
+    {:noreply, put_flash(socket, :info, "#{action} clicked")}
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:actions}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Actions">
-          PhoenixPaper.Button, PhoenixPaper.ButtonGroup, PhoenixPaper.Fab, PhoenixPaper.SpeedDial,
-          PhoenixPaper.ToggleButton.
+          PhoenixPaper.Button, IconButton, SplitButton, ButtonGroup, Fab and FabMenu: the MD3
+          (and M3 Expressive) action components.
         </.page_header>
 
         <.section
           title="Button"
-          description="Five classic Material variants, each available in four colors. Ripples on click or tap by default (see the Helpers page). Passing href, navigate or patch switches it to link mode, rendering an anchor instead of a button element, keeping every variant/color/ripple: for a button that navigates, without nesting a button inside a link."
-          props={[
-            {"variant", "raised | flat | outlined | text | icon (default: raised)"},
-            {"color",
-             "primary | secondary | accent | error | inherit (default: primary). inherit follows the surrounding text color: text/outlined/icon buttons stay visible on a colored AppBar, Drawer, Card, Alert or Snackbar; on raised/flat it's a neutral chip"},
-            {"size", "small | medium | large (default: medium)"},
-            {"elevation", "override the resting elevation, 0-24 (default: nil, variant decides)"},
-            {"shape", ":none | :xs | :sm | :md | :lg | :xl | :full (default: :full, a pill)"},
-            {"ripple", "boolean, the ripple effect on click/tap (default: true)"},
-            {"disabled",
-             "boolean (default: false), also works in link mode (aria-disabled + pointer-events-none)"},
-            {"loading", "boolean, spinner replaces start_icon, disables the button (default: false)"},
-            {"href / navigate / patch",
-             "any set renders an anchor (Phoenix.Component.link/1) instead of a button, same styling. method/download/target/rel pass through"},
-            {"type", "button | submit | reset (default: button, ignored in link mode)"},
-            {"position",
-             "relative (default) | fixed | absolute | sticky: anchor it with offsets in class, e.g. position=\"absolute\" class=\"top-2 right-2\" (a class=\"absolute\" would lose to the ripple's own relative)"},
-            {"paperize", "boolean (default: true)"},
-            {"class",
-             "plain string concatenation on top of the built-in classes; prefix an override with ! (Tailwind's important modifier) to reliably beat a built-in utility for the same property"}
-          ]}
-          slots={[{":start_icon / :end_icon", "an icon before/after the label"}]}
+          description="MD3's five button styles (filled, tonal, elevated, outlined, text) in the Expressive sizes xs–xl and round or square shapes; pressing morphs the corners on the Expressive spring. href, navigate or patch renders a link instead of a button element. Toggle buttons are built in: selected={...} makes a controlled toggle (aria-pressed from your assigns plus phx-click), toggle flips it on the client, and group makes a client-side set exclusive."
+          api={[{PhoenixPaper.Button, :pp_button}]}
           code={button_code()}
         >
-          <.demo_group :for={variant <- ~w(raised flat outlined text icon)} label={variant}>
-            <.pp_button
-              :for={color <- ~w(primary secondary accent error)}
-              variant={variant}
-              color={color}
-            >
-              <.pp_icon :if={variant == "icon"} name="hero-star" />
-              <span :if={variant != "icon"}>{color}</span>
+          <.demo_group label="variant">
+            <.pp_button :for={variant <- ~w(filled tonal elevated outlined text)} variant={variant}>
+              {variant}
             </.pp_button>
           </.demo_group>
 
-          <.demo_group label={~S|color="inherit" (on a colored surface)|} direction="column">
-            <.pp_app_bar color="secondary">
-              Inbox
-              <:actions>
-                <.pp_button variant="text" color="inherit">Mark all read</.pp_button>
-                <.pp_button variant="outlined" color="inherit">Filter</.pp_button>
-                <.pp_button variant="icon" color="inherit" aria-label="More">
-                  <.pp_icon name="hero-ellipsis-vertical" />
-                </.pp_button>
-              </:actions>
-            </.pp_app_bar>
-          </.demo_group>
-
-          <.demo_group label="Sizes">
-            <.pp_button :for={size <- ~w(small medium large)} size={size}>
-              {size}
+          <.demo_group label="color">
+            <.pp_button :for={color <- ~w(primary secondary tertiary error)} color={color}>
+              {color}
             </.pp_button>
           </.demo_group>
 
-          <.demo_group label="Icons and loading">
+          <.demo_group label="size (round), and square">
+            <.pp_button :for={size <- ~w(xs sm md lg xl)} size={size}>{size}</.pp_button>
+            <.pp_button shape="square" variant="tonal">square</.pp_button>
+          </.demo_group>
+
+          <.demo_group label="Icons, loading, link">
             <.pp_button variant="outlined">
-              <:start_icon><.pp_icon name="hero-trash" /></:start_icon>
+              <:start_icon><.pp_icon name="hero-trash" size="sm" /></:start_icon>
               Delete
             </.pp_button>
-            <.pp_button>
-              Send
-              <:end_icon><.pp_icon name="hero-check" /></:end_icon>
+            <.pp_button variant="tonal">
+              Next
+              <:end_icon><.pp_icon name="hero-arrow-right" size="sm" /></:end_icon>
             </.pp_button>
-            <.pp_button loading>
-              <:start_icon><.pp_icon name="hero-trash" /></:start_icon>
-              Delete
-            </.pp_button>
+            <.pp_button loading>Saving</.pp_button>
+            <.pp_button variant="text" navigate={~p"/getting-started"}>Getting started</.pp_button>
           </.demo_group>
 
-          <.demo_group label="Link mode (href / navigate / patch)">
-            <.pp_button href="#button" variant="text">Link (href)</.pp_button>
-            <.pp_button navigate="#button">Link (navigate)</.pp_button>
-            <.pp_button href="#button" disabled variant="outlined">Disabled link</.pp_button>
-          </.demo_group>
-
-          <.demo_group label="Disabled and paperize: false">
-            <.pp_button disabled>Raised</.pp_button>
-            <.pp_button variant="outlined" disabled>Outlined</.pp_button>
+          <.demo_group label="Toggle, controlled (any combination)">
             <.pp_button
-              paperize={false}
-              class="rounded-none border-4 border-dashed border-fuchsia-500 px-3 py-1 font-mono text-fuchsia-700"
+              :for={format <- ~w(bold italic underline)}
+              id={"toggle-format-#{format}"}
+              variant="outlined"
+              selected={format in @formats}
+              phx-click="toggle_format"
+              phx-value-format={format}
             >
-              paperize: false
+              {String.capitalize(format)}
+            </.pp_button>
+          </.demo_group>
+
+          <.demo_group label="Toggle, client-side (toggle)">
+            <.pp_button id="client-toggle-bold" variant="tonal" toggle selected>Bold</.pp_button>
+            <.pp_button id="client-toggle-italic" variant="tonal" toggle selected={false}>
+              Italic
+            </.pp_button>
+            <.pp_button id="client-toggle-underline" variant="tonal" toggle selected={false}>
+              Underline
             </.pp_button>
           </.demo_group>
         </.section>
 
         <.section
+          title="Icon Button"
+          description="An icon-only button: standard (no container), filled, tonal or outlined, in the Expressive sizes, narrow/default/wide widths and round/square shapes. label is required: it's the accessible name and the native tooltip. Like Button it toggles (selected / toggle / group), and selected_icon swaps the glyph, MD3's outlined → filled pair."
+          api={[{PhoenixPaper.IconButton, :pp_icon_button}]}
+          code={icon_button_code()}
+        >
+          <.demo_group label="variant">
+            <.pp_icon_button
+              :for={variant <- ~w(standard filled tonal outlined)}
+              variant={variant}
+              icon="hero-heart"
+              label={variant}
+            />
+          </.demo_group>
+
+          <.demo_group label="size and width">
+            <.pp_icon_button
+              :for={size <- ~w(xs sm md lg)}
+              size={size}
+              variant="tonal"
+              icon="hero-star"
+              label={"size #{size}"}
+            />
+            <.pp_icon_button
+              :for={width <- ~w(narrow default wide)}
+              width={width}
+              variant="filled"
+              icon="hero-plus"
+              label={"width #{width}"}
+            />
+          </.demo_group>
+
+          <.demo_group label="Toggle with selected_icon (click)">
+            <.pp_icon_button
+              id="icon-toggle-star"
+              icon="hero-star"
+              selected_icon="hero-star-solid"
+              label="Star"
+              toggle
+              selected={false}
+            />
+            <.pp_icon_button
+              id="icon-toggle-bookmark"
+              icon="hero-bookmark"
+              selected_icon="hero-bookmark-solid"
+              label="Bookmark"
+              variant="tonal"
+              toggle
+              selected
+            />
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Split Button"
+          description="A primary action joined to a trailing button that opens a menu of related actions (M3 Expressive). The halves sit 2dp apart; opening the menu morphs the trailing half into a circle and flips its chevron. phx-click and other global attrs go on the leading button; the menu holds pp_menu_item/1s."
+          api={[{PhoenixPaper.SplitButton, :pp_split_button}]}
+          code={split_button_code()}
+        >
+          <.demo_group label="Try it">
+            <.pp_split_button id="split-send" phx-click="demo_action" phx-value-action="Send">
+              Send
+              <:menu>
+                <.pp_menu_item icon="hero-clock" phx-click="demo_action" phx-value-action="Schedule">
+                  Schedule send
+                </.pp_menu_item>
+                <.pp_menu_item icon="hero-document" phx-click="demo_action" phx-value-action="Draft">
+                  Save draft
+                </.pp_menu_item>
+              </:menu>
+            </.pp_split_button>
+            <.pp_split_button id="split-tonal" variant="tonal">
+              <:start_icon><.pp_icon name="hero-arrow-down-tray" size="sm" /></:start_icon>
+              Export
+              <:menu>
+                <.pp_menu_item>As PDF</.pp_menu_item>
+                <.pp_menu_item>As CSV</.pp_menu_item>
+              </:menu>
+            </.pp_split_button>
+          </.demo_group>
+        </.section>
+
+        <.section
           title="Button Group"
-          description="Visually joins a row of buttons into one segmented control by rounding only the outer corners. No group-level color/variant that cascades to children like MUI's; set each button's own attrs."
-          props={[
-            {"orientation", "horizontal | vertical (default: horizontal)"},
-            {"shape", "corner radius token for the group's outer corners (default: :md)"},
-            {"disable_elevation",
-             "boolean, zero out every child button's own elevation shadow (default: false)"},
-            {"paperize", "boolean (default: true)"},
-            {"class", "plain string concatenation on top of the built-in classes (see Button above)"}
-          ]}
+          description="Groups related buttons (M3 Expressive). standard keeps them as separate buttons in a row; connected joins them into one segmented control with shared inner corners. Give the buttons a toggle group for a single-select control, like the exclusive view switch below."
+          api={[{PhoenixPaper.ButtonGroup, :pp_button_group}]}
           code={button_group_code()}
         >
-          <.demo_group label="Horizontal">
+          <.demo_group label="standard">
             <.pp_button_group>
-              <.pp_button variant="outlined">Day</.pp_button>
-              <.pp_button variant="outlined">Week</.pp_button>
-              <.pp_button variant="outlined">Month</.pp_button>
+              <.pp_button variant="tonal">Day</.pp_button>
+              <.pp_button variant="tonal">Week</.pp_button>
+              <.pp_button variant="tonal">Month</.pp_button>
             </.pp_button_group>
           </.demo_group>
 
-          <.demo_group label="Vertical" class="items-start">
-            <.pp_button_group orientation="vertical">
-              <.pp_button variant="outlined">Day</.pp_button>
-              <.pp_button variant="outlined">Week</.pp_button>
-              <.pp_button variant="outlined">Month</.pp_button>
+          <.demo_group label="connected, controlled single-select (click)">
+            <.pp_button_group variant="connected">
+              <.pp_button
+                :for={{view, icon, label} <- views()}
+                id={"toggle-view-#{view}"}
+                variant="tonal"
+                selected={@view == view}
+                phx-click="set_view"
+                phx-value-view={view}
+              >
+                <:start_icon><.pp_icon name={icon} size="sm" /></:start_icon>
+                {label}
+              </.pp_button>
             </.pp_button_group>
           </.demo_group>
 
-          <.demo_group label="disable_elevation">
-            <.pp_button_group disable_elevation>
-              <.pp_button>Save</.pp_button>
-              <.pp_button>Cancel</.pp_button>
+          <.demo_group label="connected, client-side single-select (group)">
+            <.pp_button_group variant="connected">
+              <.pp_button
+                :for={{view, _icon, label} <- views()}
+                id={"client-toggle-view-#{view}"}
+                variant="outlined"
+                group="client-view-demo"
+                selected={view == "columns"}
+              >
+                {label}
+              </.pp_button>
             </.pp_button_group>
           </.demo_group>
         </.section>
@@ -169,155 +236,62 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
         <.section
           title="Floating Action Button"
           description={
-            ~S|A circular, elevated, icon-only button, or an extended pill with a label, typically anchored to a screen corner: use position="fixed" plus offsets in class.|
+            ~S|The screen's primary action: an icon on a primary-container square (MD3 FABs are 16dp-corner squares, not circles), in default, medium and large sizes. icon and label are attrs: label is the accessible name, and shown beside the icon with extended. Anchor one to a corner with position="fixed" plus offsets in class.|
           }
-          props={[
-            {"color", "primary | secondary | accent | error (default: secondary)"},
-            {"size", "sm | md | lg (default: md)"},
-            {"extended", "boolean, labeled pill instead of a fixed circle (default: false)"},
-            {"position",
-             "relative (default) | fixed | absolute | sticky: e.g. position=\"fixed\" class=\"bottom-6 right-6\" for a corner FAB"},
-            {"ripple", "boolean (default: true)"},
-            {"disabled", "boolean (default: false)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
+          api={[{PhoenixPaper.Fab, :pp_fab}]}
           code={fab_code()}
         >
-          <.demo_group label="Sizes">
-            <.pp_fab :for={size <- ~w(sm md lg)} size={size}><.pp_icon name="hero-star" /></.pp_fab>
+          <.demo_group label="size">
+            <.pp_fab
+              :for={size <- ~w(default medium large)}
+              size={size}
+              icon="hero-pencil"
+              label={"Compose (#{size})"}
+            />
           </.demo_group>
-
-          <.demo_group label="Colors and extended">
-            <.pp_fab :for={color <- ~w(primary secondary accent error)} color={color}>
-              <.pp_icon name="hero-star" />
-            </.pp_fab>
-            <.pp_fab extended color="primary">
-              <.pp_icon name="hero-star" /> Create
-            </.pp_fab>
+          <.demo_group label="color">
+            <.pp_fab
+              :for={color <- ~w(primary-container secondary-container tertiary-container surface)}
+              color={color}
+              icon="hero-plus"
+              label={color}
+            />
+          </.demo_group>
+          <.demo_group label="extended, lowered">
+            <.pp_fab extended icon="hero-pencil" label="Compose" />
+            <.pp_fab lowered icon="hero-plus" label="Add (lowered)" />
           </.demo_group>
         </.section>
 
         <.section
-          title="Speed Dial"
-          description="A FAB that fans out related actions on hover, click/tap, or keyboard focus, in the spirit of MUI's SpeedDial. Pure CSS, no JS: the same hidden-checkbox + peer-checked / group-hover trick as Drawer and Tooltip. You anchor the whole thing to a corner with a fixed class; direction then picks which way the actions open. Each action's label shows as an always-on pill (MUI's tooltipOpen look)."
-          props={[
-            {"id / label",
-             "id wires the toggle checkbox; label is the trigger's accessible name (both required)"},
-            {"direction", "up (default) | down | left | right"},
-            {"color", "primary | secondary | accent | error (default: secondary), the trigger"},
-            {"size", "sm | md | lg (default: md), the trigger"},
-            {"position",
-             "relative (default) | fixed | absolute | sticky: the root's position; position=\"fixed\" class=\"bottom-6 right-6\" anchors it to a corner"},
-            {"class", "goes on the root (around the trigger and the actions), e.g. corner offsets"},
-            {"trigger_class", "added to the trigger FAB (since 0.3.0, class no longer lands there)"},
-            {"ripple", "boolean (default: true), off whenever paperize is false"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":icon", "closed icon (default hero-plus, rotates 45deg when open)"},
-            {":open_icon", "a distinct icon to cross-fade to instead of rotating :icon"},
-            {":action",
-             "body is the icon. Attrs: label (pill text), href / navigate / patch (link mode), on_click (a JS or event name)"}
-          ]}
-          code={speed_dial_code()}
+          title="FAB Menu"
+          description="A FAB that opens a short stack of related actions, M3 Expressive's replacement for the speed dial. Tapping it morphs the FAB into a round close button and the items rise above it as labeled pills; the close button, clicking outside, or Escape closes it. Pure CSS. Items link (href/navigate/patch) or fire on_click (a JS)."
+          api={[{PhoenixPaper.FabMenu, :pp_fab_menu}]}
+          code={fab_menu_code()}
         >
-          <.demo_group label="Hover, tap, or tab to a trigger" class="items-end">
-            <div class="flex flex-wrap items-end gap-16 px-2 pt-28 pb-6">
-              <.pp_speed_dial id="sd_create_demo" label="Create">
-                <:action label="New workbook"><.pp_icon name="hero-document-plus" /></:action>
-                <:action label="New folder"><.pp_icon name="hero-folder-plus" /></:action>
-                <:action label="Import"><.pp_icon name="hero-arrow-up-tray" /></:action>
-              </.pp_speed_dial>
-              <.pp_speed_dial id="sd_share_demo" label="Share" direction="right" color="primary">
-                <:action label="Copy link"><.pp_icon name="hero-link" /></:action>
-                <:action label="Email"><.pp_icon name="hero-envelope" /></:action>
-              </.pp_speed_dial>
-              <.pp_speed_dial id="sd_menu_demo" label="Menu" direction="down">
-                <:icon><.pp_icon name="hero-bars-3" /></:icon>
-                <:open_icon><.pp_icon name="hero-x-mark" /></:open_icon>
-                <:action label="Settings"><.pp_icon name="hero-cog-6-tooth" /></:action>
-                <:action label="Help"><.pp_icon name="hero-question-mark-circle" /></:action>
-              </.pp_speed_dial>
+          <.demo_group label="Try it">
+            <div class="flex h-72 w-full items-end justify-end">
+              <.pp_fab_menu id="fab-menu-demo" label="Create">
+                <:item
+                  icon="hero-document"
+                  label="Document"
+                  on_click={JS.push("demo_action", value: %{action: "Document"})}
+                />
+                <:item
+                  icon="hero-table-cells"
+                  label="Spreadsheet"
+                  on_click={JS.push("demo_action", value: %{action: "Spreadsheet"})}
+                />
+                <:item
+                  icon="hero-photo"
+                  label="Photo"
+                  on_click={JS.push("demo_action", value: %{action: "Photo"})}
+                />
+              </.pp_fab_menu>
             </div>
           </.demo_group>
         </.section>
-
-        <.section
-          title="Toggle Button"
-          description="A button with a boolean pressed state, filled when pressed. Two modes. Controlled (the default): pressed comes from your assigns, so pair it with phx-click and flip the assign in handle_event; use it when the state is app state. Client-side: toggle makes the button flip itself on click with no server round trip (pressed is then the initial state), and toggle_group makes a set exclusive like radio buttons. Combine several inside a Button Group for a segmented toggle."
-          props={[
-            {"pressed",
-             "boolean (default: false): the pressed state from your assigns, or with toggle, the initial state"},
-            {"toggle", "boolean (default: false): flip pressed client-side on click, no round trip"},
-            {"toggle_group",
-             "string (default: nil): exclusive client-side group, pressing one un-presses the rest; implies toggle. Names are page-wide"},
-            {"on_toggle",
-             "JS (toggle mode only): commands run after the flip, e.g. JS.push(\"format_changed\"); use it instead of phx-click"},
-            {"color", "primary | secondary | accent | error (default: primary)"},
-            {"shape", "corner radius token (default: :md)"},
-            {"ripple", "boolean (default: true)"},
-            {"disabled", "boolean (default: false)"}
-          ]}
-          code={toggle_button_code()}
-        >
-          <.demo_group label="Controlled, standalone (independent: any combination)">
-            <.pp_toggle_button
-              :for={format <- ~w(bold italic underline)}
-              id={"toggle-format-#{format}"}
-              pressed={format in @formats}
-              phx-click="toggle_format"
-              phx-value-format={format}
-            >
-              {String.capitalize(format)}
-            </.pp_toggle_button>
-          </.demo_group>
-
-          <.demo_group label="Client-side, standalone (toggle)">
-            <.pp_toggle_button id="client-toggle-bold" toggle pressed>Bold</.pp_toggle_button>
-            <.pp_toggle_button id="client-toggle-italic" toggle>Italic</.pp_toggle_button>
-            <.pp_toggle_button id="client-toggle-underline" toggle>Underline</.pp_toggle_button>
-          </.demo_group>
-
-          <.demo_group label="Client-side, grouped (toggle_group)">
-            <.pp_button_group>
-              <.pp_toggle_button
-                :for={{view, icon, label} <- views()}
-                id={"client-toggle-view-#{view}"}
-                toggle_group="client-view-demo"
-                pressed={view == "columns"}
-                aria-label={label}
-              >
-                <.pp_icon name={icon} />
-              </.pp_toggle_button>
-            </.pp_button_group>
-          </.demo_group>
-
-          <.demo_group label="Colors, pressed">
-            <.pp_toggle_button
-              :for={color <- ~w(primary secondary accent error)}
-              pressed
-              color={color}
-            >
-              {color}
-            </.pp_toggle_button>
-          </.demo_group>
-
-          <.demo_group label="Controlled, grouped (exclusive: one at a time)">
-            <.pp_button_group>
-              <.pp_toggle_button
-                :for={{view, icon, label} <- views()}
-                id={"toggle-view-#{view}"}
-                pressed={@view == view}
-                phx-click="set_view"
-                phx-value-view={view}
-                aria-label={label}
-              >
-                <.pp_icon name={icon} />
-              </.pp_toggle_button>
-            </.pp_button_group>
-          </.demo_group>
-        </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
     """
   end
@@ -326,150 +300,101 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
   defp button_code do
     """
-    <.pp_button color="primary">Save</.pp_button>
-    <.pp_button variant="outlined" color="secondary">Outlined</.pp_button>
-    <.pp_button variant="text">Text</.pp_button>
-    <.pp_button size="small" variant="outlined">Small</.pp_button>
-    <.pp_button ripple={false}>No ripple</.pp_button>
-    <.pp_button paperize={false} class="border-4 border-dashed border-fuchsia-500 px-3 py-1 font-mono text-fuchsia-700">
-      paperize: false
+    <.pp_button :for={variant <- ~w(filled tonal elevated outlined text)} variant={variant}>
+      {variant}
     </.pp_button>
+
+    <.pp_button :for={size <- ~w(xs sm md lg xl)} size={size}>{size}</.pp_button>
+    <.pp_button shape="square" variant="tonal">square</.pp_button>
 
     <.pp_button variant="outlined">
-      <:start_icon><.pp_icon name="hero-trash" /></:start_icon>
+      <:start_icon><.pp_icon name="hero-trash" size="sm" /></:start_icon>
       Delete
     </.pp_button>
-    <.pp_button>
+    <.pp_button loading>Saving</.pp_button>
+    <.pp_button variant="text" navigate={~p"/getting-started"}>Getting started</.pp_button>
+
+    <%!-- Controlled toggle: selected from your assigns, plus phx-click --%>
+    <.pp_button
+      variant="outlined"
+      selected={"bold" in @formats}
+      phx-click="toggle_format"
+      phx-value-format="bold"
+    >
+      Bold
+    </.pp_button>
+
+    <%!-- Client-side toggle: no assigns, selected is the initial state --%>
+    <.pp_button variant="tonal" toggle selected={false}>Italic</.pp_button>
+
+    # In the LiveView (controlled example):
+    def handle_event("toggle_format", %{"format" => format}, socket) do
+      formats = socket.assigns.formats
+      formats = if format in formats, do: MapSet.delete(formats, format), else: MapSet.put(formats, format)
+      {:noreply, assign(socket, :formats, formats)}
+    end\
+    """
+  end
+
+  defp icon_button_code do
+    """
+    <.pp_icon_button :for={variant <- ~w(standard filled tonal outlined)} variant={variant} icon="hero-heart" label={variant} />
+
+    <.pp_icon_button size="lg" variant="tonal" icon="hero-star" label="Star" />
+    <.pp_icon_button width="wide" variant="filled" icon="hero-plus" label="Add" />
+
+    <%!-- A toggle that swaps to the filled glyph when selected --%>
+    <.pp_icon_button icon="hero-star" selected_icon="hero-star-solid" label="Star" toggle selected={false} />\
+    """
+  end
+
+  defp split_button_code do
+    """
+    <.pp_split_button id="send" phx-click="send">
       Send
-      <:end_icon><.pp_icon name="hero-check" /></:end_icon>
-    </.pp_button>
-    <.pp_button loading>
-      <:start_icon><.pp_icon name="hero-trash" /></:start_icon>
-      Delete
-    </.pp_button>
-
-    <%!-- href/navigate/patch render an <a> (Phoenix.Component.link/1), so a
-          "button" that navigates never nests <button> inside <a> --%>
-    <.pp_button href={~p"/getting-started"} variant="text">Getting started</.pp_button>
-    <.pp_button navigate={~p"/components"}>Browse components</.pp_button>
-
-    <%!-- color="inherit" follows the surrounding text color --%>
-    <.pp_app_bar color="secondary">
-      Inbox
-      <:actions>
-        <.pp_button variant="text" color="inherit">Mark all read</.pp_button>
-        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-ellipsis-vertical" /></.pp_button>
-      </:actions>
-    </.pp_app_bar>\
+      <:menu>
+        <.pp_menu_item icon="hero-clock" phx-click="schedule">Schedule send</.pp_menu_item>
+        <.pp_menu_item icon="hero-document" phx-click="save_draft">Save draft</.pp_menu_item>
+      </:menu>
+    </.pp_split_button>\
     """
   end
 
   defp button_group_code do
     """
     <.pp_button_group>
-      <.pp_button variant="outlined">Day</.pp_button>
-      <.pp_button variant="outlined">Week</.pp_button>
-      <.pp_button variant="outlined">Month</.pp_button>
+      <.pp_button variant="tonal">Day</.pp_button>
+      <.pp_button variant="tonal">Week</.pp_button>
+      <.pp_button variant="tonal">Month</.pp_button>
     </.pp_button_group>
 
-    <.pp_button_group orientation="vertical">
-      <.pp_button variant="outlined">Day</.pp_button>
-      <.pp_button variant="outlined">Week</.pp_button>
-      <.pp_button variant="outlined">Month</.pp_button>
-    </.pp_button_group>
-
-    <.pp_button_group disable_elevation>
-      <.pp_button>Save</.pp_button>
-      <.pp_button>Cancel</.pp_button>
+    <%!-- A single-select segmented control, client-side --%>
+    <.pp_button_group variant="connected">
+      <.pp_button variant="outlined" group="view" selected>Columns</.pp_button>
+      <.pp_button variant="outlined" group="view" selected={false}>Grid</.pp_button>
+      <.pp_button variant="outlined" group="view" selected={false}>Grouped</.pp_button>
     </.pp_button_group>\
     """
   end
 
   defp fab_code do
     """
-    <.pp_fab :for={size <- ~w(sm md lg)} size={size}><.pp_icon name="hero-star" /></.pp_fab>
-    <.pp_fab :for={color <- ~w(primary secondary accent error)} color={color}>
-      <.pp_icon name="hero-star" />
-    </.pp_fab>
-    <.pp_fab extended color="primary">
-      <.pp_icon name="hero-star" /> Create
-    </.pp_fab>
+    <.pp_fab icon="hero-pencil" label="Compose" />
+    <.pp_fab size="large" color="tertiary-container" icon="hero-plus" label="Add" />
+    <.pp_fab extended icon="hero-pencil" label="Compose" />
 
     <%!-- Anchored to the screen corner --%>
-    <.pp_fab position="fixed" class="bottom-6 right-6"><.pp_icon name="hero-plus" /></.pp_fab>\
+    <.pp_fab position="fixed" class="bottom-6 right-6" icon="hero-plus" label="Add" />\
     """
   end
 
-  defp speed_dial_code do
-    String.trim_trailing(~S'''
-    <%!-- position="fixed" + offsets anchor it; direction fans the actions from there.
-          Opens on hover, click/tap, or keyboard focus -- pure CSS, no JS.
-          class goes on the root; style the trigger FAB with trigger_class. --%>
-    <.pp_speed_dial id="create" label="Create" position="fixed" class="bottom-6 right-6">
-      <:action label="New workbook" navigate={~p"/workbooks/new"}>
-        <.pp_icon name="hero-document-plus" />
-      </:action>
-      <:action label="Invite teammate" on_click={JS.push("open_invite")}>
-        <.pp_icon name="hero-user-plus" />
-      </:action>
-    </.pp_speed_dial>
-
-    <%!-- :open_icon cross-fades instead of rotating the :icon 45deg --%>
-    <.pp_speed_dial id="menu" label="Menu" direction="down">
-      <:icon><.pp_icon name="hero-bars-3" /></:icon>
-      <:open_icon><.pp_icon name="hero-x-mark" /></:open_icon>
-      <:action label="Share"><.pp_icon name="hero-share" /></:action>
-    </.pp_speed_dial>
-    ''')
-  end
-
-  defp toggle_button_code do
+  defp fab_menu_code do
     """
-    <%!-- Independent toggles: @formats is a MapSet in your assigns --%>
-    <.pp_toggle_button
-      :for={format <- ~w(bold italic underline)}
-      pressed={format in @formats}
-      phx-click="toggle_format"
-      phx-value-format={format}
-    >
-      {String.capitalize(format)}
-    </.pp_toggle_button>
-
-    <%!-- Exclusive, in a Button Group: one @view at a time --%>
-    <.pp_button_group>
-      <.pp_toggle_button pressed={@view == "columns"} phx-click="set_view" phx-value-view="columns">
-        <.pp_icon name="hero-view-columns" />
-      </.pp_toggle_button>
-      <.pp_toggle_button pressed={@view == "grid"} phx-click="set_view" phx-value-view="grid">
-        <.pp_icon name="hero-squares-2x2" />
-      </.pp_toggle_button>
-    </.pp_button_group>
-
-    <.pp_toggle_button :for={color <- ~w(primary secondary accent error)} pressed color={color}>
-      {color}
-    </.pp_toggle_button>
-
-    <%!-- Client-side: no assigns, no handle_event. pressed is the initial state --%>
-    <.pp_toggle_button toggle pressed>Bold</.pp_toggle_button>
-    <.pp_toggle_button toggle>Italic</.pp_toggle_button>
-
-    <%!-- Exclusive client-side group; on_toggle tells the server if you want --%>
-    <.pp_button_group>
-      <.pp_toggle_button toggle_group="view" pressed>Columns</.pp_toggle_button>
-      <.pp_toggle_button toggle_group="view" on_toggle={JS.push("view_changed")} phx-value-view="grid">
-        Grid
-      </.pp_toggle_button>
-    </.pp_button_group>
-
-    # In the LiveView (controlled examples only):
-    def handle_event("toggle_format", %{"format" => format}, socket) do
-      formats = socket.assigns.formats
-      formats = if format in formats, do: MapSet.delete(formats, format), else: MapSet.put(formats, format)
-      {:noreply, assign(socket, :formats, formats)}
-    end
-
-    def handle_event("set_view", %{"view" => view}, socket),
-      do: {:noreply, assign(socket, :view, view)}\
+    <.pp_fab_menu id="create" label="Create" position="fixed" class="bottom-4 right-4">
+      <:item icon="hero-document" label="Document" navigate={~p"/docs/new"} />
+      <:item icon="hero-table-cells" label="Spreadsheet" on_click={JS.push("new_sheet")} />
+      <:item icon="hero-photo" label="Photo" on_click={JS.push("upload")} />
+    </.pp_fab_menu>\
     """
   end
 end

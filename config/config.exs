@@ -33,7 +33,15 @@ config :esbuild,
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
+    # phoenix_paper's JS hook is imported as "phoenix_paper": like the
+    # CSS, resolve it wherever mix.exs points (deps/ or a path: checkout).
+    env: %{
+      "NODE_PATH" => [
+        Path.dirname(Mix.Project.deps_paths(depth: 1)[:phoenix_paper]),
+        Path.expand("../deps", __DIR__),
+        Mix.Project.build_path()
+      ]
+    }
   ]
 
 # Configure tailwind (the version is required)

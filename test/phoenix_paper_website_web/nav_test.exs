@@ -23,7 +23,7 @@ defmodule PhoenixPaperWebsiteWeb.NavTest do
       page_anchors =
         html
         |> LazyHTML.from_document()
-        |> LazyHTML.query("main section[id]")
+        |> LazyHTML.query("main section[data-docs-section]")
         |> LazyHTML.attribute("id")
 
       nav_anchors = Enum.map(@item.children, &(&1.path |> String.split("#") |> List.last()))
@@ -31,19 +31,23 @@ defmodule PhoenixPaperWebsiteWeb.NavTest do
     end
   end
 
-  test "the sidebar renders each category as a group, open only on its own page",
+  test "the rail has a destination per category; only the current one lists its components",
        %{conn: conn} do
     {:ok, view, _html} = live(conn, "/components/navigation")
 
     for item <- Nav.component_items() do
-      assert has_element?(view, "#nav-#{item.id}-content")
-
-      for child <- item.children do
-        assert has_element?(view, ~s|#nav-#{item.id}-content a[href="#{child.path}"]|)
-      end
+      assert has_element?(view, ~s|#site-rail #nav-#{item.id}[href="#{item.path}"]|)
     end
 
-    assert has_element?(view, "#nav-navigation-toggle[checked]")
-    refute has_element?(view, "#nav-actions-toggle[checked]")
+    assert has_element?(view, ~s|#nav-navigation[aria-current="page"]|)
+    refute has_element?(view, ~s|#nav-actions[aria-current="page"]|)
+
+    navigation = Enum.find(Nav.component_items(), &(&1.id == :navigation))
+
+    for child <- navigation.children do
+      assert has_element?(view, ~s|#nav-navigation-content a[href="#{child.path}"]|)
+    end
+
+    refute has_element?(view, "#nav-actions-content")
   end
 end

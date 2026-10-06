@@ -18,13 +18,13 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   """
   def page_header(assigns) do
     ~H"""
-    <.pp_stack spacing={:sm} class="mb-12">
-      <.pp_typography variant="overline" color="primary">{@eyebrow}</.pp_typography>
-      <.pp_typography variant="h3">{@title}</.pp_typography>
-      <.pp_typography variant="body1" color="muted" class="max-w-2xl">
+    <div class="flex flex-col gap-2 mb-12">
+      <.pp_typography variant="label-small" color="primary">{@eyebrow}</.pp_typography>
+      <.pp_typography variant="display-small">{@title}</.pp_typography>
+      <.pp_typography variant="body-large" color="on-surface-variant" class="max-w-2xl">
         {render_slot(@inner_block)}
       </.pp_typography>
-    </.pp_stack>
+    </div>
     """
   end
 
@@ -50,6 +50,11 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     default: nil,
     doc: "the HEEx snippet that produced the demo, rendered behind a Show code toggle"
 
+  attr :api, :list,
+    default: [],
+    doc:
+      "{Module, :function} pairs: options and slots tables generated from the library's own component metadata (types, defaults, allowed values, attr docs), so they always match the installed version"
+
   attr :code_language, :string,
     default: "elixir",
     doc: "highlight.js language for code (elixir, css or javascript)"
@@ -71,31 +76,31 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     assigns = assign(assigns, :status, PhoenixPaperWebsiteWeb.Nav.status(assigns.title))
 
     ~H"""
-    <section id={slug(@title)} class="mb-16 scroll-mt-20">
-      <.pp_typography :if={@eyebrow} variant="overline" color="primary">
+    <section id={slug(@title)} data-docs-section class="mb-16 scroll-mt-20">
+      <.pp_typography :if={@eyebrow} variant="label-small" color="primary">
         {@eyebrow}
       </.pp_typography>
-      <.pp_stack direction="row" spacing={:sm} class="mb-2 items-center">
-        <.pp_typography variant="h4">{@title}</.pp_typography>
-        <.pp_chip
+      <div class="flex flex-row gap-2 mb-2 items-center">
+        <.pp_typography variant="headline-medium">{@title}</.pp_typography>
+        <.pill
           :if={@live_component}
-          size="small"
-          color="primary"
+          color="primary-container"
           title="A Phoenix.LiveComponent -- stateful, needs phx-target={@myself} -- not a stateless function component"
         >
           LiveComponent
-        </.pp_chip>
+        </.pill>
         <.status_chip status={@status} />
-      </.pp_stack>
+      </div>
       <.pp_typography
         :if={@description}
-        variant="body2"
-        color="muted"
+        variant="body-medium"
+        color="on-surface-variant"
         class="mb-6 max-w-2xl"
       >
         {@description}
       </.pp_typography>
       {render_slot(@inner_block)}
+      <.generated_api :if={@api != []} id={slug(@title)} api={@api} />
       <.api_table :if={@props != []} id={"#{slug(@title)}-options"} label="Option" rows={@props} />
       <.api_table :if={@slots != []} id={"#{slug(@title)}-slots"} label="Slot" rows={@slots} />
       <.demo_code :if={@code} id={slug(@title)} text={@code} language={@code_language} />
@@ -104,30 +109,152 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   end
 
   attr :id, :string, required: true
+  attr :api, :list, required: true
+
+  # Options/slots tables built from Phoenix.Component metadata
+  # (Module.__components__/0): attr type, default, allowed values and doc.
+  defp generated_api(assigns) do
+    multiple? = length(assigns.api) > 1
+
+    {attrs, slots} =
+      Enum.reduce(assigns.api, {[], []}, fn {mod, fun}, {attrs, slots} ->
+        meta = mod.__components__()[fun]
+        prefix = if multiple?, do: "#{fun} ", else: ""
+
+        new_attrs =
+          for a <- meta.attrs, a.name not in [:rest, :class] do
+            %{
+              name: prefix <> to_string(a.name),
+              type: attr_type(a),
+              default: attr_default(a),
+              doc: a.doc
+            }
+          end
+
+        new_slots =
+          for sl <- meta.slots do
+            %{
+              name: prefix <> ":" <> to_string(sl.name),
+              attrs: Enum.map_join(sl.attrs, ", ", &to_string(&1.name)),
+              doc: sl.doc,
+              required: sl.required
+            }
+          end
+
+        {attrs ++ new_attrs, slots ++ new_slots}
+      end)
+
+    assigns = assign(assigns, attrs: attrs, slots: slots)
+
+    ~H"""
+    <div
+      :if={@attrs != []}
+      id={"#{@id}-options"}
+      class="mt-6 overflow-x-auto rounded-pp-md border border-pp-outline-variant"
+    >
+      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
+        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
+          <tr class="transition-colors hover:bg-pp-on-surface/8">
+            <th class="pp-title-small px-4 text-start">Option</th>
+            <th class="pp-title-small px-4 text-start">Type</th>
+            <th class="pp-title-small px-4 text-start">Default</th>
+            <th class="pp-title-small px-4 text-start">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={a <- @attrs} class="transition-colors hover:bg-pp-on-surface/8">
+            <td class="px-4 align-top">
+              <.pp_typography variant="code">{a.name}</.pp_typography>
+            </td>
+            <td class="px-4 align-top">
+              <.pp_typography variant="code">{a.type}</.pp_typography>
+            </td>
+            <td class="px-4 align-top">
+              <.pp_typography variant="code">{a.default}</.pp_typography>
+            </td>
+            <td class="px-4 align-top">{a.doc}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div
+      :if={@slots != []}
+      id={"#{@id}-slots"}
+      class="mt-4 overflow-x-auto rounded-pp-md border border-pp-outline-variant"
+    >
+      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
+        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
+          <tr class="transition-colors hover:bg-pp-on-surface/8">
+            <th class="pp-title-small px-4 text-start">Slot</th>
+            <th class="pp-title-small px-4 text-start">Attrs</th>
+            <th class="pp-title-small px-4 text-start">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={sl <- @slots} class="transition-colors hover:bg-pp-on-surface/8">
+            <td class="px-4 align-top">
+              <.pp_typography variant="code">{sl.name}</.pp_typography>
+              <.pp_typography :if={sl.required} variant="body-small" color="error">
+                required
+              </.pp_typography>
+            </td>
+            <td class="px-4 align-top">
+              <.pp_typography variant="code">{sl.attrs}</.pp_typography>
+            </td>
+            <td class="px-4 align-top">{sl.doc}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
+  defp attr_type(%{required: required} = a) do
+    base =
+      case a.opts[:values] do
+        nil -> type_name(a.type)
+        values -> values |> Enum.reject(&is_nil/1) |> Enum.map_join(" | ", &inspect/1)
+      end
+
+    if required, do: base <> " (required)", else: base
+  end
+
+  defp type_name({:struct, mod}), do: inspect(mod) |> String.replace("Phoenix.LiveView.", "")
+  defp type_name(t), do: to_string(t)
+
+  defp attr_default(a) do
+    case Keyword.fetch(a.opts, :default) do
+      {:ok, %Phoenix.LiveView.JS{}} -> "%JS{}"
+      {:ok, value} -> inspect(value)
+      :error -> ""
+    end
+  end
+
+  attr :id, :string, required: true
   attr :label, :string, required: true, doc: "the name column's heading"
   attr :rows, :list, required: true, doc: "{name, description} tuples"
 
-  # A section's Options or Slots reference, as a dense PhoenixPaper.Table.
+  # A section's Options or Slots reference, as a plain table styled with the pp-* tokens.
   defp api_table(assigns) do
     ~H"""
-    <.pp_table_container id={@id} class="mt-6">
-      <.pp_table dense>
-        <.pp_table_head>
-          <.pp_table_row>
-            <.pp_table_cell variant="head">{@label}</.pp_table_cell>
-            <.pp_table_cell variant="head">Description</.pp_table_cell>
-          </.pp_table_row>
-        </.pp_table_head>
-        <.pp_table_body>
-          <.pp_table_row :for={{name, desc} <- @rows}>
-            <.pp_table_cell>
+    <div id={@id} class="mt-6 overflow-x-auto rounded-pp-md border border-pp-outline-variant">
+      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
+        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
+          <tr class="transition-colors hover:bg-pp-on-surface/8">
+            <th class="pp-title-small px-4 text-start">{@label}</th>
+            <th class="pp-title-small px-4 text-start">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={{name, desc} <- @rows} class="transition-colors hover:bg-pp-on-surface/8">
+            <td class="px-4 align-top">
               <.pp_typography variant="code">{name}</.pp_typography>
-            </.pp_table_cell>
-            <.pp_table_cell>{desc}</.pp_table_cell>
-          </.pp_table_row>
-        </.pp_table_body>
-      </.pp_table>
-    </.pp_table_container>
+            </td>
+            <td class="px-4 align-top">{desc}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
@@ -142,27 +269,80 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     assigns = assign(assigns, :release, PhoenixPaperWebsiteWeb.Nav.release())
 
     ~H"""
-    <.pp_chip
+    <.pill
       :if={@status == :new}
-      size="small"
-      color="success"
+      color="tertiary-container"
       title={"New in v#{@release}"}
       data-pp-status="new"
     >
       New
-    </.pp_chip>
-    <.pp_chip
+    </.pill>
+    <.pill
       :if={@status == :updated}
-      size="small"
-      color="info"
-      variant="outlined"
+      color="secondary-container"
       title={"Updated in v#{@release}"}
       data-pp-status="updated"
     >
       Updated
-    </.pp_chip>
+    </.pill>
     """
   end
+
+  attr :color, :string, required: true
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  # A small rounded label (MD3 chips are interactive, so status markers are a
+  # container-colored span with label-small text instead).
+  defp pill(assigns) do
+    ~H"""
+    <span
+      class={["inline-flex shrink-0 rounded-pp-full px-2 py-0.5", role_classes(@color)]}
+      {@rest}
+    >
+      <.pp_typography variant="label-small">{render_slot(@inner_block)}</.pp_typography>
+    </span>
+    """
+  end
+
+  @doc """
+  The background/foreground pair for an MD3 color role, e.g.
+  `"primary-container"` -> `"bg-pp-primary-container text-pp-on-primary-container"`.
+  Literal strings so Tailwind's scanner sees every class.
+  """
+  def role_classes("surface"), do: "bg-pp-surface text-pp-on-surface"
+
+  def role_classes("surface-container-lowest"),
+    do: "bg-pp-surface-container-lowest text-pp-on-surface"
+
+  def role_classes("surface-container-low"), do: "bg-pp-surface-container-low text-pp-on-surface"
+  def role_classes("surface-container"), do: "bg-pp-surface-container text-pp-on-surface"
+
+  def role_classes("surface-container-high"),
+    do: "bg-pp-surface-container-high text-pp-on-surface"
+
+  def role_classes("surface-container-highest"),
+    do: "bg-pp-surface-container-highest text-pp-on-surface"
+
+  def role_classes("surface-dim"), do: "bg-pp-surface-dim text-pp-on-surface"
+  def role_classes("surface-bright"), do: "bg-pp-surface-bright text-pp-on-surface"
+  def role_classes("surface-variant"), do: "bg-pp-surface-variant text-pp-on-surface-variant"
+  def role_classes("primary"), do: "bg-pp-primary text-pp-on-primary"
+  def role_classes("secondary"), do: "bg-pp-secondary text-pp-on-secondary"
+  def role_classes("tertiary"), do: "bg-pp-tertiary text-pp-on-tertiary"
+  def role_classes("error"), do: "bg-pp-error text-pp-on-error"
+
+  def role_classes("primary-container"),
+    do: "bg-pp-primary-container text-pp-on-primary-container"
+
+  def role_classes("secondary-container"),
+    do: "bg-pp-secondary-container text-pp-on-secondary-container"
+
+  def role_classes("tertiary-container"),
+    do: "bg-pp-tertiary-container text-pp-on-tertiary-container"
+
+  def role_classes("error-container"), do: "bg-pp-error-container text-pp-on-error-container"
+  def role_classes("inverse-surface"), do: "bg-pp-inverse-surface text-pp-inverse-on-surface"
 
   @doc """
   The DOM id a `section/1` titled `title` gets, e.g. `"App Bar"` ->
@@ -181,54 +361,64 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   attr :language, :string, default: "elixir"
 
   @doc """
-  A "Show code" toggle revealing a `<.code>` block -- a
-  `PhoenixPaper.Collapse`.
+  A "Show code" toggle revealing a `<.code>` block -- a native
+  `<details>`, since MD3 has no disclosure component.
   """
   def demo_code(assigns) do
     ~H"""
-    <.pp_collapse id={"#{@id}-code"} class="mt-4">
-      <:trigger>Show code</:trigger>
-      <.code text={@text} language={@language} />
-    </.pp_collapse>
+    <details id={"#{@id}-code"} class="group mt-4">
+      <summary class="pp-label-large inline-flex cursor-pointer list-none items-center gap-1 rounded-pp-full px-3 py-2 text-pp-primary transition-colors hover:bg-pp-primary/8 [&::-webkit-details-marker]:hidden">
+        <.pp_icon
+          name="hero-chevron-right"
+          size="sm"
+          class="transition-transform duration-200 group-open:rotate-90"
+        /> Show code
+      </summary>
+      <div class="mt-2">
+        <.code text={@text} language={@language} />
+      </div>
+    </details>
     """
   end
 
   attr :label, :string, required: true
   attr :direction, :string, default: "row", values: ~w(row column)
-  attr :spacing, :atom, default: :md
+  attr :spacing, :atom, default: :md, values: ~w(xs sm md lg)a
   attr :class, :any, default: nil
   slot :inner_block, required: true
 
   @doc """
   A labeled sub-group inside a section, for a single component's variants.
 
-  The demo canvas itself is a `PhoenixPaper.Stack` (wrapping) -- every demo
-  box on every component page is a live `pp_stack`. Pass `direction` and
-  `spacing` through to it rather than overriding with `flex-col` / `gap-*`
-  in `class`: Tailwind resolves conflicting utilities by stylesheet order,
-  not class order, so `flex-row` beats `flex-col` and `gap-4` beats `gap-2`.
-  Rows center their items; columns keep flexbox's default stretch, so an
+  The demo canvas is a flex box (wrapping rows). Pass `direction` and
+  `spacing` rather than overriding with `flex-col` / `gap-*` in `class`:
+  Tailwind resolves conflicting utilities by stylesheet order, not class
+  order, so `flex-row` beats `flex-col` and `gap-4` beats `gap-2`. Rows
+  center their items; columns keep flexbox's default stretch, so an
   `items-*` in `class` never conflicts with a default.
   """
   def demo_group(assigns) do
     ~H"""
     <div class="mb-8">
-      <h3 class="mb-3 text-sm font-medium text-pp-on-surface/60">{@label}</h3>
-      <.pp_stack
-        direction={@direction}
-        spacing={@spacing}
-        wrap={@direction == "row"}
-        class={[
-          "rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6",
-          @direction == "row" && "items-center",
-          @class
-        ]}
-      >
+      <.pp_typography variant="title-small" tag="h3" color="on-surface-variant" class="mb-3">
+        {@label}
+      </.pp_typography>
+      <div class={[
+        "flex rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-low p-6",
+        if(@direction == "row", do: "flex-row flex-wrap items-center", else: "flex-col"),
+        gap(@spacing),
+        @class
+      ]}>
         {render_slot(@inner_block)}
-      </.pp_stack>
+      </div>
     </div>
     """
   end
+
+  defp gap(:xs), do: "gap-1"
+  defp gap(:sm), do: "gap-2"
+  defp gap(:md), do: "gap-4"
+  defp gap(:lg), do: "gap-6"
 
   attr :text, :string, required: true
   attr :language, :string, default: "elixir", values: ~w(elixir css javascript)
@@ -252,7 +442,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   highlighted it) would wipe the highlighting back out a moment after it
   appeared.
 
-  Every block has a copy button (a `pp_button` icon button, top-right)
+  Every block has a copy button (a `pp_icon_button`, top-right)
   wired to the ".CopyCode" hook (`position="absolute"`, not
   `class="absolute"`: the ripple's own `relative` would outrank it): it copies the `<code>` element's text
   (highlight.js only wraps it in spans, so the text is the original
@@ -268,24 +458,27 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         id={@id}
         phx-update="ignore"
         phx-hook=".Highlight"
-        class="overflow-hidden rounded-lg border border-pp-outline/15 text-sm leading-relaxed"
+        class="overflow-hidden rounded-pp-sm border border-pp-outline-variant text-sm leading-relaxed"
       ><code class={"language-#{@language}"}>{@text}</code></pre>
-      <.pp_button
+      <%!-- On the always-dark code panel: color="inherit" follows the panel's
+            light text instead of on-surface-variant. --%>
+      <.pp_icon_button
         id={"#{@id}-copy"}
-        variant="icon"
-        size="small"
+        label="Copy code"
+        size="xs"
+        color="inherit"
         position="absolute"
         phx-hook=".CopyCode"
         data-target={@id}
-        aria-label="Copy code"
-        title="Copy code"
-        class="group top-2 right-2"
+        class="group top-2 right-2 text-white/80"
       >
         <%!-- The show/hide lives on wrapper spans: pp_icon's own inline-block
               would outrank a hidden on the icon itself. --%>
-        <span class="group-data-copied:hidden"><.pp_icon name="hero-clipboard-document" /></span>
-        <span class="hidden group-data-copied:inline"><.pp_icon name="hero-check" /></span>
-      </.pp_button>
+        <span class="group-data-copied:hidden">
+          <.pp_icon name="hero-clipboard-document" size="sm" />
+        </span>
+        <span class="hidden group-data-copied:inline"><.pp_icon name="hero-check" size="sm" /></span>
+      </.pp_icon_button>
     </div>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".CopyCode">
       // navigator.clipboard needs a secure context (https or localhost);
@@ -344,45 +537,6 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     </script>
     """
   end
-
-  attr :href, :string, required: true
-  attr :variant, :string, default: "raised", values: ~w(raised outlined flat)
-  attr :color, :string, default: "primary", values: ~w(primary surface)
-  attr :class, :any, default: nil
-  slot :inner_block, required: true
-
-  @doc """
-  A link styled for the landing page's page-to-page navigation CTAs.
-
-  Since phoenix_paper 0.2.0 `pp_button` has a link mode (`href`/`navigate`/
-  `patch` render an `<a>`), so a plain navigation button no longer needs a
-  local reimplementation -- but this keeps its own `raised`/`outlined`/
-  `flat` + `surface` palette, tuned for the hero and the closing CTA band,
-  which don't map onto `pp_button`'s brand-color variants.
-  """
-  def link_button(assigns) do
-    ~H"""
-    <.link
-      navigate={@href}
-      class={[
-        "inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium tracking-wide uppercase transition-[box-shadow,background-color,color,border-color] duration-150 ease-out",
-        variant_classes(@variant, @color),
-        @class
-      ]}
-    >
-      {render_slot(@inner_block)}
-    </.link>
-    """
-  end
-
-  defp variant_classes("raised", "primary"),
-    do: "bg-pp-primary text-pp-on-primary pp-elevation-2 hover:pp-elevation-4"
-
-  defp variant_classes("outlined", "primary"),
-    do: "border border-pp-primary text-pp-primary hover:bg-pp-primary/10"
-
-  defp variant_classes("flat", "surface"),
-    do: "bg-pp-surface text-pp-primary hover:bg-pp-surface/90 pp-elevation-1"
 
   attr :class, :any, default: nil
 
@@ -443,8 +597,8 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   A big, floating, gradient-filled version of `logo_mark/1` for the landing
   hero -- same path data, but filled with `url(#<id>-gradient)` instead
   of `currentColor`, so it reads live off the current
-  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-accent` tokens
-  rather than a single text color. Picking a new primary/secondary/accent
+  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-tertiary` tokens
+  rather than a single text color. Picking a new primary/secondary/tertiary
   in `PhoenixPaperWebsiteWeb.ThemePicker` repaints it instantly, no JS of
   its own -- an inline `<svg>`'s `stop-color` resolves CSS custom
   properties from the page same as any other computed style, same reason
@@ -471,7 +625,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         >
           <stop offset="0%" stop-color="var(--color-pp-primary)" />
           <stop offset="55%" stop-color="var(--color-pp-secondary)" />
-          <stop offset="100%" stop-color="var(--color-pp-accent)" />
+          <stop offset="100%" stop-color="var(--color-pp-tertiary)" />
         </linearGradient>
       </defs>
       <path
@@ -510,36 +664,4 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     </svg>
     """
   end
-
-  attr :size, :string, default: "md", values: ~w(sm md lg)
-  attr :class, :any, default: nil
-
-  @doc """
-  The full PhoenixPaper wordmark -- `logo_mark/1` plus "Phoenix" (on-surface
-  text) + "Paper" (primary) set as one word, no gap. Used anywhere the brand
-  needs to read as a lockup rather than just the bare mark (the sidebar
-  header, the landing page hero eyebrow).
-  """
-  def logo_lockup(assigns) do
-    ~H"""
-    <span class={["inline-flex items-center", gap_classes(@size), @class]}>
-      <.logo_mark class={["shrink-0 text-pp-primary", mark_size_classes(@size)]} />
-      <span class={text_classes(@size)}>
-        <span class="text-pp-on-surface">Phoenix</span><span class="text-pp-primary">Paper</span>
-      </span>
-    </span>
-    """
-  end
-
-  defp gap_classes("sm"), do: "gap-1.5"
-  defp gap_classes("md"), do: "gap-2"
-  defp gap_classes("lg"), do: "gap-2.5"
-
-  defp mark_size_classes("sm"), do: "size-4"
-  defp mark_size_classes("md"), do: "size-6"
-  defp mark_size_classes("lg"), do: "size-8"
-
-  defp text_classes("sm"), do: "text-xs font-medium uppercase tracking-wide"
-  defp text_classes("md"), do: "text-base font-semibold tracking-tight"
-  defp text_classes("lg"), do: "text-2xl font-semibold tracking-tight"
 end

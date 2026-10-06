@@ -1,8 +1,8 @@
 defmodule PhoenixPaperWebsiteWeb.Nav do
   @moduledoc """
-  The sidebar/drawer navigation structure shared by every page, via
-  `Layouts.app`. Categories mirror the nav groups of phoenix_paper's old
-  `dev.exs` catalog (removed upstream in 0.2.3), for consistency.
+  The navigation structure shared by every page (the navigation rail in
+  `Layouts.app`): the Overview pages and the component categories, each
+  with one entry per section on its page.
   """
 
   alias PhoenixPaperWebsiteWeb.DocsComponents
@@ -12,19 +12,19 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
   # Components added or changed in the latest release, keyed by section
   # title: drives the "New"/"Updated" chips on section headers
   # (DocsComponents.section/1) and in the sidebar. Reset it each release.
-  @release "0.3.0"
+  @release "0.5.0"
   @statuses %{
-    "Form" => :new,
-    "Power Select" => :new,
-    "Pagination" => :new,
-    "Table Pagination" => :new,
-    "Input" => :updated,
-    "Autocomplete" => :updated,
-    "Button" => :updated,
-    "Floating Action Button" => :updated,
-    "Speed Dial" => :updated,
-    "Drawer" => :updated,
-    "Icon" => :updated
+    # MD3-only options in 0.5.0 (non-MD3 attrs removed)
+    "Badge" => :updated,
+    "Card" => :updated,
+    "Dialog" => :updated,
+    "Snackbar" => :updated,
+    "Flash" => :updated,
+    "Top App Bar" => :updated,
+    "Text Field" => :updated,
+    "Select" => :updated,
+    "List" => :updated,
+    "Theme Toggle" => :updated
   }
 
   @doc "The release the New/Updated chips refer to."
@@ -74,7 +74,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
   end
 
   @doc """
-  The eight component category pages, also used to build the /components
+  The seven component category pages, also used to build the /components
   index grid. Each carries its `children`: one `#anchor` link per
   `DocsComponents.section/1` on that page, in page order, rendered as the
   sidebar's submenu -- and joined into the index grid's `blurb`, so neither
@@ -107,10 +107,11 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         icon: "hero-cursor-arrow-rays",
         components: [
           "Button",
+          "Icon Button",
+          "Split Button",
           "Button Group",
           "Floating Action Button",
-          "Speed Dial",
-          "Toggle Button"
+          "FAB Menu"
         ]
       },
       %{
@@ -119,19 +120,15 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         path: "/components/forms",
         icon: "hero-pencil-square",
         components: [
-          "Form",
-          "Input",
+          "Text Field",
           "Select",
-          "Power Select",
-          "Number Field",
           "Checkbox",
           "Switch",
           "Theme Toggle",
           "Radio Group",
           "Slider",
-          "Rating",
-          "Autocomplete",
-          "Transfer List"
+          "Date Picker",
+          "Time Picker"
         ]
       },
       %{
@@ -139,14 +136,16 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Navigation",
         path: "/components/navigation",
         icon: "hero-bars-3-bottom-left",
-        components: ["App Bar", "Drawer", "Tabs", "Breadcrumbs", "Pagination", "Menu", "List"]
-      },
-      %{
-        id: :layout,
-        label: "Layout",
-        path: "/components/layout",
-        icon: "hero-squares-plus",
-        components: ["Box", "Container", "Stack", "Grid & GridItem", "Divider"]
+        components: [
+          "Top App Bar",
+          "Navigation Rail",
+          "Navigation Bar",
+          "Toolbar",
+          "Tabs",
+          "Menu",
+          "Search Bar",
+          "List"
+        ]
       },
       %{
         id: :data_display,
@@ -155,14 +154,11 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         icon: "hero-rectangle-group",
         components: [
           "Card",
-          "Avatar",
           "Badge",
           "Chip",
           "Tooltip",
           "Icon",
-          "Image List",
-          "Table",
-          "Table Pagination"
+          "Carousel"
         ]
       },
       %{
@@ -170,21 +166,27 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Surfaces",
         path: "/components/surfaces",
         icon: "hero-square-3-stack-3d",
-        components: ["Paper", "Typography", "Accordion", "Collapse"]
+        components: ["Typography", "Divider", "Bottom Sheet", "Side Sheet"]
       },
       %{
         id: :feedback,
         label: "Feedback",
         path: "/components/feedback",
         icon: "hero-chat-bubble-left-right",
-        components: ["Alert", "Backdrop", "Dialog", "Progress", "Skeleton", "Snackbar", "Flash"]
+        components: [
+          "Dialog",
+          "Progress",
+          "Loading Indicator",
+          "Snackbar",
+          "Flash"
+        ]
       },
       %{
         id: :helpers,
         label: "Helpers",
         path: "/components/helpers",
         icon: "hero-wrench-screwdriver",
-        components: ["Ripple", "Elevation", "Shape"]
+        components: ["Ripple", "Elevation", "Shape", "Motion"]
       }
     ]
   end

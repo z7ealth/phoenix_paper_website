@@ -2,610 +2,536 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "Navigation", page: 5)}
+    {:ok, assign(socket, page_title: "Navigation", page: 5, query: "", hits: [])}
   end
+
+  @destinations ["Inbox", "Outbox", "Favorites", "Trash", "Archive", "Drafts", "Spam"]
 
   # Pagination demo: on_change sends the page as phx-value-page.
   def handle_event("set_page", %{"page" => page}, socket) do
     {:noreply, assign(socket, :page, String.to_integer(page))}
   end
 
+  # Search bar demo: filter a fixed list as you type.
+  def handle_event("search", %{"q" => q}, socket) do
+    hits =
+      if String.trim(q) == "",
+        do: [],
+        else:
+          Enum.filter(@destinations, &String.contains?(String.downcase(&1), String.downcase(q)))
+
+    {:noreply, assign(socket, query: q, hits: hits)}
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:navigation}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Navigation">
-          PhoenixPaper.AppBar, Drawer, Menu, Tabs, Breadcrumbs, Pagination, and the List family.
+          PhoenixPaper.TopAppBar, NavigationRail, NavigationBar, Toolbar, Tabs, Breadcrumbs,
+          Pagination, Menu, SearchBar and the List family.
         </.page_header>
 
         <.section
-          title="App Bar"
-          description="A horizontal app bar with a leading slot, a title, and trailing actions (renamed from Navbar to match MUI's own naming). This site's own chrome doesn't use one anymore (just a floating theme toggle instead), so here it is on its own. Default toolbar gutters are responsive (px-4 rising to px-6 at the sm breakpoint), matching MUI's Toolbar."
-          props={[
-            {"color", "primary | secondary | accent | surface | transparent (default: primary)"},
-            {"elevation", "resting elevation, 0-24 (default: 4), ignored for color=\"transparent\""},
-            {"position", "static | relative | sticky | fixed | absolute (default: static)"},
-            {"variant", "regular | dense (default: regular), dense shrinks the toolbar row"},
-            {"max_width",
-             "sm | md | lg | xl | 2xl | full (default: full): caps and centres the toolbar content, like wrapping MUI's Toolbar in a Container. Line it up with a pp_container of the same max_width below"},
-            {"disable_gutters", "boolean (default: false): drops the toolbar's horizontal padding"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":leading", "content before the title, e.g. a pp_drawer_toggle"},
-            {":actions", "content after the title, e.g. icon buttons"}
-          ]}
-          code={app_bar_code()}
+          title="Top App Bar"
+          description="MD3 top app bars are surface-colored: the bar sits on surface and turns surface-container once content scrolls under it (a CSS scroll-driven animation; scrolled forces it). small and center_aligned are 64dp; medium and large are the Expressive flexible layouts, with the title below the icons, and subtitle adds a second line. Icon buttons inside need no color."
+          api={[{PhoenixPaper.TopAppBar, :pp_top_app_bar}]}
+          code={top_app_bar_code()}
         >
-          <.demo_group label="Colors" direction="column">
-            <.pp_app_bar
-              :for={color <- ~w(primary secondary accent surface transparent)}
-              color={color}
+          <.demo_group label="variant" direction="column">
+            <.pp_top_app_bar
+              :for={variant <- ~w(small center_aligned medium large)}
+              variant={variant}
+              subtitle={if variant in ~w(medium large), do: "With a subtitle"}
+              class="rounded-pp-md border border-pp-outline-variant"
             >
-              {color}
-            </.pp_app_bar>
-          </.demo_group>
-
-          <.demo_group label="Dense variant" direction="column">
-            <.pp_app_bar variant="dense">Dense toolbar row</.pp_app_bar>
-          </.demo_group>
-
-          <.demo_group label="max_width (content capped + centred)" direction="column">
-            <.pp_app_bar max_width="sm" color="surface" class="border border-pp-outline/30">
-              max_width="sm"
+              <:leading><.pp_icon_button icon="hero-arrow-left" label="Back" /></:leading>
+              {variant}
               <:actions>
-                <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
+                <.pp_icon_button icon="hero-magnifying-glass" label="Search" />
+                <.pp_icon_button icon="hero-ellipsis-vertical" label="More" />
               </:actions>
-            </.pp_app_bar>
+            </.pp_top_app_bar>
           </.demo_group>
-
-          <.demo_group label={~S|With leading/actions (color="inherit")|} direction="column">
-            <.pp_app_bar>
-              <:leading>
-                <.pp_drawer_toggle for="site-drawer" />
-                <span>My App</span>
-              </:leading>
-              <:actions>
-                <.pp_button variant="icon" color="inherit" aria-label="Notifications">
-                  <.pp_icon name="hero-bell" />
-                </.pp_button>
-              </:actions>
-            </.pp_app_bar>
-          </.demo_group>
-          <.pp_typography variant="body2" color="muted">
-            A Button's default color is the brand color (primary), whatever it sits on: on a
-            primary app bar that's the exact same color as the background. Give buttons on a
-            colored bar color="inherit" so they follow the bar's own text color, as above.
-            The drawer toggle already does.
-          </.pp_typography>
         </.section>
 
         <.section
-          title="Drawer"
-          description="A vertical navigation panel, persistent on large screens and toggled by a mobile drawer below that breakpoint: pure CSS via a hidden checkbox, no JS. Its body is inset (px-3 py-2), so lists don't sit flush and the active item's pill clears the edges; the :header row grows with taller content (min-h-16). pp_drawer_toggle's hover tint follows the text color, so it reads on a colored app bar too."
-          props={[
-            {"id", "required: builds the mobile toggle checkbox's id as \"\#{id}-toggle\""},
-            {"color",
-             "primary | secondary | accent | surface (default: surface), also restyles nested List/ListItem for contrast"},
-            {"width", "sm | md | lg | xl (default: md)"},
-            {"paperize", "boolean (default: true)"},
-            {"pp_drawer_toggle for=",
-             "a hamburger label pointing at the given drawer's id; works from anywhere on the page"}
+          title="Navigation Rail"
+          description="M3 Expressive's navigation rail, which replaces the navigation drawer: collapsed (96dp, icons over labels) or expanded (280dp, icons beside labels), animating on the Expressive spring. responsive (the default, used by this site's own sidebar) is a modal over a scrim below md and a collapsed rail that its menu button expands from md up. Pure CSS. The :fab slot morphs into an extended FAB when expanded."
+          api={[
+            {PhoenixPaper.NavigationRail, :pp_navigation_rail},
+            {PhoenixPaper.NavigationRail, :pp_navigation_rail_item},
+            {PhoenixPaper.NavigationRail, :pp_navigation_rail_toggle}
           ]}
-          slots={[{":header", "content above the drawer's own inner_block, e.g. a logo/app name"}]}
-          code={drawer_code()}
+          code={navigation_rail_code()}
         >
-          <.pp_card>
-            The sidebar on the left of this very page is pp_drawer holding a dense pp_list:
-            the Overview links are pp_list_items using navigate, highlighted active on
-            whichever page you're on (real LiveView navigation, no full page reload), and each
-            component category is a pp_list_group, open on its own page, listing that page's
-            components. Its mobile toggle is pure CSS: pp_drawer
-            renders a visually hidden checkbox, and pp_drawer_toggle is just a label wired to
-            that checkbox's id, so it can live anywhere on the page, no JavaScript required.
-            color also reaches into nested List/ListItem/ListSubheader/Divider so a colored
-            drawer stays readable, not just a style mismatch (see the App Bar note above;
-            the same "same color on same color" trap applies to an active item's highlight).
-            width picks a fixed panel width (sm/md/lg/xl), applied at both the mobile and
-            desktop breakpoint together.
-          </.pp_card>
+          <.demo_group label="collapsed and expanded (sized down for the demo with !static !h-80)">
+            <div class="block bg-pp-surface text-pp-on-surface rounded-pp-md border border-pp-outline-variant overflow-hidden">
+              <.pp_navigation_rail id="rail-demo-collapsed" variant="collapsed" class="!static !h-80">
+                <:fab icon="hero-pencil" label="Compose" />
+                <.pp_navigation_rail_item
+                  icon="hero-inbox"
+                  active_icon="hero-inbox-solid"
+                  label="Inbox"
+                  href="#navigation-rail"
+                  active
+                  badge={4}
+                />
+                <.pp_navigation_rail_item
+                  icon="hero-paper-airplane"
+                  label="Sent"
+                  href="#navigation-rail"
+                />
+                <.pp_navigation_rail_item icon="hero-trash" label="Trash" href="#navigation-rail" />
+              </.pp_navigation_rail>
+            </div>
+            <div class="block bg-pp-surface text-pp-on-surface rounded-pp-md border border-pp-outline-variant overflow-hidden">
+              <.pp_navigation_rail id="rail-demo-expanded" variant="expanded" class="!static !h-80">
+                <:fab icon="hero-pencil" label="Compose" />
+                <.pp_navigation_rail_item
+                  icon="hero-inbox"
+                  active_icon="hero-inbox-solid"
+                  label="Inbox"
+                  href="#navigation-rail"
+                  active
+                  badge={4}
+                />
+                <.pp_navigation_rail_item
+                  icon="hero-paper-airplane"
+                  label="Sent"
+                  href="#navigation-rail"
+                />
+                <.pp_navigation_rail_item icon="hero-trash" label="Trash" href="#navigation-rail" />
+              </.pp_navigation_rail>
+            </div>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Navigation Bar"
+          description={
+            ~S|The Expressive flexible bottom bar for 3–5 top-level destinations on small screens: 64dp on surface-container, each item an icon in a secondary-container indicator with its label under it (vertical) or beside it (horizontal); responsive switches at sm. position="fixed" pins it to the viewport bottom. Pair it with a navigation rail on larger screens.|
+          }
+          api={[
+            {PhoenixPaper.NavigationBar, :pp_navigation_bar},
+            {PhoenixPaper.NavigationBar, :pp_navigation_bar_item}
+          ]}
+          code={navigation_bar_code()}
+        >
+          <.demo_group label="item_layout" direction="column">
+            <.pp_navigation_bar
+              :for={layout <- ~w(vertical horizontal)}
+              item_layout={layout}
+              class="rounded-pp-md"
+            >
+              <.pp_navigation_bar_item
+                icon="hero-home"
+                active_icon="hero-home-solid"
+                label="Home"
+                href="#navigation-bar"
+                active
+              />
+              <.pp_navigation_bar_item
+                icon="hero-magnifying-glass"
+                label="Search"
+                href="#navigation-bar"
+              />
+              <.pp_navigation_bar_item
+                icon="hero-bell"
+                label="Alerts"
+                href="#navigation-bar"
+                badge={3}
+              />
+            </.pp_navigation_bar>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Toolbar"
+          description={
+            ~S|An M3 Expressive toolbar, MD3's replacement for the bottom app bar: a row (or column) of actions for the current page. docked is a full-width 64dp bar; floating is a rounded pill sized to its items, optionally paired with a FAB. vibrant puts it on primary-container; give icon buttons color="inherit" there.|
+          }
+          api={[{PhoenixPaper.Toolbar, :pp_toolbar}]}
+          code={toolbar_code()}
+        >
+          <.demo_group label="docked, and floating vibrant with a FAB" direction="column">
+            <.pp_toolbar class="rounded-pp-md">
+              <.pp_icon_button icon="hero-archive-box" label="Archive" />
+              <.pp_icon_button icon="hero-trash" label="Delete" />
+              <.pp_icon_button icon="hero-envelope" label="Mark unread" />
+              <.pp_icon_button icon="hero-tag" label="Label" />
+            </.pp_toolbar>
+            <div class="flex justify-center">
+              <.pp_toolbar variant="floating" color="vibrant">
+                <.pp_icon_button icon="hero-bold" label="Bold" color="inherit" />
+                <.pp_icon_button icon="hero-italic" label="Italic" color="inherit" />
+                <.pp_icon_button icon="hero-underline" label="Underline" color="inherit" />
+                <:fab><.pp_fab icon="hero-check" label="Done" color="secondary-container" /></:fab>
+              </.pp_toolbar>
+            </div>
+          </.demo_group>
         </.section>
 
         <.section
           title="Tabs"
-          description="Tabs/Tab/TabPanel switch entirely client-side via Phoenix.LiveView.JS commands fired on click: no server round-trip, no sliding indicator animation (that needs a real layout measurement JS commands can't do)."
-          props={[
-            {"pp_tabs id", "required: shared with every Tab/TabPanel in the group"},
-            {"pp_tabs orientation", "horizontal | vertical (default: horizontal)"},
-            {"pp_tabs variant",
-             "standard | scrollable | full_width (default: standard), horizontal only"},
-            {"pp_tabs centered",
-             "boolean (default: false): center the tabs; horizontal standard variant only"},
-            {"pp_tab id / value",
-             "id matches the parent Tabs; value must be unique within the group"},
-            {"pp_tab default_selected", "boolean, initial selection, uncontrolled (default: false)"},
-            {"pp_tab color",
-             "primary | secondary | accent | error (default: primary), set per Tab, doesn't cascade"},
-            {"pp_tab disabled / ripple / paperize", "same as Button"},
-            {"pp_tab_panel id / value", "must match the corresponding Tab exactly"}
+          description={
+            ~S|Tabs, Tab and TabPanel switch client-side via Phoenix.LiveView.JS commands, no round trip. primary tabs have an indicator under the label and content; secondary tabs a thinner full-width one. layout="scrollable" scrolls a long row. They follow the ARIA keyboard model: only the selected tab is a Tab stop, and Left/Right (mirrored in RTL), Home and End move between tabs, skipping disabled ones. With the JS hook (Getting Started, step 4) the indicator slides between tabs.|
+          }
+          api={[
+            {PhoenixPaper.Tabs, :pp_tabs},
+            {PhoenixPaper.Tab, :pp_tab},
+            {PhoenixPaper.TabPanel, :pp_tab_panel}
           ]}
-          slots={[{"pp_tab :icon", "optional leading icon"}]}
           code={tabs_code()}
         >
-          <.demo_group label="Basic" direction="column">
+          <.demo_group label="primary, with icons and a badge" direction="column">
             <.pp_tabs id="demo-tabs">
-              <.pp_tab id="demo-tabs" value="one" default_selected>One</.pp_tab>
-              <.pp_tab id="demo-tabs" value="two">Two</.pp_tab>
-              <.pp_tab id="demo-tabs" value="three" disabled>Three (disabled)</.pp_tab>
+              <.pp_tab id="demo-tabs" value="flights" default_selected>
+                <:icon><.pp_icon name="hero-paper-airplane" /></:icon>
+                Flights
+              </.pp_tab>
+              <.pp_tab id="demo-tabs" value="trips" badge={2}>
+                <:icon><.pp_icon name="hero-map" /></:icon>
+                Trips
+              </.pp_tab>
+              <.pp_tab id="demo-tabs" value="explore">
+                <:icon><.pp_icon name="hero-globe-americas" /></:icon>
+                Explore
+              </.pp_tab>
             </.pp_tabs>
-            <.pp_tab_panel id="demo-tabs" value="one" default_selected class="p-4 text-sm">
-              Content one.
+            <.pp_tab_panel id="demo-tabs" value="flights" default_selected class="p-4">
+              Upcoming flights.
             </.pp_tab_panel>
-            <.pp_tab_panel id="demo-tabs" value="two" class="p-4 text-sm">Content two.</.pp_tab_panel>
-            <.pp_tab_panel id="demo-tabs" value="three" class="p-4 text-sm">
-              Content three.
+            <.pp_tab_panel id="demo-tabs" value="trips" class="p-4">Your trips.</.pp_tab_panel>
+            <.pp_tab_panel id="demo-tabs" value="explore" class="p-4">Somewhere new.</.pp_tab_panel>
+          </.demo_group>
+
+          <.demo_group label="secondary" direction="column">
+            <.pp_tabs id="secondary-tabs" variant="secondary">
+              <.pp_tab id="secondary-tabs" value="overview" default_selected>Overview</.pp_tab>
+              <.pp_tab id="secondary-tabs" value="specs">Specifications</.pp_tab>
+            </.pp_tabs>
+            <.pp_tab_panel id="secondary-tabs" value="overview" default_selected class="p-4">
+              Overview content.
             </.pp_tab_panel>
-          </.demo_group>
-
-          <.demo_group label="Colors" direction="column">
-            <.pp_tabs id="color-tabs">
-              <.pp_tab id="color-tabs" value="primary" default_selected color="primary">
-                Primary
-              </.pp_tab>
-              <.pp_tab id="color-tabs" value="secondary" color="secondary">Secondary</.pp_tab>
-              <.pp_tab id="color-tabs" value="accent" color="accent">Accent</.pp_tab>
-              <.pp_tab id="color-tabs" value="error" color="error">Error</.pp_tab>
-            </.pp_tabs>
-          </.demo_group>
-
-          <.demo_group label={~S|variant="full_width"|} direction="column">
-            <.pp_tabs id="full-width-tabs" variant="full_width">
-              <.pp_tab id="full-width-tabs" value="one" default_selected>One</.pp_tab>
-              <.pp_tab id="full-width-tabs" value="two">Two</.pp_tab>
-              <.pp_tab id="full-width-tabs" value="three">Three</.pp_tab>
-            </.pp_tabs>
-          </.demo_group>
-
-          <.demo_group label="Vertical, with icons" direction="column">
-            <.pp_tabs id="vertical-tabs" orientation="vertical" class="max-w-xs">
-              <.pp_tab
-                id="vertical-tabs"
-                value="a"
-                orientation="vertical"
-                color="secondary"
-                default_selected
-              >
-                <:icon><.pp_icon name="hero-home" /></:icon>
-                Home
-              </.pp_tab>
-              <.pp_tab id="vertical-tabs" value="b" orientation="vertical" color="secondary">
-                <:icon><.pp_icon name="hero-user" /></:icon>
-                Profile
-              </.pp_tab>
-            </.pp_tabs>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Breadcrumbs"
-          description="A breadcrumb trail with a separator auto-inserted between :item slots. An item renders as a link when it has href/navigate/patch, or plain current-page text otherwise: whichever item you leave without a link is the current page, same convention as ListItem."
-          props={[
-            {"max_items", "collapse into an expandable ellipsis beyond this many items (default: 8)"},
-            {"items_before_collapse / items_after_collapse",
-             "collapsed slice sizes (default: 1 / 1)"},
-            {"expand_text", "aria-label for the ellipsis expand control (default: \"Show path\")"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":item href/navigate/patch",
-             "makes that item a link; omit all three for the current page"},
-            {":separator", "not a string: can hold an icon; defaults to \"/\""}
-          ]}
-          code={breadcrumbs_code()}
-        >
-          <.demo_group label="Basic" direction="column" class="items-start">
-            <.pp_breadcrumbs>
-              <:item href="#">Home</:item>
-              <:item href="#">Catalog</:item>
-              <:item>Current product</:item>
-            </.pp_breadcrumbs>
-          </.demo_group>
-
-          <.demo_group label="Custom separator" direction="column" class="items-start">
-            <.pp_breadcrumbs>
-              <:separator><.pp_icon name="hero-chevron-right" size="sm" /></:separator>
-              <:item href="#">Home</:item>
-              <:item href="#">Settings</:item>
-              <:item>Profile</:item>
-            </.pp_breadcrumbs>
-          </.demo_group>
-
-          <.demo_group
-            label="max_items={3}: click the ellipsis to expand"
-            direction="column"
-            class="items-start"
-          >
-            <.pp_breadcrumbs max_items={3}>
-              <:item href="#">One</:item>
-              <:item href="#">Two</:item>
-              <:item href="#">Three</:item>
-              <:item href="#">Four</:item>
-              <:item>Five</:item>
-            </.pp_breadcrumbs>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Pagination"
-          description="Page numbers between previous/next buttons, collapsed with an ellipsis when there are many (MUI's Pagination). Stateless and 1-based: it renders the page you pass, and each button is either a link (path, a function page -> URL, patch by default) or fires on_change with phx-value-page. For a table footer's rows-per-page and range, see Table Pagination."
-          props={[
-            {"page / count", "required: the current page (1-based) and the number of pages"},
-            {"path", "function page -> URL: every page becomes a link"},
-            {"link", "patch (default) | navigate | href: the kind of link path makes"},
-            {"on_change / target",
-             "an event (or JS) for phx-click instead of links; the page arrives as phx-value-page"},
-            {"sibling_count / boundary_count",
-             "pages shown around the current one / at each end before an ellipsis (default: 1 / 1)"},
-            {"variant", "text | outlined (default: text)"},
-            {"shape", "circular | rounded (default: circular)"},
-            {"size", "small | medium | large (default: medium)"},
-            {"color",
-             "standard | primary | secondary | accent (default: primary), the selected page"},
-            {"show_first_button / show_last_button / hide_prev_button / hide_next_button",
-             "booleans (default: false)"},
-            {"disabled / paperize", "booleans"}
-          ]}
-          code={pagination_code()}
-        >
-          <.demo_group label="Try it (on_change)">
-            <.pp_pagination id="pagination-demo" page={@page} count={20} on_change="set_page" />
-          </.demo_group>
-
-          <.demo_group label="outlined, rounded, first/last buttons" direction="column">
-            <.pp_pagination
-              page={@page}
-              count={20}
-              on_change="set_page"
-              variant="outlined"
-              shape="rounded"
-              show_first_button
-              show_last_button
-            />
-            <.pp_pagination
-              page={@page}
-              count={20}
-              on_change="set_page"
-              size="small"
-              color="secondary"
-              sibling_count={0}
-            />
+            <.pp_tab_panel id="secondary-tabs" value="specs" class="p-4">Spec sheet.</.pp_tab_panel>
           </.demo_group>
         </.section>
 
         <.section
           title="Menu"
-          description="A trigger that reveals a small anchored popover list of actions, in the spirit of MUI's Menu/MenuItem: an overflow (...) menu, a profile menu, anything where clicking a button reveals a short list of things to do next. Built with plain Phoenix.LiveView.JS commands and phx-click-away, not a hook: closes on selecting an item, clicking outside, or Escape. The trigger is a real pp_button (hover tint, focus ring, ripple): :trigger is only its content, styled with the trigger_* attrs. Don't put a button or link inside :trigger, it would be nested in the trigger button."
-          props={[
-            {"id", "required"},
-            {"anchor",
-             "bottom-start (default) | bottom-end | top-start | top-end, relative to the trigger"},
-            {"elevation", "resting elevation, 0-24 (default: 8)"},
-            {"shape", "corner radius token (default: :sm)"},
-            {"trigger_variant",
-             "icon (default) | text | outlined | raised | flat | none: the trigger pp_button's variant; none = a bare unstyled button for a fully custom trigger"},
-            {"trigger_color", "primary (default) | secondary | accent | error | inherit"},
-            {"trigger_size", "small | medium (default) | large"},
-            {"trigger_class", "extra classes for the trigger button"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":trigger",
-             "required: the trigger button's content (text and/or icon), never a button or link"},
-            {":inner_block", "required: the popover's content, typically a pp_list"}
+          description={
+            ~S|A trigger that opens an anchored list of actions; closes on selecting an item, clicking outside, or Escape (JS commands and phx-click-away, no hook). The trigger is an icon button (trigger_icon + trigger_label) or your own :trigger content with trigger_variant. Items are pp_menu_item/1: a leading icon, supporting and trailing text, selected. color="vibrant" is the tertiary-container Expressive menu. pp_submenu/1 cascades a submenu beside an item (hover, focus or tap). With the JS hook and an id, menus and submenus flip to the other side when they'd overflow the viewport.|
+          }
+          api={[
+            {PhoenixPaper.Menu, :pp_menu},
+            {PhoenixPaper.Menu, :pp_menu_item},
+            {PhoenixPaper.Menu, :pp_submenu}
           ]}
           code={menu_code()}
         >
           <.demo_group label="Try it">
             <.pp_menu id="demo-menu" trigger_variant="outlined">
-              <:trigger>
-                Actions <.pp_icon name="hero-chevron-down" size="sm" />
-              </:trigger>
-              <.pp_list>
-                <.pp_list_item>
-                  <:leading><.pp_icon name="hero-pencil-square" /></:leading>
-                  Edit
-                </.pp_list_item>
-                <.pp_list_item>
-                  <:leading><.pp_icon name="hero-document-duplicate" /></:leading>
-                  Duplicate
-                </.pp_list_item>
-                <.pp_divider />
-                <.pp_list_item>
-                  <:leading><.pp_icon name="hero-trash" /></:leading>
-                  Delete
-                </.pp_list_item>
-              </.pp_list>
+              <:trigger>Actions <.pp_icon name="hero-chevron-down" size="sm" /></:trigger>
+              <.pp_menu_item icon="hero-pencil-square" trailing_text="⌘E">Edit</.pp_menu_item>
+              <.pp_menu_item icon="hero-document-duplicate" trailing_text="⌘D">
+                Duplicate
+              </.pp_menu_item>
+              <.pp_divider />
+              <.pp_menu_item icon="hero-trash">Delete</.pp_menu_item>
             </.pp_menu>
 
-            <.pp_menu id="demo-menu-icon" anchor="bottom-end">
-              <:trigger><.pp_icon name="hero-ellipsis-vertical" /></:trigger>
-              <.pp_list>
-                <.pp_list_item href="#">Profile</.pp_list_item>
-                <.pp_list_item href="#">Settings</.pp_list_item>
-                <.pp_list_item>Log out</.pp_list_item>
-              </.pp_list>
+            <.pp_menu
+              id="demo-menu-icon"
+              anchor="bottom-end"
+              trigger_icon="hero-ellipsis-vertical"
+              trigger_label="More"
+            >
+              <.pp_menu_item href="#menu" supporting_text="Your public profile">
+                Profile
+              </.pp_menu_item>
+              <.pp_menu_item href="#menu" selected>Settings</.pp_menu_item>
+              <.pp_submenu id="demo-menu-share" label="Share" icon="hero-share" side="start">
+                <.pp_menu_item icon="hero-envelope">Email</.pp_menu_item>
+                <.pp_menu_item icon="hero-link">Copy link</.pp_menu_item>
+              </.pp_submenu>
+              <.pp_menu_item>Log out</.pp_menu_item>
+            </.pp_menu>
+
+            <.pp_menu
+              id="demo-menu-vibrant"
+              color="vibrant"
+              trigger_icon="hero-sparkles"
+              trigger_label="Vibrant menu"
+            >
+              <.pp_menu_item icon="hero-sun">Light</.pp_menu_item>
+              <.pp_menu_item icon="hero-moon">Dark</.pp_menu_item>
             </.pp_menu>
           </.demo_group>
         </.section>
 
         <.section
+          title="Search Bar"
+          description="A 56dp rounded surface-container-high bar with a leading search icon (or your :leading), the input and a :trailing slot. Given :results, it opens into MD3's search view while it has focus: docked under the bar (view=&quot;docked&quot;, default), full screen (&quot;fullscreen&quot;, with a back button), or full screen only below sm (&quot;responsive&quot;). Pure CSS (:focus-within), so render the results from your LiveView as the query changes. Type below."
+          api={[{PhoenixPaper.SearchBar, :pp_search_bar}]}
+          code={search_bar_code()}
+        >
+          <.demo_group label="Try it (docked search view)">
+            <form id="search-demo" phx-change="search" phx-submit="search" class="w-full max-w-md">
+              <.pp_search_bar name="q" value={@query} placeholder="Search folders" phx-debounce="150">
+                <:trailing>
+                  <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-8 pp-label-medium bg-pp-primary-container text-pp-on-primary-container">AL</span>
+                </:trailing>
+                <:results>
+                  <.pp_list>
+                    <.pp_list_item :for={hit <- @hits} href="#search-bar">
+                      <:leading><.pp_icon name="hero-folder" /></:leading>
+                      {hit}
+                    </.pp_list_item>
+                    <.pp_list_item :if={@hits == []} disabled>
+                      {if @query == "", do: "Type to search", else: "No folders match"}
+                    </.pp_list_item>
+                  </.pp_list>
+                </:results>
+              </.pp_search_bar>
+            </form>
+          </.demo_group>
+
+          <.demo_group label={
+            ~S|view="responsive": full screen below sm (narrow the window and focus it)|
+          }>
+            <div class="w-full max-w-md">
+              <.pp_search_bar id="search-responsive" name="q2" placeholder="Search" view="responsive">
+                <:results>
+                  <.pp_list>
+                    <.pp_list_item :for={d <- ~w(Inbox Drafts Archive)} href="#search-bar">
+                      {d}
+                    </.pp_list_item>
+                  </.pp_list>
+                </:results>
+              </.pp_search_bar>
+            </div>
+          </.demo_group>
+        </.section>
+
+        <.section
           title="List"
-          description="A vertical stack of list items, with optional sub-headers to group them. Renders items as links, buttons, or plain rows depending on their own attrs: a linked item ripples on click by default, just like Button. Click Home or Inbox below to see it."
-          props={[
-            {"pp_list", "the container, role=\"list\""},
-            {"pp_list dense", "boolean (default: false): compact rows for every item inside"},
-            {"pp_list nested", "boolean (default: false): indent the whole list one step"},
-            {"pp_list inset",
-             "boolean (default: false): line up items without a leading icon with those that have one"},
-            {"pp_list_item href/navigate/patch", "makes it a link; active/disabled/ripple as usual"},
-            {"pp_list_item target / rel / download / method / replace",
-             "link attrs, passed through to the link (e.g. target=\"_blank\" for an external link, like this site's Changelog entry)"},
-            {"pp_list_item dense", "boolean (default: false): a compact row, for one item alone"},
-            {"pp_list_group",
-             "a list item that expands to show a nested list (MUI's nested List + Collapse): id (required), default_open, dense. The sidebar on this page is built from these"},
-            {"pp_list_subheader", "a small uppercase section label"}
-          ]}
-          slots={[
-            {"pp_list_item :leading", "an icon or avatar"},
-            {"pp_list_item :secondary", "a subtitle line below the primary one"},
-            {"pp_list_item :trailing", "a trailing icon, badge, or action"},
-            {"pp_list_group :leading / :label", "the group row's own icon and text"},
-            {"pp_list_group :inner_block", "the nested items, indented one step"}
+          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or an avatar image, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally."
+          api={[
+            {PhoenixPaper.List, :pp_list},
+            {PhoenixPaper.ListItem, :pp_list_item}
           ]}
           code={list_code()}
         >
-          <.demo_group label="Preview">
-            <.pp_box class="w-full max-w-xs overflow-hidden rounded-xl border border-pp-outline/15 pp-elevation-1">
-              <.pp_list class="bg-pp-surface py-2">
-                <.pp_list_subheader>Main</.pp_list_subheader>
-                <.pp_list_item href="#" active>
+          <.demo_group label="Icons with a heading, and avatars with two lines" class="items-start">
+            <div class="block bg-pp-surface text-pp-on-surface rounded-pp-md border border-pp-outline-variant w-full max-w-xs overflow-hidden">
+              <.pp_list>
+                <.pp_typography
+                  variant="title-small"
+                  color="on-surface-variant"
+                  class="px-4 pt-2 pb-1"
+                >
+                  Main
+                </.pp_typography>
+                <.pp_list_item href="#list" active>
                   <:leading><.pp_icon name="hero-home" /></:leading>
                   Home
                   <:secondary>Overview</:secondary>
                 </.pp_list_item>
-                <.pp_list_item href="#">
+                <.pp_list_item href="#list">
                   <:leading><.pp_icon name="hero-inbox" /></:leading>
                   Inbox
-                  <:secondary>3 unread</:secondary>
                   <:trailing>
-                    <span class="rounded-full bg-pp-primary/10 px-2 py-0.5 text-xs font-medium text-pp-primary">
-                      3
-                    </span>
+                    <.pp_typography variant="label-medium">3</.pp_typography>
                   </:trailing>
                 </.pp_list_item>
-
                 <.pp_divider />
-
-                <.pp_list_subheader>Account</.pp_list_subheader>
-                <.pp_list_item href="#">
-                  <:leading><.pp_icon name="hero-adjustments-horizontal" /></:leading>
-                  Settings
-                </.pp_list_item>
                 <.pp_list_item disabled>
-                  <:leading><.pp_icon name="hero-shield-check" /></:leading>
+                  <:leading><.pp_icon name="hero-credit-card" /></:leading>
                   Billing
                   <:secondary>Coming soon</:secondary>
                 </.pp_list_item>
               </.pp_list>
-            </.pp_box>
-          </.demo_group>
-
-          <.demo_group label="dense + inset, with a collapsible pp_list_group">
-            <.pp_paper class="w-full max-w-xs">
-              <.pp_list id="list-group-demo" dense inset>
-                <.pp_list_item href="#">
-                  <:leading><.pp_icon name="hero-inbox" /></:leading>
-                  Inbox
+            </div>
+            <div class="block bg-pp-surface text-pp-on-surface rounded-pp-md border border-pp-outline-variant w-full max-w-xs overflow-hidden">
+              <.pp_list id="list-avatars-demo">
+                <.pp_list_item
+                  :for={{initials, name, line} <- list_people()}
+                  href="#list"
+                >
+                  <:leading>
+                    <span class="inline-flex size-10 items-center justify-center rounded-pp-full bg-pp-primary-container pp-title-medium text-pp-on-primary-container">
+                      {initials}
+                    </span>
+                  </:leading>
+                  {name}
+                  <:secondary>{line}</:secondary>
                 </.pp_list_item>
-                <.pp_list_item href="#">Drafts</.pp_list_item>
-                <.pp_list_group id="list-group-demo-projects" default_open>
-                  <:leading><.pp_icon name="hero-folder" /></:leading>
-                  <:label>Projects</:label>
-                  <.pp_list_item href="#">Website</.pp_list_item>
-                  <.pp_list_item href="#">Mobile app</.pp_list_item>
-                </.pp_list_group>
-                <.pp_list_group id="list-group-demo-archive">
-                  <:leading><.pp_icon name="hero-archive-box" /></:leading>
-                  <:label>Archive</:label>
-                  <.pp_list_item href="#">2025</.pp_list_item>
-                  <.pp_list_item href="#">2024</.pp_list_item>
-                </.pp_list_group>
               </.pp_list>
-            </.pp_paper>
+            </div>
           </.demo_group>
         </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
     """
   end
 
-  defp pagination_code do
+  defp top_app_bar_code do
     """
-    <%!-- Links (the common case): patch to ?page=N, read it in handle_params --%>
-    <.pp_pagination
-      page={@page}
-      count={@total_pages}
-      path={fn page -> ~p"/posts?page=\#{page}" end}
-    />
+    <.pp_top_app_bar position="sticky">
+      <:leading><.pp_navigation_rail_toggle for="app-rail" modal_only /></:leading>
+      Inbox
+      <:actions>
+        <.pp_icon_button icon="hero-magnifying-glass" label="Search" />
+        <.pp_icon_button icon="hero-ellipsis-vertical" label="More" />
+      </:actions>
+    </.pp_top_app_bar>
 
-    <%!-- Events instead of links --%>
-    <.pp_pagination page={@page} count={20} on_change="set_page" />
-
-    <.pp_pagination
-      page={@page}
-      count={20}
-      on_change="set_page"
-      variant="outlined"
-      shape="rounded"
-      show_first_button
-      show_last_button
-    />
-
-    # In the LiveView (event examples):
-    def handle_event("set_page", %{"page" => page}, socket),
-      do: {:noreply, assign(socket, :page, String.to_integer(page))}\
+    <.pp_top_app_bar variant="large" subtitle="12 unread">
+      <:leading><.pp_icon_button icon="hero-arrow-left" label="Back" /></:leading>
+      Inbox
+    </.pp_top_app_bar>\
     """
   end
 
-  defp app_bar_code do
+  defp navigation_rail_code do
     """
-    <.pp_app_bar position="sticky">
-      <:leading><.pp_drawer_toggle for="app-drawer" /></:leading>
-      My App
-      <:actions>
-        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
-      </:actions>
-    </.pp_app_bar>
+    <%!-- responsive (default): modal below md, collapsible rail from md --%>
+    <.pp_navigation_rail id="app-rail">
+      <:fab icon="hero-pencil" label="Compose" navigate={~p"/compose"} />
+      <.pp_navigation_rail_item
+        icon="hero-inbox"
+        active_icon="hero-inbox-solid"
+        label="Inbox"
+        navigate={~p"/"}
+        active
+        badge={4}
+      />
+      <.pp_navigation_rail_item icon="hero-paper-airplane" label="Sent" navigate={~p"/sent"} />
+    </.pp_navigation_rail>
 
-    <.pp_app_bar :for={color <- ~w(primary secondary accent surface transparent)} color={color} class="!static">
-      {color}
-      <:actions>
-        <.pp_button variant="icon" color="inherit"><.pp_icon name="hero-bell" /></.pp_button>
-      </:actions>
-    </.pp_app_bar>
-
-    <.pp_app_bar variant="dense" class="!static">
-      Dense variant
-    </.pp_app_bar>
-
-    <%!-- max_width caps + centres the toolbar row the way wrapping MUI's
-          Toolbar in a <Container> would. Line it up with a pp_container of
-          the same max_width in the page body. disable_gutters drops the
-          toolbar's own horizontal padding. --%>
-    <.pp_app_bar position="sticky" max_width="xl">
-      My App
-      <:actions><.pp_theme_toggle /></:actions>
-    </.pp_app_bar>\
+    <%!-- In the top app bar, so small screens can open the modal rail --%>
+    <.pp_navigation_rail_toggle for="app-rail" modal_only />\
     """
   end
 
-  defp drawer_code do
+  defp navigation_bar_code do
     """
-    <.pp_app_bar>
-      <:leading><.pp_drawer_toggle for="app-drawer" /></:leading>
-      My App
-    </.pp_app_bar>
+    <.pp_navigation_bar position="fixed" class="md:hidden">
+      <.pp_navigation_bar_item icon="hero-home" active_icon="hero-home-solid" label="Home" navigate={~p"/"} active />
+      <.pp_navigation_bar_item icon="hero-magnifying-glass" label="Search" navigate={~p"/search"} />
+      <.pp_navigation_bar_item icon="hero-bell" label="Alerts" navigate={~p"/alerts"} badge={3} />
+    </.pp_navigation_bar>\
+    """
+  end
 
-    <.pp_drawer id="app-drawer" color="primary" width="lg">
-      <:header>My App</:header>
-      <.pp_list>
-        <.pp_list_item href="/" active>Home</.pp_list_item>
-      </.pp_list>
-    </.pp_drawer>\
+  defp toolbar_code do
+    """
+    <.pp_toolbar position="fixed">
+      <.pp_icon_button icon="hero-archive-box" label="Archive" />
+      <.pp_icon_button icon="hero-trash" label="Delete" />
+    </.pp_toolbar>
+
+    <.pp_toolbar variant="floating" color="vibrant" position="fixed" class="bottom-4 inset-x-0 mx-auto">
+      <.pp_icon_button icon="hero-bold" label="Bold" color="inherit" />
+      <.pp_icon_button icon="hero-italic" label="Italic" color="inherit" />
+      <:fab><.pp_fab icon="hero-check" label="Done" color="secondary-container" /></:fab>
+    </.pp_toolbar>\
     """
   end
 
   defp tabs_code do
     """
-    <.pp_tabs id="demo-tabs">
-      <.pp_tab id="demo-tabs" value="one" default_selected>One</.pp_tab>
-      <.pp_tab id="demo-tabs" value="two">Two</.pp_tab>
-      <.pp_tab id="demo-tabs" value="three" disabled>Three (disabled)</.pp_tab>
+    <.pp_tabs id="trip-tabs">
+      <.pp_tab id="trip-tabs" value="flights" default_selected>
+        <:icon><.pp_icon name="hero-paper-airplane" /></:icon>
+        Flights
+      </.pp_tab>
+      <.pp_tab id="trip-tabs" value="trips" badge={2}>Trips</.pp_tab>
     </.pp_tabs>
+    <.pp_tab_panel id="trip-tabs" value="flights" default_selected>Upcoming flights.</.pp_tab_panel>
+    <.pp_tab_panel id="trip-tabs" value="trips">Your trips.</.pp_tab_panel>
 
-    <.pp_tab_panel id="demo-tabs" value="one" default_selected>Content one.</.pp_tab_panel>
-    <.pp_tab_panel id="demo-tabs" value="two">Content two.</.pp_tab_panel>
-    <.pp_tab_panel id="demo-tabs" value="three">Content three.</.pp_tab_panel>
-
-    <%!-- with icons, secondary color, vertical orientation --%>
-    <.pp_tabs id="vertical-tabs" orientation="vertical">
-      <.pp_tab id="vertical-tabs" value="a" orientation="vertical" color="secondary" default_selected>
-        <:icon><.pp_icon name="hero-home" /></:icon>
-        Home
-      </.pp_tab>
-      <.pp_tab id="vertical-tabs" value="b" orientation="vertical" color="secondary">
-        <:icon><.pp_icon name="hero-user" /></:icon>
-        Profile
-      </.pp_tab>
-    </.pp_tabs>\
-    """
-  end
-
-  defp breadcrumbs_code do
-    """
-    <.pp_breadcrumbs>
-      <:item navigate="/">Home</:item>
-      <:item navigate="/catalog">Catalog</:item>
-      <:item>Current product</:item>
-    </.pp_breadcrumbs>
-
-    <%!-- custom separator slot, e.g. an icon --%>
-    <.pp_breadcrumbs>
-      <:separator><.pp_icon name="hero-chevron-right" size="sm" /></:separator>
-      <:item navigate="/">Home</:item>
-      <:item navigate="/settings">Settings</:item>
-      <:item>Profile</:item>
-    </.pp_breadcrumbs>
-
-    <%!-- beyond max_items, collapses with a clickable ellipsis (pure CSS) --%>
-    <.pp_breadcrumbs max_items={3}>
-      <:item navigate="/one">One</:item>
-      <:item navigate="/two">Two</:item>
-      <:item navigate="/three">Three</:item>
-      <:item navigate="/four">Four</:item>
-      <:item>Five</:item>
-    </.pp_breadcrumbs>\
+    <.pp_tabs id="spec-tabs" variant="secondary" layout="scrollable">...</.pp_tabs>\
     """
   end
 
   defp menu_code do
     """
-    <%!-- :trigger is the trigger pp_button's content; style it with trigger_* --%>
+    <%!-- Your own trigger content, styled with trigger_variant --%>
     <.pp_menu id="actions-menu" trigger_variant="outlined">
       <:trigger>Actions <.pp_icon name="hero-chevron-down" size="sm" /></:trigger>
-      <.pp_list>
-        <.pp_list_item phx-click="edit">Edit</.pp_list_item>
-        <.pp_list_item phx-click="duplicate">Duplicate</.pp_list_item>
-      </.pp_list>
+      <.pp_menu_item icon="hero-pencil-square" trailing_text="⌘E" phx-click="edit">Edit</.pp_menu_item>
+      <.pp_divider />
+      <.pp_menu_item icon="hero-trash" phx-click="delete">Delete</.pp_menu_item>
     </.pp_menu>
 
-    <%!-- Default trigger_variant="icon": an overflow menu --%>
-    <.pp_menu id="profile-menu" anchor="bottom-end">
-      <:trigger><.pp_icon name="hero-ellipsis-vertical" /></:trigger>
-      <.pp_list>
-        <.pp_list_item navigate={~p"/profile"}>Profile</.pp_list_item>
-        <.pp_list_item navigate={~p"/settings"}>Settings</.pp_list_item>
-        <.pp_list_item phx-click="log_out">Log out</.pp_list_item>
-      </.pp_list>
+    <%!-- An icon-button trigger: trigger_icon + trigger_label --%>
+    <.pp_menu id="profile-menu" anchor="bottom-end" trigger_icon="hero-ellipsis-vertical" trigger_label="More">
+      <.pp_menu_item navigate={~p"/users/settings"}>Settings</.pp_menu_item>
+      <%!-- A cascading submenu --%>
+      <.pp_submenu id="profile-menu-share" label="Share" icon="hero-share">
+        <.pp_menu_item phx-click="share_email">Email</.pp_menu_item>
+        <.pp_menu_item phx-click="share_link">Copy link</.pp_menu_item>
+      </.pp_submenu>
+      <.pp_menu_item href={~p"/users/log-out"} method="delete">Log out</.pp_menu_item>
     </.pp_menu>\
+    """
+  end
+
+  defp search_bar_code do
+    """
+    <form phx-change="search" phx-submit="search">
+      <.pp_search_bar name="q" value={@query} placeholder="Search folders" phx-debounce="150">
+        <:trailing><span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-8 pp-label-medium bg-pp-primary-container text-pp-on-primary-container">AL</span></:trailing>
+        <:results>
+          <.pp_list>
+            <.pp_list_item :for={hit <- @hits} navigate={hit.path}>{hit.title}</.pp_list_item>
+          </.pp_list>
+        </:results>
+      </.pp_search_bar>
+    </form>
+
+    # In the LiveView:
+    def handle_event("search", %{"q" => q}, socket),
+      do: {:noreply, assign(socket, query: q, hits: MyApp.Search.run(q))}\
     """
   end
 
   defp list_code do
     """
     <.pp_list>
-      <.pp_list_subheader>Main</.pp_list_subheader>
-      <.pp_list_item navigate={~p"/"}>Home</.pp_list_item>
-      <.pp_list_item navigate={~p"/inbox"}>Inbox</.pp_list_item>
-      <.pp_divider />
-      <.pp_list_subheader>Account</.pp_list_subheader>
-      <.pp_list_item navigate={~p"/settings"}>Settings</.pp_list_item>
-    </.pp_list>
-
-    <%!-- dense rows; inset lines "Drafts" up with the items that have icons --%>
-    <.pp_list dense inset>
+      <.pp_typography variant="title-small" color="on-surface-variant" class="px-4 pt-2 pb-1">
+        Main
+      </.pp_typography>
+      <.pp_list_item navigate={~p"/"} active>
+        <:leading><.pp_icon name="hero-home" /></:leading>
+        Home
+        <:secondary>Overview</:secondary>
+      </.pp_list_item>
       <.pp_list_item navigate={~p"/inbox"}>
         <:leading><.pp_icon name="hero-inbox" /></:leading>
         Inbox
+        <:trailing><.pp_typography variant="label-medium">3</.pp_typography></:trailing>
       </.pp_list_item>
-      <.pp_list_item navigate={~p"/drafts"}>Drafts</.pp_list_item>
-      <.pp_list_group id="nav-projects" default_open>
-        <:leading><.pp_icon name="hero-folder" /></:leading>
-        <:label>Projects</:label>
-        <.pp_list_item navigate={~p"/projects/website"}>Website</.pp_list_item>
-        <.pp_list_item navigate={~p"/projects/mobile"}>Mobile app</.pp_list_item>
-      </.pp_list_group>
+    </.pp_list>
+
+    <%!-- An avatar is a plain rounded image in :leading --%>
+    <.pp_list>
+      <.pp_list_item :for={user <- @users} navigate={~p"/users/\#{user.id}"}>
+        <:leading><img src={user.avatar_url} alt="" class="size-10 rounded-pp-full" /></:leading>
+        {user.name}
+        <:secondary>{user.email}</:secondary>
+      </.pp_list_item>
     </.pp_list>\
     """
+  end
+
+  defp list_people do
+    [
+      {"AL", "Ada Lovelace", "ada@example.com"},
+      {"GH", "Grace Hopper", "grace@example.com"},
+      {"AT", "Alan Turing", "alan@example.com"}
+    ]
   end
 end

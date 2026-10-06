@@ -76,7 +76,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
     assigns = assign(assigns, :id, @dialog_id)
 
     ~H"""
-    <.pp_dialog id={@id} max_width="2xl">
+    <.pp_dialog id={@id}>
       <:title>Paper Bird</:title>
       <div id="paper-bird-stage" phx-update="ignore">
         <canvas
@@ -84,10 +84,10 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           phx-hook=".PaperBird"
           tabindex="0"
           aria-label="Paper Bird game. Press Space, Arrow Up, click or tap to flap."
-          class="block aspect-[3/4] w-full cursor-pointer touch-manipulation rounded-lg sm:aspect-[4/3]"
+          class="block aspect-[3/4] w-full cursor-pointer touch-manipulation rounded-pp-sm sm:aspect-[4/3]"
         ></canvas>
       </div>
-      <.pp_typography variant="caption" class="mt-3">
+      <.pp_typography variant="body-small" class="mt-3">
         Space, ↑, click or tap to flap. Don't touch the pipes.
       </.pp_typography>
       <:actions>
@@ -201,7 +201,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           this.colors = {
             primary: v("--color-pp-primary", "#7c3aed"),
             secondary: v("--color-pp-secondary", "#3f51b5"),
-            accent: v("--color-pp-accent", "#009688"),
+            tertiary: v("--color-pp-tertiary", "#009688"),
             surface: v("--color-pp-surface-variant", "#eeeeee"),
             onSurface: v("--color-pp-on-surface", "#1f1f1f"),
             font: getComputedStyle(document.body).fontFamily
@@ -280,7 +280,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           c.fillStyle = k.surface
           c.fillRect(0, 0, W, H)
 
-          c.fillStyle = k.accent
+          c.fillStyle = k.tertiary
           for (const p of this.pipes) {
             this.roundRect(p.x, -10, PIPE_W, p.gapY + 10, 8)
             this.roundRect(p.x, p.gapY + GAP, PIPE_W, H - p.gapY - GAP + 10, 8)
@@ -330,7 +330,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           const g = c.createLinearGradient(4, 6, 46, 60)
           g.addColorStop(0, k.primary)
           g.addColorStop(0.55, k.secondary)
-          g.addColorStop(1, k.accent)
+          g.addColorStop(1, k.tertiary)
           c.fillStyle = g
           c.strokeStyle = g
           c.lineCap = "round"

@@ -23,6 +23,8 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/phoenix_paper_website"
+// phoenix_paper's LiveView hook (required since 0.4.1; see Getting Started, step 4)
+import PhoenixPaperHooks from "phoenix_paper"
 import topbar from "../vendor/topbar"
 
 // Syntax highlighting for the component pages' code snippets (see the
@@ -42,7 +44,7 @@ const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: {...PhoenixPaperHooks, ...colocatedHooks},
 })
 
 // Show progress bar on live navigation and form submits

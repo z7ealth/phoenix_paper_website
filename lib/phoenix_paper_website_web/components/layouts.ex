@@ -14,11 +14,11 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   embed_templates "layouts/*"
 
   @doc """
-  The shell for every page except the home page: a persistent
-  `PhoenixPaper.Drawer` sidebar (full height, stacked above the app bar,
-  with the logo in its header) plus a sticky `PhoenixPaper.AppBar` for the
-  content column (mobile drawer toggle on the left, a GitHub link and
-  `PhoenixPaperWebsiteWeb.ThemePicker` on the right). All real PhoenixPaper
+  The shell for every page except the home page: a responsive
+  `PhoenixPaper.NavigationRail` (starting expanded, with the logo in its
+  header; a modal on small screens) plus a sticky `PhoenixPaper.TopAppBar`
+  for the content column (the rail's modal toggle on the left, GitHub, Hex
+  and `PhoenixPaperWebsiteWeb.ThemePicker` on the right). All real PhoenixPaper
   components, and this is the showcase's own live demo of them.
 
   ## Examples
@@ -51,69 +51,69 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     ~H"""
     <div class="min-h-screen bg-pp-surface text-pp-on-surface">
       <div class="flex w-full">
-        <.pp_drawer id="site-drawer">
-          <:header>
-            <.brand />
-          </:header>
-          <.pp_list dense>
-            <%= for section <- @nav_sections do %>
-              <.pp_list_subheader>{section.title}</.pp_list_subheader>
-              <%= for item <- section.items do %>
-                <%= cond do %>
-                  <% item[:href] -> %>
-                    <%!-- External (e.g. the Changelog on GitHub): opens in a new
-                          tab; the trailing icon marks it as external. --%>
-                    <.pp_list_item
-                      id={"nav-#{item.id}"}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <:leading><.pp_icon name={item.icon} /></:leading>
-                      {item.label}
-                      <:trailing><.pp_icon name="hero-arrow-top-right-on-square-mini" /></:trailing>
-                    </.pp_list_item>
-                  <% item[:children] in [nil, []] -> %>
-                    <.pp_list_item navigate={item.path} active={@current_page == item.id}>
-                      <:leading><.pp_icon name={item.icon} /></:leading>
-                      {item.label}
-                    </.pp_list_item>
-                  <% true -> %>
-                    <%!-- A component category: a collapsible group, open on its own page,
-                        with one #anchor link per section on that page (see
-                        Nav.component_items/0). Same-page clicks are plain anchor jumps;
-                        cross-page ones are LiveView navigations that scroll to the hash
-                        once the new page is mounted. --%>
-                    <.pp_list_group
-                      id={"nav-#{item.id}"}
-                      default_open={@current_page == item.id}
-                    >
-                      <:leading><.pp_icon name={item.icon} /></:leading>
-                      <:label>{item.label}</:label>
-                      <.pp_list_item :for={child <- item.children} navigate={child.path}>
-                        {child.label}
-                        <:trailing :if={child.status}>
-                          <.status_chip status={child.status} />
-                        </:trailing>
-                      </.pp_list_item>
-                    </.pp_list_group>
-                <% end %>
+        <%!-- MD3 navigation rail, responsive: expanded from md up (with the
+              section headings and the current category's component links), a modal
+              below md, opened from the top app bar. --%>
+        <%!-- menu_button={false}: no expand/collapse button on desktop, so the
+              rail stays expanded like a docs sidebar; on phones the top app
+              bar's modal_only toggle opens it and the scrim closes it. --%>
+        <.pp_navigation_rail id="site-rail" default_expanded menu_button={false}>
+          <:header><.brand rail /></:header>
+          <%= for section <- @nav_sections do %>
+            <.pp_typography
+              variant="title-small"
+              color="on-surface-variant"
+              class="px-4 pt-4 pb-2 pp-rail-collapsed:hidden"
+            >
+              {section.title}
+            </.pp_typography>
+            <%= for item <- section.items do %>
+              <%= if item[:href] do %>
+                <%!-- External (the Changelog on GitHub): opens in a new tab --%>
+                <.pp_navigation_rail_item
+                  id={"nav-#{item.id}"}
+                  icon={item.icon}
+                  label={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              <% else %>
+                <.pp_navigation_rail_item
+                  id={"nav-#{item.id}"}
+                  icon={item.icon}
+                  label={item.label}
+                  navigate={item.path}
+                  active={@current_page == item.id}
+                />
+                <%!-- The current category's components, one #anchor link per
+                      section (see Nav.component_items/0), only while expanded --%>
+                <.pp_list
+                  :if={item[:children] not in [nil, []] and @current_page == item.id}
+                  id={"nav-#{item.id}-content"}
+                  class="ms-7 border-s border-pp-outline-variant pp-rail-collapsed:hidden"
+                >
+                  <.pp_list_item :for={child <- item.children} navigate={child.path}>
+                    {child.label}
+                    <:trailing :if={child.status}>
+                      <.status_chip status={child.status} />
+                    </:trailing>
+                  </.pp_list_item>
+                </.pp_list>
               <% end %>
             <% end %>
-          </.pp_list>
-        </.pp_drawer>
+          <% end %>
+        </.pp_navigation_rail>
 
         <div class="min-w-0 flex-1">
-          <.pp_app_bar color="surface" position="sticky" elevation={0}>
-            <:leading>
-              <.pp_drawer_toggle for="site-drawer" />
-            </:leading>
+          <.pp_top_app_bar position="sticky">
+            <:leading><.pp_navigation_rail_toggle for="site-rail" modal_only /></:leading>
             <:actions>
               <.github_link />
               <.hex_link />
               <.theme_picker />
             </:actions>
-          </.pp_app_bar>
+          </.pp_top_app_bar>
 
           <main class="py-10">
             {render_slot(@inner_block)}
@@ -130,7 +130,7 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
 
   @doc """
   The bare shell for the home page only: just the floating logo, a GitHub
-  link, and `PhoenixPaperWebsiteWeb.ThemePicker`, no navbar and no drawer --
+  link, and `PhoenixPaperWebsiteWeb.ThemePicker`, no app bar and no rail --
   the landing page doesn't need in-app navigation chrome around it.
 
   ## Examples
@@ -194,14 +194,35 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   # The home link + wordmark + installed-version caption, shared by the
   # sidebar header (app/1) and the landing page's floating corner
   # (landing/1). The version sits *under* the wordmark rather than beside it
-  # so it never gets clipped by the drawer's width.
+  # so it never gets clipped by the rail's width.
+  #
+  # In the rail (`rail`), the wordmark and version hide while it's collapsed,
+  # leaving just the mark.
+  attr :rail, :boolean, default: false
+
   defp brand(assigns) do
     ~H"""
     <.link navigate={~p"/"} class="flex flex-col items-start gap-0.5">
-      <.logo_lockup size="lg" />
-      <span class="pl-[2.625rem] text-[0.65rem] font-semibold uppercase tracking-wider text-pp-on-surface/45">
-        v{phoenix_paper_version()}
+      <span class="inline-flex items-center gap-2.5">
+        <.logo_mark class="size-8 shrink-0 text-pp-primary" />
+        <.pp_typography
+          variant="headline-small"
+          tag="span"
+          emphasized
+          color="on-surface"
+          class={@rail && "pp-rail-collapsed:hidden"}
+        >
+          Phoenix<span class="text-pp-primary">Paper</span>
+        </.pp_typography>
       </span>
+      <.pp_typography
+        variant="label-small"
+        tag="span"
+        color="on-surface-variant"
+        class={["pl-[2.625rem] uppercase", @rail && "pp-rail-collapsed:hidden"]}
+      >
+        v{phoenix_paper_version()}
+      </.pp_typography>
     </.link>
     """
   end
@@ -219,9 +240,10 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
     assigns = assign(assigns, :year, Date.utc_today().year)
 
     ~H"""
-    <footer class="flex items-center justify-center gap-1.5 py-8 text-xs text-pp-on-surface/50">
-      <span aria-hidden="true">&copy;</span>
-      <span>z7ealth {@year}</span>
+    <footer class="flex justify-center py-8">
+      <.pp_typography variant="body-small" color="on-surface-variant">
+        <span aria-hidden="true">&copy;</span> z7ealth {@year}
+      </.pp_typography>
     </footer>
     """
   end
@@ -231,17 +253,15 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   # corner.
   defp github_link(assigns) do
     ~H"""
-    <.pp_button
+    <.pp_icon_button
       id="github-link"
-      variant="icon"
-      color="inherit"
+      label="PhoenixPaper on GitHub"
       href="https://github.com/z7ealth/phoenix_paper"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="PhoenixPaper on GitHub"
     >
       <.github_mark class="size-6" />
-    </.pp_button>
+    </.pp_icon_button>
     """
   end
 
@@ -249,17 +269,15 @@ defmodule PhoenixPaperWebsiteWeb.Layouts do
   # the same pp_button icon button in link mode.
   defp hex_link(assigns) do
     ~H"""
-    <.pp_button
+    <.pp_icon_button
       id="hex-link"
-      variant="icon"
-      color="inherit"
+      label="PhoenixPaper on Hex"
       href="https://hex.pm/packages/phoenix_paper"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="PhoenixPaper on Hex"
     >
       <.hex_mark class="size-6" />
-    </.pp_button>
+    </.pp_icon_button>
     """
   end
 

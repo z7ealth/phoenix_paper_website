@@ -59,4 +59,13 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorTest do
     assert has_element?(view, ~s|#create-theme-link[href="/theme-creator"]|)
     assert has_element?(view, ~s|a[href="/theme-creator"]|, "Theme Creator")
   end
+
+  test "a seed generates both palettes with the library's MD3 color science", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/theme-creator")
+    expected = PhoenixPaper.Theme.scheme("#0b57d0", :light, variant: :vibrant)["primary"]
+
+    view |> form("#theme-seed-form", seed: "#0b57d0", variant: "vibrant") |> render_change()
+    assert has_element?(view, ~s|#theme-preview[style*="--color-pp-primary: #{expected};"]|)
+    assert has_element?(view, "pre code", "--color-pp-primary: #{expected};")
+  end
 end

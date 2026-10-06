@@ -27,9 +27,20 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingTest do
   test "the demo shows the plain class losing and ! / the attr winning", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/customizing")
 
-    # Plain class: both flex-row and flex-col on the element (flex-row wins).
-    assert has_element?(view, "#customizing-plain.flex-row.flex-col")
-    assert has_element?(view, ~s|#customizing-important.flex-row[class~="!flex-col"]|)
-    assert has_element?(view, "#customizing-attr.flex-col:not(.flex-row)")
+    # Plain class: both backgrounds on the card (the built-in -low wins).
+    assert has_element?(
+             view,
+             "#customizing-plain.bg-pp-surface-container-low.bg-pp-surface-container-highest"
+           )
+
+    assert has_element?(
+             view,
+             ~s|#customizing-important.bg-pp-surface-container-low[class~="!bg-pp-surface-container-highest"]|
+           )
+
+    assert has_element?(
+             view,
+             "#customizing-attr.bg-pp-surface-container-highest:not(.bg-pp-surface-container-low)"
+           )
   end
 end

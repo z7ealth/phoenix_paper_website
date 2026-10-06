@@ -2,138 +2,66 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok,
-     socket
-     |> assign(:page_title, "Forms")
-     |> assign(:profile_form, to_form(%{"name" => "", "email" => ""}, as: :profile))
-     |> assign(:languages, ["elixir"])}
-  end
-
-  def handle_event("validate_profile", %{"profile" => params}, socket) do
-    {:noreply, assign(socket, :profile_form, to_form(params, as: :profile))}
-  end
-
-  def handle_event("save_profile", %{"profile" => params}, socket) do
-    name = if params["name"] in [nil, ""], do: "there", else: params["name"]
-
-    {:noreply,
-     socket
-     |> assign(:profile_form, to_form(params, as: :profile))
-     |> put_flash(:info, "Saved. Hi, #{name}!")}
-  end
-
-  # PowerSelect's on_change runs in this LiveView's process.
-  def handle_info({:languages_changed, values}, socket) do
-    {:noreply, assign(socket, :languages, values)}
+    {:ok, assign(socket, :page_title, "Forms")}
   end
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:forms}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Forms">
-          PhoenixPaper.Form, Input, Select, PowerSelect, NumberField, Checkbox, Switch,
-          ThemeToggle, RadioGroup, Slider, Rating, Autocomplete, TransferList. Every one of these also accepts a field
-          from to_form/2, the same way a generated core_components.ex input does.
+          PhoenixPaper.TextField, Select, Checkbox, Switch, ThemeToggle, RadioGroup, Slider,
+          DatePicker and TimePicker. Every one of them takes a field from to_form/2, the same
+          way a generated core_components.ex input does, so they drop straight into Phoenix's
+          own &lt;.form&gt;.
         </.page_header>
 
         <.section
-          title="Form"
-          description="A thin layer over Phoenix's own <.form>: the same for/as/action/:let API, plus consistent spacing between fields and a right-aligned :actions row for the submit/cancel buttons. Plain <.form> keeps working with every pp_* control; use pp_form when you want the layout for free."
-          props={[
-            {"for", "required: the form source, usually from to_form/2"},
-            {"as / action / method / multipart / csrf_token / errors",
-             "same as Phoenix.Component.form/1"},
-            {"spacing", "gap between fields, a Spacing token (default: :md)"},
-            {"phx-change / phx-submit / id / ...", "passed through to the <form>, like <.form>"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":inner_block", "the fields; receives the form via :let"},
-            {":actions", "submit/cancel buttons, right-aligned after the fields"}
-          ]}
-          code={form_code()}
-        >
-          <.demo_group label="Try it (Save shows a flash message)" direction="column">
-            <.pp_form
-              for={@profile_form}
-              id="profile-form"
-              phx-change="validate_profile"
-              phx-submit="save_profile"
-              class="max-w-md"
-            >
-              <.pp_input field={@profile_form[:name]} label="Name" />
-              <.pp_input field={@profile_form[:email]} type="email" label="Email" />
-              <:actions>
-                <.pp_button variant="text" type="reset">Reset</.pp_button>
-                <.pp_button type="submit">Save</.pp_button>
-              </:actions>
-            </.pp_form>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Input"
-          description="Modeled on MUI's TextField. Three variants (outlined, filled, standard), pure-CSS floating label, no JavaScript."
-          props={[
-            {"label / value / name / id", "standard text field attrs"},
-            {"type",
-             "any input type, e.g. text | email | password | datetime-local (default: text); datetime-local formats a NaiveDateTime/DateTime value for you"},
-            {"variant", "outlined | filled | standard (default: outlined)"},
-            {"color", "primary | secondary | accent | error (default: primary), focus/label accent"},
-            {"size", "medium | small (default: medium)"},
-            {"shape", "corner radius token (default: :sm), ignored for variant=\"standard\""},
-            {"multiline / rows", "renders a textarea instead of an input"},
-            {"hide_label",
-             "boolean (default: false): dense, unwrapped variant for an inline filter toolbar (label becomes the placeholder, no notch, no helper/error rows). Pair with size=\"small\""},
-            {"field", "a Phoenix.HTML.FormField from to_form/2: sets name/id/value for you"},
-            {"errors", "list of error strings: switches to the error color, hides helper_text"},
-            {"helper_text", "shown below the field when there are no errors"},
-            {"disabled", "boolean (default: false)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":start_adornment / :end_adornment", "prefix/suffix content, e.g. an icon or unit"}
-          ]}
+          title="Text Field"
+          api={[{PhoenixPaper.TextField, :pp_text_field}]}
+          description="MD3's text field, outlined or filled, with a pure-CSS floating label and no JavaScript. supporting_text sits under the field; errors switch it to the error color with a trailing error icon and wire aria-describedby."
           code={input_code()}
         >
           <.demo_group label="Variants">
-            <.pp_input variant="outlined" label="Outlined (default)" name="outlined_demo" />
-            <.pp_input variant="filled" label="Filled" name="filled_demo" />
-            <.pp_input variant="standard" label="Standard" name="standard_demo" />
+            <.pp_text_field variant="outlined" label="Outlined (default)" name="outlined_demo" />
+            <.pp_text_field variant="filled" label="Filled" name="filled_demo" />
           </.demo_group>
 
           <.demo_group label="States" class="items-start">
-            <.pp_input
-              label="With helper text"
+            <.pp_text_field
+              label="With supporting text"
               name="helper_demo"
-              helper_text="We'll never share your email."
+              supporting_text="We'll never share your email."
             />
-            <.pp_input
+            <.pp_text_field
               label="With an error"
               name="error_demo"
               value="not-an-email"
               errors={["is not a valid email"]}
             />
-            <.pp_input label="Disabled" name="disabled_demo" value="Can't touch this" disabled />
+            <.pp_text_field label="Disabled" name="disabled_demo" value="Can't touch this" disabled />
           </.demo_group>
 
           <.demo_group label="Colors">
-            <.pp_input color="primary" label="Primary" name="color_primary_demo" />
-            <.pp_input color="secondary" label="Secondary" name="color_secondary_demo" />
-            <.pp_input color="accent" label="Accent" name="color_accent_demo" />
+            <.pp_text_field color="primary" label="Primary" name="color_primary_demo" />
+            <.pp_text_field color="secondary" label="Secondary" name="color_secondary_demo" />
+            <.pp_text_field color="tertiary" label="Tertiary" name="color_tertiary_demo" />
           </.demo_group>
 
-          <.demo_group label="Size and adornments">
-            <.pp_input size="small" label="Small" name="size_small_demo" />
-            <.pp_input label="Amount" name="amount_demo" value="42.00">
+          <.demo_group label="Adornments">
+            <.pp_text_field label="Search" name="search_adorn_demo">
+              <:start_adornment>
+                <.pp_icon name="hero-magnifying-glass" size="sm" />
+              </:start_adornment>
+            </.pp_text_field>
+            <.pp_text_field label="Amount" name="amount_demo" value="42.00">
               <:start_adornment>$</:start_adornment>
               <:end_adornment>USD</:end_adornment>
-            </.pp_input>
+            </.pp_text_field>
           </.demo_group>
 
           <.demo_group label="Multiline" class="items-start">
-            <.pp_input
+            <.pp_text_field
               multiline
               rows={3}
               label="Bio"
@@ -142,43 +70,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               class="w-full max-w-sm"
             />
           </.demo_group>
-
-          <.demo_group label="hide_label (inline filter toolbar)">
-            <.pp_input hide_label label="Search" name="dense_search_demo" size="small" class="w-48">
-              <:start_adornment>
-                <.pp_icon name="hero-magnifying-glass" size="sm" />
-              </:start_adornment>
-            </.pp_input>
-            <.pp_select
-              hide_label
-              label="Status"
-              name="dense_status_demo"
-              prompt="Any status"
-              options={["Active", "Archived"]}
-            />
-            <.pp_input
-              hide_label
-              label="Owner"
-              name="dense_owner_demo"
-              size="small"
-              errors={["required"]}
-              class="w-40"
-            />
-          </.demo_group>
         </.section>
 
         <.section
           title="Select"
-          description="A native select element styled to match Input's outlined/filled variants."
-          props={[
-            {"options", "list of {label, value} tuples, or plain values"},
-            {"prompt", "an empty/placeholder option's label"},
-            {"variant", "outlined | filled (default: outlined)"},
-            {"hide_label",
-             "boolean (default: false): dense, unwrapped variant (see Input): drops the wrapper column, floating label and helper/error rows. Use prompt for placeholder text"},
-            {"field / errors / helper_text", "same as Input"},
-            {"disabled", "boolean (default: false)"}
-          ]}
+          api={[{PhoenixPaper.Select, :pp_select}]}
+          description="A native select element styled as MD3's outlined or filled text field, always with a floating label."
           code={select_code()}
         >
           <.demo_group label="Variants">
@@ -196,180 +93,51 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               options={["Canada", "Mexico", "United States"]}
             />
           </.demo_group>
-
-          <.demo_group label="hide_label">
-            <.pp_select
-              hide_label
-              label="Status"
-              name="dense_country_demo"
-              prompt="Any"
-              options={["Active", "Archived", "Draft"]}
-            />
-          </.demo_group>
-        </.section>
-
-        <.section
-          live_component
-          title="Power Select"
-          description="A searchable select in the spirit of ember-power-select: open it, filter by typing (case- and accent-insensitive, so mexico finds México), move with the arrow keys, group options, and with multiple pick several as chips. Search can also run on the server (search, a function term -> options, run as an async task). A Phoenix.LiveComponent, LiveView only. Reach for it over Autocomplete when the value must come from a known set."
-          props={[
-            {"options",
-             "strings, {label, value} tuples, or maps/structs; %{group_name: ..., options: [...]} makes a (nestable) group; disabled: true disables an option or group"},
-            {"field / name / value",
-             "form integration: hidden inputs carry the values (name[] for multiple), and the surrounding form's phx-change runs on every change"},
-            {"multiple", "boolean (default: false): pick several, shown as chips in the trigger"},
-            {"search_enabled",
-             "boolean (default: false): a search box; matching ignores case and accents"},
-            {"search",
-             "function term -> options: server search in an async task, only the latest term's results shown"},
-            {"search_field / label_field / value_field",
-             "keys to read on map options (defaults: the label, :label, :value)"},
-            {"matcher", "function (option, term) -> boolean, replaces the matching rule"},
-            {"allow_clear", "boolean (default: false): a ✕ to clear the selection"},
-            {"on_change",
-             "function called in the LiveView's process with the new value(s), for use outside a form"},
-            {"debounce", "ms between server searches (default: 300)"},
-            {"label / placeholder / search_placeholder / helper_text / errors",
-             "same intent as Input"},
-            {"no_matches_message / loading_message / search_message",
-             "the list's messages, translatable"},
-            {"variant / shape / disabled / paperize",
-             "outlined | filled (default: outlined); same as other form controls"}
-          ]}
-          slots={[
-            {":option", "renders each option; receives %{option, label, search, selected}"},
-            {":selected_item", "renders the selection in a single select's trigger"}
-          ]}
-          code={power_select_code()}
-        >
-          <.demo_group label="Searchable, grouped, clearable (try typing mexico)">
-            <.pp_box class="w-full max-w-sm">
-              <.live_component
-                module={PhoenixPaper.PowerSelect}
-                id="country-power-select"
-                name="country"
-                label="Country"
-                placeholder="Pick a country"
-                search_enabled
-                allow_clear
-                options={[
-                  %{group_name: "North America", options: ["Canada", "México", "United States"]},
-                  %{group_name: "South America", options: ["Argentina", "Brasil", "Perú"]},
-                  %{group_name: "Europe", options: ["España", "France", "Österreich"]}
-                ]}
-              />
-            </.pp_box>
-          </.demo_group>
-
-          <.demo_group label="multiple, with on_change" direction="column">
-            <.pp_box class="w-full max-w-sm">
-              <.live_component
-                module={PhoenixPaper.PowerSelect}
-                id="languages-power-select"
-                label="Languages"
-                multiple
-                search_enabled
-                value={@languages}
-                on_change={fn values -> send(self(), {:languages_changed, values}) end}
-                options={[
-                  {"Elixir", "elixir"},
-                  {"Erlang", "erlang"},
-                  {"Gleam", "gleam"},
-                  {"JavaScript", "javascript"},
-                  {"Rust", "rust"}
-                ]}
-              />
-            </.pp_box>
-            <.pp_typography id="languages-selected" variant="caption">
-              on_change got: {inspect(@languages)}
-            </.pp_typography>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Number Field"
-          description="A numeric input with increment/decrement stepper buttons: plain onclick JS calling stepUp()/stepDown(), no JS hook."
-          props={[
-            {"min / max / step", "passed straight to the underlying input type=\"number\""},
-            {"variant / shape / field / errors / helper_text", "same as Input"},
-            {"disabled", "boolean (default: false)"}
-          ]}
-          code={number_field_code()}
-        >
-          <.demo_group label="Variants">
-            <.pp_number_field label="Quantity" name="qty_demo" value={2} min={0} max={10} />
-            <.pp_number_field
-              variant="filled"
-              label="Quantity"
-              name="qty_filled_demo"
-              value={2}
-              min={0}
-              max={10}
-            />
-          </.demo_group>
         </.section>
 
         <.section
           title="Checkbox"
-          description="Includes the hidden-input trick so an unchecked box still submits false."
-          props={[
-            {"checked", "boolean (default: nil, meaning unchecked)"},
-            {"field", "a Phoenix.HTML.FormField: sets name/id/checked for you"},
-            {"label", "text next to the box"},
-            {"disabled", "boolean (default: false)"},
-            {"ripple", "boolean, the ripple effect on click/tap (default: false)"},
-            {"paperize", "false renders a bare native checkbox, no hidden input"}
-          ]}
+          api={[{PhoenixPaper.Checkbox, :pp_checkbox}]}
+          description="MD3 metrics with a 40dp state layer, plus the hidden-input trick so an unchecked box still submits false. indeterminate shows a dash (a parent of partially checked children); error switches to the error color."
           code={checkbox_code()}
         >
           <.demo_group label="States">
-            <.pp_checkbox label="Paperized (default)" checked={true} />
-            <.pp_checkbox label="Unchecked" />
-            <.pp_checkbox paperize={false} label="paperize: false" class="size-5" />
+            <.pp_checkbox label="Checked" checked={true} name="cb_checked_demo" />
+            <.pp_checkbox label="Unchecked" name="cb_unchecked_demo" />
+            <.pp_checkbox label="Indeterminate" indeterminate name="cb_indeterminate_demo" />
+            <.pp_checkbox label="Error" error checked={true} name="cb_error_demo" />
+            <.pp_checkbox label="Disabled" disabled checked={true} name="cb_disabled_demo" />
           </.demo_group>
         </.section>
 
         <.section
           title="Switch"
-          description="An on/off toggle, structured like Checkbox but rendered as a sliding track/thumb."
-          props={[
-            {"checked / field / label / disabled / ripple / paperize", "same shape as Checkbox"}
-          ]}
+          api={[{PhoenixPaper.Switch, :pp_switch}]}
+          description="An on/off toggle with MD3's track and handle: the handle grows when on and when pressed. icons adds MD3's check/close glyphs inside the handle."
           code={switch_code()}
         >
           <.demo_group label="States">
-            <.pp_switch label="Paperized (default)" checked={true} name="wifi_demo" />
-            <.pp_switch label="Unchecked" name="bluetooth_demo" />
-            <.pp_switch paperize={false} label="paperize: false" name="bare_switch_demo" />
+            <.pp_switch label="On" checked={true} name="wifi_demo" />
+            <.pp_switch label="Off" name="bluetooth_demo" />
+            <.pp_switch label="With icons" icons checked={true} name="icons_switch_demo" />
+            <.pp_switch label="Disabled" disabled checked={true} name="disabled_switch_demo" />
           </.demo_group>
         </.section>
 
         <.section
           title="Theme Toggle"
+          api={[{PhoenixPaper.ThemeToggle, :pp_theme_toggle}]}
           description={
-            ~S|Sets data-theme on <html>, the attribute daisyUI and Phoenix 1.8's app.css already key off. The default is a System / Light / Dark segmented control, like the one in Phoenix 1.8's generated layout, with System selected: it removes data-theme so the page follows the OS, live. Which option is selected is pure CSS (read from data-theme), so every toggle on the page agrees and a LiveView re-render can't reset it. The choice is saved in localStorage under phx:theme, the key a Phoenix 1.8 root layout restores on load. variant="switch" keeps the older two-state sun/moon switch.|
+            ~S|Sets data-theme on <html>, the attribute daisyUI and Phoenix 1.8's app.css already key off. The default is a System / Light / Dark segmented control, like the one in Phoenix 1.8's generated layout, with System selected: it removes data-theme so the page follows the OS, live. Which option is selected is pure CSS (read from data-theme), so every toggle on the page agrees and a LiveView re-render can't reset it. The choice is saved in localStorage under phx:theme, the key a Phoenix 1.8 root layout restores on load.|
           }
-          props={[
-            {"variant",
-             "segmented | switch (default: segmented). segmented = System/Light/Dark buttons; switch = two-state light/dark"},
-            {"label",
-             "visible text next to the control (default: none for segmented, \"Dark mode\" for switch); nil hides it"},
-            {"target", "CSS selector for the element to set data-theme on (default: \"html\")"},
-            {"on_toggle",
-             "extra JS commands run before the built-in flip; each button sends phx-value-theme (system/light/dark), so JS.push(\"save_theme\") receives the choice"},
-            {"default_checked",
-             "switch only: initial checkbox attribute, mostly cosmetic with JS (default: false)"},
-            {"ripple / paperize", "same as Switch"}
-          ]}
           code={theme_toggle_code()}
         >
           <.demo_group label="Try it (changes this whole page's theme)">
             <.pp_theme_toggle id="theme-toggle-demo-segmented" />
-            <.pp_theme_toggle id="theme-toggle-demo-switch" variant="switch" />
-            <.pp_theme_toggle id="theme-toggle-demo-icon" variant="switch" label={nil} />
+            <.pp_theme_toggle id="theme-toggle-demo-labeled" label="Theme" />
           </.demo_group>
-          <.pp_typography variant="body2" color="muted">
-            All three change the same data-theme, so they stay in sync with each other and with
+          <.pp_typography variant="body-medium" color="on-surface-variant">
+            Both change the same data-theme, so they stay in sync with each other and with
             the theme picker in the top-right corner. Pick Light or Dark and reload: the choice
             is restored before first paint. Pick System to follow your OS again.
           </.pp_typography>
@@ -377,45 +145,35 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
         <.section
           title="Radio Group"
-          description="A labeled set of mutually exclusive radio buttons sharing one name."
-          props={[
-            {"options", "list of {label, value} tuples, or plain values"},
-            {"value", "the currently selected value"},
-            {"label", "the group's legend"},
-            {"ripple", "boolean, the ripple effect on click/tap (default: false)"},
-            {"field / disabled / paperize", "same as other form controls"}
-          ]}
+          api={[{PhoenixPaper.RadioGroup, :pp_radio_group}]}
+          description="A labeled set of mutually exclusive radio buttons sharing one name, with MD3 metrics and a 40dp state layer; error switches to the error color."
           code={radio_group_code()}
         >
-          <.demo_group label="Options">
+          <.demo_group label="Options, and error" class="items-start">
             <.pp_radio_group
               label="Size"
               name="size_demo"
               value="md"
               options={[{"Small", "sm"}, {"Medium", "md"}, {"Large", "lg"}]}
             />
+            <.pp_radio_group
+              label="Plan"
+              name="plan_demo"
+              error
+              options={[{"Free", "free"}, {"Pro", "pro"}]}
+            />
           </.demo_group>
         </.section>
 
         <.section
           title="Slider"
-          description="A native range input, fully re-skinned via ::-webkit-slider-thumb / ::-moz-range-progress rather than CSS accent-color alone, so the unfilled portion of the track can be controlled too."
-          props={[
-            {"min / max / step", "default 0 / 100 / 1"},
-            {"value", "a number, or a {low, high} tuple for a range slider (two thumbs)"},
-            {"color", "primary | secondary | accent | error (default: primary)"},
-            {"size", "medium | small (default: medium)"},
-            {"orientation", "horizontal | vertical (default: horizontal)"},
-            {"track", "normal | none | inverted (default: normal), ignored for range sliders"},
-            {"marks", "true (tick every step), a list of values, or a list of {value, label} tuples"},
-            {"label", "shown above the slider with the current value"},
-            {"field / disabled / paperize", "same as other form controls"}
-          ]}
+          api={[{PhoenixPaper.Slider, :pp_slider}]}
+          description="A native range input re-skinned as MD3's slider: a thin handle between active and inactive track segments, with stop indicators at the ends. M3 Expressive adds track sizes xs–xl, a centered track (filled from the middle) and a value indicator above the handle."
           code={slider_code()}
         >
           <.demo_group label="Colors" class="items-start">
             <.pp_slider
-              :for={color <- ~w(primary secondary accent error)}
+              :for={color <- ~w(primary secondary tertiary error)}
               name={"volume_#{color}_demo"}
               label={color}
               value={60}
@@ -424,7 +182,23 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
             />
           </.demo_group>
 
-          <.demo_group label="Track modes" class="items-start">
+          <.demo_group label="Track modes, and a value indicator" class="items-start">
+            <.pp_slider
+              name="volume_centered_demo"
+              label="track: centered"
+              value={70}
+              min={0}
+              max={100}
+              track="centered"
+              class="w-56"
+            />
+            <.pp_slider
+              name="volume_indicator_demo"
+              label="value_indicator"
+              value={45}
+              value_indicator
+              class="w-56"
+            />
             <.pp_slider
               name="volume_no_track_demo"
               label="track: none"
@@ -463,7 +237,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
 
           <.demo_group label="Range, size, disabled" class="items-start">
             <.pp_slider name="price_demo" label="Range slider" value={{20, 80}} class="w-56" />
-            <.pp_slider name="volume_small_demo" label="Small" value={60} size="small" class="w-56" />
+            <.pp_slider name="volume_large_demo" label="size: md" value={60} size="md" class="w-56" />
             <.pp_slider name="volume_disabled_demo" label="Disabled" value={30} disabled class="w-56" />
           </.demo_group>
 
@@ -473,106 +247,126 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
               name="volume_vertical_small_demo"
               value={60}
               orientation="vertical"
-              size="small"
+              size="sm"
               color="secondary"
             />
           </.demo_group>
         </.section>
 
         <.section
-          title="Rating"
-          description="A row of radio inputs with a pure-CSS hover/checked fill effect: hovering star 3 highlights stars 1-3, no JS."
-          props={[
-            {"value", "integer, the current/selected rating (default: 0)"},
-            {"max", "number of stars (default: 5)"},
-            {"readonly",
-             "boolean, renders fixed filled/unfilled spans instead of inputs (default: false)"},
-            {"field / disabled / paperize", "same as other form controls"}
-          ]}
-          code={rating_code()}
-        >
-          <.demo_group label="Interactive">
-            <.pp_rating id="rating-interactive" name="rating-interactive" value={3} />
-          </.demo_group>
-
-          <.demo_group label="Read-only">
-            <.pp_rating id="rating-readonly-2" value={2} readonly />
-            <.pp_rating id="rating-readonly-4" value={4} readonly />
-            <.pp_rating id="rating-readonly-5" value={5} readonly />
-          </.demo_group>
-        </.section>
-
-        <.section
           live_component
-          title="Autocomplete"
-          description="A free text field with a filtered dropdown of suggestions, filtered server-side as you type (phx-keyup, debounced). The query input is detached from any surrounding form, so it's safe inside your own <.form> and never submitted with it. Needs interactive state, so it's a Phoenix.LiveComponent, fully live on this page. Type to filter. When the value must come from a known set, use Power Select."
+          title="Date Picker"
+          description="MD3's date picker as a LiveComponent (a calendar keeps state: the month in view, the year grid, a pending choice). docked opens a calendar panel under an outlined field and commits on click; modal opens a dialog with a headline, the calendar, Cancel/OK, and an input mode (the pencil). min/max bound the dates; with field= it renders a hidden input in ISO format."
           props={[
-            {"options", "list of {label, value} tuples, or plain values"},
-            {"value / name / label / placeholder", "same intent as Input"},
-            {"shape / paperize", "same as other form controls"}
+            {"field / name / value", "form integration; the value is a Date (or ISO string)"},
+            {"label", "the field's label"},
+            {"variant", "docked (default) | modal"},
+            {"range",
+             "boolean: MD3's date range picker; the second pick ends the range (swapped if earlier), submitted as <name>_start / <name>_end"},
+            {"min / max", "the earliest / latest selectable Date"},
+            {"first_day_of_week", "1 (Monday) .. 7 (Sunday, default)"},
+            {"format", "a function Date -> text for the field (default: ISO)"},
+            {"clearable", "boolean: a Clear button"},
+            {"month_names / weekday_names", "for translation"},
+            {"cancel_label / ok_label / clear_label / headline_label",
+             "button and headline texts, for translation"},
+            {"range_headline_label / start_label / end_label",
+             "the range picker's texts, for translation"},
+            {"supporting_text / errors / disabled", "same as Text Field"},
+            {"on_change",
+             "function called in the LiveView's process with the new Date, outside a form"}
           ]}
-          code={autocomplete_code()}
+          code={date_picker_code()}
         >
-          <.demo_group label="Try it">
-            <.pp_box class="w-full max-w-sm">
+          <.demo_group label="docked and modal" class="items-start">
+            <div class="w-72">
               <.live_component
-                module={PhoenixPaper.Autocomplete}
-                id="country-autocomplete"
-                name="country"
-                label="Country"
-                placeholder="Start typing..."
-                options={["Canada", "Mexico", "United States", "United Kingdom", "Uruguay"]}
+                module={PhoenixPaper.DatePicker}
+                id="date-picker-docked"
+                name="due_on"
+                label="Due date"
+                min={Date.utc_today()}
               />
-            </.pp_box>
+            </div>
+            <div class="w-72">
+              <.live_component
+                module={PhoenixPaper.DatePicker}
+                id="date-picker-modal"
+                name="starts_on"
+                label="Start date"
+                variant="modal"
+              />
+            </div>
+            <div class="w-72">
+              <.live_component
+                module={PhoenixPaper.DatePicker}
+                id="date-picker-range"
+                name="stay"
+                label="Stay (range)"
+                range
+              />
+            </div>
           </.demo_group>
         </.section>
 
         <.section
           live_component
-          title="Transfer List"
-          description="Two list boxes with buttons to move checked items between them, state managed entirely inside the component. Also a Phoenix.LiveComponent: try checking a permission and moving it across."
+          title="Time Picker"
+          description="MD3's time picker as a LiveComponent: the field opens a dialog with the hour/minute selector, a dial (pick the hour, then the minutes) or an input mode (the keyboard icon), and Cancel/OK; nothing changes until OK. hour_cycle={24} puts 13–00 on an inner ring. With the JS hook (Getting Started, step 4) you can also drag the hand to any hour or exact minute."
           props={[
-            {"items", "the starting list: everything begins on the left"},
-            {"left_label / right_label", "column headers (default: \"Available\" / \"Selected\")"}
+            {"field / name / value", "form integration; the value is a Time (or HH:MM string)"},
+            {"label", "the field's label"},
+            {"hour_cycle", "12 (default, with an AM/PM selector) | 24"},
+            {"supporting_text / errors / disabled", "same as Text Field"},
+            {"headline_label / input_headline_label", "the dialog headlines, for translation"},
+            {"cancel_label / ok_label / am_label / pm_label", "button texts, for translation"},
+            {"on_change",
+             "function called in the LiveView's process with the new Time, outside a form"}
           ]}
-          code={transfer_list_code()}
+          code={time_picker_code()}
         >
-          <.demo_group label="Try it">
-            <.live_component
-              module={PhoenixPaper.TransferList}
-              id="permissions-transfer"
-              items={["Read", "Write", "Admin", "Billing", "Support"]}
-              left_label="Available"
-              right_label="Granted"
-            />
+          <.demo_group label="12-hour and 24-hour" class="items-start">
+            <div class="w-72">
+              <.live_component
+                module={PhoenixPaper.TimePicker}
+                id="time-picker-12"
+                name="starts_at"
+                label="Start time"
+              />
+            </div>
+            <div class="w-72">
+              <.live_component
+                module={PhoenixPaper.TimePicker}
+                id="time-picker-24"
+                name="ends_at"
+                label="End time"
+                hour_cycle={24}
+              />
+            </div>
           </.demo_group>
         </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
     """
   end
 
   defp input_code do
     """
-    <.pp_input variant="outlined" label="Outlined (default)" name="outlined" />
-    <.pp_input variant="filled" label="Filled" name="filled" />
-    <.pp_input variant="standard" label="Standard" name="standard" />
-    <.pp_input label="With an error" name="error" value="not-an-email" errors={["is not a valid email"]} />
-    <.pp_input color="secondary" label="Secondary" name="color_secondary" />
-    <.pp_input size="small" label="Small" name="size_small" />
+    <.pp_text_field variant="outlined" label="Outlined (default)" name="outlined" />
+    <.pp_text_field variant="filled" label="Filled" name="filled" />
+    <.pp_text_field label="With an error" name="error" value="not-an-email" errors={["is not a valid email"]} />
+    <.pp_text_field color="secondary" label="Secondary" name="color_secondary" />
 
-    <.pp_input label="Amount" name="amount" value="42.00">
+    <.pp_text_field label="Amount" name="amount" value="42.00">
       <:start_adornment>$</:start_adornment>
       <:end_adornment>USD</:end_adornment>
-    </.pp_input>
+    </.pp_text_field>
 
-    <.pp_input multiline rows={3} label="Bio" name="bio" />
+    <.pp_text_field label="Search" name="q">
+      <:start_adornment><.pp_icon name="hero-magnifying-glass" size="sm" /></:start_adornment>
+    </.pp_text_field>
 
-    <%!-- hide_label: dense, unwrapped. Label becomes the placeholder, no
-          notch, no helper/error rows. For an inline filter toolbar. --%>
-    <.pp_input hide_label label="Search" name="q" size="small">
-      <:start_adornment><.pp_icon name="hero-magnifying-glass" /></:start_adornment>
-    </.pp_input>\
+    <.pp_text_field multiline rows={3} label="Bio" name="bio" />\
     """
   end
 
@@ -590,17 +384,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
       name="country_filled"
       prompt="Choose one"
       options={["Canada", "Mexico", "United States"]}
-    />
-
-    <%!-- hide_label: the dense, inline counterpart of Input's own --%>
-    <.pp_select hide_label label="Status" name="status" prompt="Any" options={["Active", "Archived"]} />\
-    """
-  end
-
-  defp number_field_code do
-    """
-    <.pp_number_field label="Quantity" name="qty" value={2} min={0} max={10} />
-    <.pp_number_field variant="filled" label="Quantity" name="qty_filled" value={2} min={0} max={10} />\
+    />\
     """
   end
 
@@ -622,9 +406,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
     <%!-- System / Light / Dark, System selected by default --%>
     <.pp_theme_toggle />
 
-    <%!-- The two-state sun/moon switch, with or without its label --%>
-    <.pp_theme_toggle variant="switch" />
-    <.pp_theme_toggle variant="switch" label={nil} />
+    <%!-- With visible text next to it --%>
+    <.pp_theme_toggle label="Theme" />
 
     <%!-- Also save the choice server-side: receives %{"theme" => "dark"} --%>
     <.pp_theme_toggle on_toggle={JS.push("save_theme")} />\
@@ -645,7 +428,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
   defp slider_code do
     """
     <.pp_slider name="volume" label="Volume" value={60} />
-    <.pp_slider name="volume_small" label="Small" value={60} size="small" />
+    <.pp_slider name="volume_md" label="Medium track" value={60} size="md" />
     <.pp_slider name="volume_no_track" label="track: none" value={60} track="none" />
 
     <%!-- discrete, evenly-spaced marks --%>
@@ -668,87 +451,28 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
     """
   end
 
-  defp rating_code do
+  defp date_picker_code do
     """
-    <.pp_rating id="stars" name="stars" value={3} />
-    <.pp_rating readonly value={4} />\
-    """
-  end
-
-  defp form_code do
-    """
-    <.pp_form for={@form} id="profile-form" phx-change="validate" phx-submit="save">
-      <.pp_input field={@form[:name]} label="Name" />
-      <.pp_input field={@form[:email]} type="email" label="Email" />
-      <:actions>
-        <.pp_button variant="text" type="reset">Reset</.pp_button>
-        <.pp_button type="submit">Save</.pp_button>
-      </:actions>
-    </.pp_form>\
-    """
-  end
-
-  defp power_select_code do
-    """
-    <%!-- Single, searchable (accent-insensitive), grouped, clearable --%>
     <.live_component
-      module={PhoenixPaper.PowerSelect}
-      id="country"
-      field={@form[:country]}
-      label="Country"
-      search_enabled
-      allow_clear
-      options={[
-        %{group_name: "North America", options: ["Canada", "México", "United States"]},
-        %{group_name: "Europe", options: ["España", "France"]}
-      ]}
+      module={PhoenixPaper.DatePicker}
+      id="due-on"
+      field={@form[:due_on]}
+      label="Due date"
+      min={Date.utc_today()}
     />
 
-    <%!-- Multiple, outside a form: on_change runs in your LiveView --%>
-    <.live_component
-      module={PhoenixPaper.PowerSelect}
-      id="languages"
-      label="Languages"
-      multiple
-      search_enabled
-      value={@languages}
-      on_change={fn values -> send(self(), {:languages_changed, values}) end}
-      options={[{"Elixir", "elixir"}, {"Erlang", "erlang"}, {"Gleam", "gleam"}]}
-    />
+    <.live_component module={PhoenixPaper.DatePicker} id="starts-on" field={@form[:starts_on]} label="Start date" variant="modal" />
 
-    <%!-- Server search: an async task per term --%>
-    <.live_component
-      module={PhoenixPaper.PowerSelect}
-      id="user"
-      field={@form[:user_id]}
-      label="User"
-      search={fn term -> MyApp.Accounts.search_users(term) end}
-      label_field={:name}
-      value_field={:id}
-    />\
+    <%!-- A date range: submitted as stay_start / stay_end --%>
+    <.live_component module={PhoenixPaper.DatePicker} id="stay" name="stay" label="Stay" range />\
     """
   end
 
-  defp autocomplete_code do
+  defp time_picker_code do
     """
-    <.live_component
-      module={PhoenixPaper.Autocomplete}
-      id="country"
-      name="country"
-      label="Country"
-      placeholder="Start typing..."
-      options={["Canada", "Mexico", "United States", "United Kingdom", "Uruguay"]}
-    />\
-    """
-  end
+    <.live_component module={PhoenixPaper.TimePicker} id="starts-at" field={@form[:starts_at]} label="Start time" />
 
-  defp transfer_list_code do
-    """
-    <.live_component
-      module={PhoenixPaper.TransferList}
-      id="permissions"
-      items={["Read", "Write", "Admin", "Billing"]}
-    />\
+    <.live_component module={PhoenixPaper.TimePicker} id="ends-at" field={@form[:ends_at]} label="End time" hour_cycle={24} />\
     """
   end
 end

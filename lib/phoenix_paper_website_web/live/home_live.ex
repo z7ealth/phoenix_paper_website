@@ -12,20 +12,20 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
     <Layouts.landing flash={@flash}>
       <%!-- Easter egg: click the hero bird five times. --%>
       <PaperBird.game />
-      <.pp_container max_width="lg" class="py-20">
+      <div class="mx-auto w-full px-4 max-w-screen-lg py-20">
         <div class="relative mb-14">
           <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div class="pp-hero-blob pp-hero-blob-1 absolute -top-24 -left-16 size-72 bg-pp-primary" />
             <div class="pp-hero-blob pp-hero-blob-2 absolute top-0 -right-10 size-64 bg-pp-secondary" />
-            <div class="pp-hero-blob pp-hero-blob-3 absolute -bottom-24 left-1/3 size-56 bg-pp-accent" />
+            <div class="pp-hero-blob pp-hero-blob-3 absolute -bottom-24 left-1/3 size-56 bg-pp-tertiary" />
           </div>
 
           <div class="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
             <div class="max-w-2xl">
               <div class="mb-4 flex items-center gap-3">
-                <h1 class="text-3xl font-semibold tracking-tight sm:text-5xl">
+                <.pp_typography variant="display-medium" tag="h1" emphasized>
                   Material Design, built for Phoenix.
-                </h1>
+                </.pp_typography>
                 <%!-- Mobile trigger: a small bird next to the headline (the big one
                       is lg-only). --%>
                 <PaperBird.hero_egg
@@ -35,22 +35,40 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
                   <.hero_mark id="pp-hero-mobile" class="size-14 sm:size-20" />
                 </PaperBird.hero_egg>
               </div>
-              <p class="mb-8 max-w-2xl text-lg text-pp-on-surface/70">
-                A component library for Phoenix and Phoenix LiveView, in the spirit of
-                <span class="whitespace-nowrap text-pp-on-surface">ember-paper</span>
+              <.pp_typography
+                variant="title-large"
+                tag="p"
+                color="on-surface-variant"
+                class="mb-8 max-w-2xl"
+              >
+                An effort to bring
+                <.pp_typography
+                  tag="span"
+                  variant="title-large"
+                  color="on-surface"
+                  class="whitespace-nowrap"
+                >
+                  Material Design 3
+                </.pp_typography>
+                to Phoenix and Phoenix LiveView. Inspired by
+                <.pp_typography
+                  tag="span"
+                  variant="title-large"
+                  color="on-surface"
+                  class="whitespace-nowrap"
+                >
+                  ember-paper
+                </.pp_typography>
                 for Ember.js, styled entirely with Tailwind CSS, and shipped as a plain hex
-                dependency your app already knows how to install. Most components follow the API
-                and behavior of <span class="whitespace-nowrap text-pp-on-surface">MUI</span>
-                (Material-UI for React), adapted to Phoenix's server-rendered, function-component
-                model.
-              </p>
+                dependency your app already knows how to install.
+              </.pp_typography>
 
-              <.pp_stack direction="row" spacing={:md} wrap>
-                <.link_button href={~p"/components"}>See Components</.link_button>
-                <.link_button href={~p"/getting-started"} variant="outlined">
+              <div class="flex flex-row gap-4 flex-wrap">
+                <.pp_button size="md" navigate={~p"/components"}>See Components</.pp_button>
+                <.pp_button size="md" variant="outlined" navigate={~p"/getting-started"}>
                   Get Started
-                </.link_button>
-              </.pp_stack>
+                </.pp_button>
+              </div>
             </div>
 
             <%!-- Desktop trigger; below lg, the small bird by the headline is. --%>
@@ -65,17 +83,18 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
           title="Every component, live"
           description="Click around below and try them."
         >
-          <.pp_stack spacing={:lg}>
+          <div class="flex flex-col gap-6">
             <.demo_group label="Try it">
-              <.pp_button color="primary">Raised</.pp_button>
-              <.pp_button color="secondary" variant="outlined">Outlined</.pp_button>
-              <.pp_button color="accent" variant="text">Text</.pp_button>
-              <.pp_button variant="icon" color="primary"><.pp_icon name="hero-bell" /></.pp_button>
-              <.pp_fab color="secondary"><.pp_icon name="hero-sparkles" /></.pp_fab>
+              <.pp_button>Filled</.pp_button>
+              <.pp_button variant="tonal">Tonal</.pp_button>
+              <.pp_button variant="outlined">Outlined</.pp_button>
+              <.pp_button variant="text">Text</.pp_button>
+              <.pp_icon_button variant="tonal" icon="hero-bell" label="Notifications" />
+              <.pp_fab icon="hero-sparkles" label="Create" />
             </.demo_group>
 
-            <.pp_grid spacing={:lg}>
-              <.pp_grid_item span={12} md={6}>
+            <div class="grid grid-cols-12 gap-6">
+              <div class="col-span-12 md:col-span-6">
                 <.pp_card>
                   <:title>Account</:title>
                   You have no pending invoices this month.
@@ -84,26 +103,23 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
                     <.pp_button variant="text" color="primary">Review</.pp_button>
                   </:actions>
                 </.pp_card>
-              </.pp_grid_item>
+              </div>
 
-              <.pp_grid_item span={12} md={6}>
-                <.pp_stack
-                  spacing={:md}
-                  class="justify-center rounded-xl border border-pp-outline/15 bg-pp-surface-variant/30 p-6"
-                >
+              <div class="col-span-12 md:col-span-6">
+                <div class="flex flex-col gap-4 justify-center rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-low p-6">
                   <.pp_switch name="notifications" label="Notifications" checked />
                   <.pp_checkbox name="updates" label="Product updates" checked />
-                  <.pp_rating id="home-rating" name="home-rating" value={4} />
-                </.pp_stack>
-              </.pp_grid_item>
-            </.pp_grid>
-          </.pp_stack>
+                  <.pp_slider name="home-volume" label="Volume" value={60} />
+                </div>
+              </div>
+            </div>
+          </div>
         </.section>
 
-        <.pp_grid spacing={:lg} class="mb-16">
-          <.pp_grid_item span={12} md={6}>
-            <.pp_card padding={:lg} class="h-full">
-              <.pp_avatar color="primary" class="mb-3"><.pp_icon name="hero-swatch" /></.pp_avatar>
+        <div class="grid grid-cols-12 gap-6 mb-16">
+          <div class="col-span-12 md:col-span-6">
+            <.pp_card class="h-full">
+              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container mb-3"><.pp_icon name="hero-swatch" /></span>
               <:title>Tailwind-native theming</:title>
               Colors are Tailwind v4 theme tokens, namespaced
               <.pp_typography variant="code">pp-</.pp_typography>
@@ -111,26 +127,26 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               theme picker in the top right corner: color mode, the brand colors and the
               surface tone are all live.
             </.pp_card>
-          </.pp_grid_item>
+          </div>
 
-          <.pp_grid_item span={12} md={6}>
-            <.pp_card padding={:lg} class="h-full">
-              <.pp_avatar color="secondary" class="mb-3"><.pp_icon name="hero-bolt" /></.pp_avatar>
+          <div class="col-span-12 md:col-span-6">
+            <.pp_card class="h-full">
+              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-secondary-container text-pp-on-secondary-container mb-3"><.pp_icon name="hero-bolt" /></span>
               <:title>CSS-only interactions</:title>
-              Checkboxes, radios, ratings, accordions, and the drawer's mobile toggle are all
+              Checkboxes, radios, ratings, accordions, the navigation rail and the FAB menu are all
               pure CSS:
               <.pp_typography variant="code">peer-checked:</.pp_typography>
               and
               <.pp_typography variant="code">has-[:checked]:</.pp_typography>
               tricks, no client JS shipped for them at all.
             </.pp_card>
-          </.pp_grid_item>
+          </div>
 
-          <.pp_grid_item span={12} md={6}>
-            <.pp_card padding={:lg} class="h-full">
-              <.pp_avatar color="accent" class="mb-3">
+          <div class="col-span-12 md:col-span-6">
+            <.pp_card class="h-full">
+              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-tertiary-container text-pp-on-tertiary-container mb-3">
                 <.pp_icon name="hero-shield-check" />
-              </.pp_avatar>
+              </span>
               <:title>The paperize escape hatch</:title>
               Every component accepts a
               <.pp_typography variant="code">paperize</.pp_typography>
@@ -138,13 +154,13 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               <.pp_typography variant="code">class</.pp_typography>
               renders, no fighting the library's CSS.
             </.pp_card>
-          </.pp_grid_item>
+          </div>
 
-          <.pp_grid_item span={12} md={6}>
-            <.pp_card padding={:lg} class="h-full">
-              <.pp_avatar color="error" class="mb-3">
+          <div class="col-span-12 md:col-span-6">
+            <.pp_card class="h-full">
+              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-error-container text-pp-on-error-container mb-3">
                 <.pp_icon name="hero-code-bracket" />
-              </.pp_avatar>
+              </span>
               <:title>Idiomatic Phoenix forms</:title>
               Form components accept a
               <.pp_typography variant="code">field</.pp_typography>
@@ -154,26 +170,21 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               <.pp_typography variant="code">core_components.ex</.pp_typography>
               inputs do: no new form abstraction to learn.
             </.pp_card>
-          </.pp_grid_item>
-        </.pp_grid>
+          </div>
+        </div>
 
-        <.pp_stack
-          direction="row"
-          spacing={:md}
-          wrap
-          class="items-center justify-between rounded-2xl bg-pp-primary px-8 py-10 text-pp-on-primary"
-        >
-          <.pp_box>
-            <h2 class="text-xl font-semibold">Ready to look around?</h2>
-            <p class="text-pp-on-primary/80">
+        <div class="flex flex-row gap-4 flex-wrap items-center justify-between rounded-pp-xl bg-pp-primary px-8 py-10 text-pp-on-primary">
+          <div>
+            <.pp_typography variant="headline-small" tag="h2">Ready to look around?</.pp_typography>
+            <.pp_typography variant="body-large">
               Buttons, forms, selection controls, navigation, and surfaces, all in one place.
-            </p>
-          </.pp_box>
-          <.link_button href={~p"/components"} variant="flat" color="surface" class="shrink-0">
+            </.pp_typography>
+          </div>
+          <.pp_button variant="elevated" size="md" navigate={~p"/components"} class="shrink-0">
             View all components
-          </.link_button>
-        </.pp_stack>
-      </.pp_container>
+          </.pp_button>
+        </div>
+      </div>
     </Layouts.landing>
     """
   end

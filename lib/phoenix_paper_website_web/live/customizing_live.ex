@@ -8,7 +8,7 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:customizing}>
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Guide" title="Customizing">
           Every PhoenixPaper component takes a class attribute for your own Tailwind utilities.
           It adds to the component's built-in classes, it doesn't replace them. This page covers
@@ -22,39 +22,25 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           description="Your class is appended to the component's own classes, with no merging step. When yours and a built-in one set the same CSS property (two background colors, two flex directions), both end up on the element, and Tailwind decides the winner by the order the utilities appear in the generated stylesheet, not by the order you wrote them. So the override silently loses about half the time."
           code={adds_code()}
         >
-          <.demo_group
-            label="A row-direction Stack, three ways to make it a column"
-            direction="column"
-          >
-            <.pp_stack direction="row" spacing={:sm} wrap class="items-center">
-              <.pp_typography variant="code" class="w-48 shrink-0">class="flex-col"</.pp_typography>
-              <.pp_stack id="customizing-plain" direction="row" spacing={:sm} class="flex-col">
-                <.pp_chip>One</.pp_chip>
-                <.pp_chip>Two</.pp_chip>
-                <.pp_chip>Three</.pp_chip>
-              </.pp_stack>
-            </.pp_stack>
-            <.pp_stack direction="row" spacing={:sm} wrap class="items-center">
-              <.pp_typography variant="code" class="w-48 shrink-0">class="!flex-col"</.pp_typography>
-              <.pp_stack id="customizing-important" direction="row" spacing={:sm} class="!flex-col">
-                <.pp_chip>One</.pp_chip>
-                <.pp_chip>Two</.pp_chip>
-                <.pp_chip>Three</.pp_chip>
-              </.pp_stack>
-            </.pp_stack>
-            <.pp_stack direction="row" spacing={:sm} wrap class="items-center">
-              <.pp_typography variant="code" class="w-48 shrink-0">direction="column"</.pp_typography>
-              <.pp_stack id="customizing-attr" direction="column" spacing={:sm}>
-                <.pp_chip>One</.pp_chip>
-                <.pp_chip>Two</.pp_chip>
-                <.pp_chip>Three</.pp_chip>
-              </.pp_stack>
-            </.pp_stack>
+          <.demo_group label="An elevated Card, three ways to give it the filled background">
+            <.pp_card id="customizing-plain" class="w-56 bg-pp-surface-container-highest">
+              <:title>class="bg-…-highest"</:title>
+              Still surface-container-low.
+            </.pp_card>
+            <.pp_card id="customizing-important" class="w-56 !bg-pp-surface-container-highest">
+              <:title>class="!bg-…-highest"</:title>
+              Wins, but keeps the elevated shadow.
+            </.pp_card>
+            <.pp_card id="customizing-attr" variant="filled" class="w-56">
+              <:title>variant="filled"</:title>
+              MD3's filled card, no conflict.
+            </.pp_card>
           </.demo_group>
-          <.pp_typography variant="body2" color="muted">
-            The first one stays a row: Stack already renders flex-row, and flex-row comes after
-            flex-col in Tailwind's stylesheet. The ! version wins every time. The attr is the
-            real fix: no conflict at all.
+          <.pp_typography variant="body-medium" color="on-surface-variant">
+            The first one doesn't change: an elevated card already renders
+            bg-pp-surface-container-low, which comes after -highest in Tailwind's stylesheet.
+            The ! version wins every time, but only replaces the one property. The attr is the
+            real fix: it switches the whole look, and nothing conflicts.
           </.pp_typography>
         </.section>
 
@@ -77,14 +63,14 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           description="To change something the component already sets (its background, text color, padding, radius, display), prefix your utility with ! to make it !important. It then wins regardless of stylesheet order. Variants go in front of it: hover:!bg-rose-700, md:!px-8. Tailwind v4 also accepts the suffix form, bg-rose-600!; both work."
           code={important_code()}
         >
-          <.demo_group label="A raised primary Button, recolored">
+          <.demo_group label="A filled Button, recolored">
             <.pp_button>Default</.pp_button>
             <.pp_button class="!bg-rose-600 !text-white hover:!bg-rose-700">
               !bg-rose-600
             </.pp_button>
             <.pp_button variant="outlined" class="!rounded-none">!rounded-none</.pp_button>
           </.demo_group>
-          <.pp_typography variant="body2" color="muted">
+          <.pp_typography variant="body-medium" color="on-surface-variant">
             Use it for the property you're replacing, not everything: a stray ! also beats your
             own responsive and state variants later. If you're reaching for several on one
             component, an attr or {"paperize={false}"} is probably the better tool.
@@ -95,26 +81,32 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           title="Reach for an attr first"
           description="Most of what people try to override through class has an attr that does it properly, works with dark mode and the theme tokens, and never conflicts. Check the component's options table before writing an override."
         >
-          <.pp_table_container id="customizing-attrs">
-            <.pp_table dense>
-              <.pp_table_head>
-                <.pp_table_row>
-                  <.pp_table_cell variant="head">Instead of class=...</.pp_table_cell>
-                  <.pp_table_cell variant="head">Use</.pp_table_cell>
-                </.pp_table_row>
-              </.pp_table_head>
-              <.pp_table_body>
-                <.pp_table_row :for={{instead, use} <- attr_alternatives()}>
-                  <.pp_table_cell>
+          <div
+            class="overflow-x-auto rounded-pp-md border border-pp-outline-variant"
+            id="customizing-attrs"
+          >
+            <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
+              <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
+                <tr class="transition-colors hover:bg-pp-on-surface/8">
+                  <th class="pp-title-small px-4 text-start">Instead of class=...</th>
+                  <th class="pp-title-small px-4 text-start">Use</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  :for={{instead, use} <- attr_alternatives()}
+                  class="transition-colors hover:bg-pp-on-surface/8"
+                >
+                  <td class="px-4 align-top">
                     <.pp_typography variant="code">{instead}</.pp_typography>
-                  </.pp_table_cell>
-                  <.pp_table_cell>
+                  </td>
+                  <td class="px-4 align-top">
                     <.pp_typography variant="code">{use}</.pp_typography>
-                  </.pp_table_cell>
-                </.pp_table_row>
-              </.pp_table_body>
-            </.pp_table>
-          </.pp_table_container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </.section>
 
         <.section
@@ -138,12 +130,12 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           description="class lands on the component's root element. For the parts inside it, you have three options, in order of preference."
           code={inside_code()}
         >
-          <.pp_list dense>
+          <.pp_list>
             <.pp_list_item>
               <:leading><.pp_icon name="hero-adjustments-horizontal" /></:leading>
               A dedicated attr, where the component has one
               <:secondary>
-                pp_collapse trigger_class / content_class, pp_menu trigger_class
+                pp_menu's trigger_class, for the element that opens it
               </:secondary>
             </.pp_list_item>
             <.pp_list_item>
@@ -172,29 +164,26 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
         </.section>
 
         <.section title="Checklist" description="Before you write an override:">
-          <.pp_list dense>
+          <.pp_list>
             <.pp_list_item :for={item <- checklist()}>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               {item}
             </.pp_list_item>
           </.pp_list>
         </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
     """
   end
 
   defp attr_alternatives do
     [
-      {~s(class="flex-col" on pp_stack), ~s(direction="column")},
-      {~s(class="gap-2" on pp_stack), "spacing={:sm}"},
-      {~s(class="p-8" on pp_card), "padding={:xl}"},
-      {~s(class="rounded-none"), "shape={:none}"},
-      {~s(class="shadow-..."), "elevation={...}"},
-      {~s(class="bg-pp-secondary ..."), ~s(color="secondary")},
+      {~s(class="rounded-lg" on pp_button), ~s(shape="square")},
+      {~s(class="bg-pp-surface-container ..." on pp_card), ~s(variant="filled")},
+      {~s(class="bg-pp-secondary-container ..." on pp_button), ~s(variant="tonal")},
       {~s(class="border ..." on pp_button), ~s(variant="outlined")},
-      {~s(class="text-xs px-2" on pp_button), ~s(size="small")},
-      {~s(class="!max-w-2xl" on pp_dialog), ~s(max_width="2xl")},
+      {~s(class="text-xs px-2" on pp_button), ~s(size="xs")},
+      {~s(class="fixed inset-0" on pp_dialog), ~s(variant="fullscreen")},
       {~s(class="size-4" on pp_icon), ~s(size="sm")},
       {~s(class="fixed bottom-6 right-6" on pp_fab),
        ~s(position="fixed" class="bottom-6 right-6")},
@@ -204,7 +193,7 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
 
   defp checklist do
     [
-      "Is there an attr for it? (color, variant, size, shape, elevation, padding, direction, spacing, max_width, ...)",
+      "Is there an attr for it? (color, variant, size, shape, position, ...)",
       "Is it a color? Change the --color-pp-* token in app.css instead.",
       "Does the component already set this property? If not, plain class is enough.",
       "If it does, prefix only that utility with ! (variants first: hover:!bg-...).",
@@ -215,14 +204,14 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
 
   defp adds_code do
     """
-    <%!-- Stays a row: Stack renders flex-row, which wins over your flex-col --%>
-    <.pp_stack direction="row" class="flex-col">...</.pp_stack>
+    <%!-- No change: the elevated card's own bg-pp-surface-container-low wins --%>
+    <.pp_card class="bg-pp-surface-container-highest">...</.pp_card>
 
-    <%!-- Wins: ! makes it !important --%>
-    <.pp_stack direction="row" class="!flex-col">...</.pp_stack>
+    <%!-- Wins: ! makes it !important (the shadow stays) --%>
+    <.pp_card class="!bg-pp-surface-container-highest">...</.pp_card>
 
     <%!-- Best: the attr, no conflict --%>
-    <.pp_stack direction="column">...</.pp_stack>\
+    <.pp_card variant="filled">...</.pp_card>\
     """
   end
 
@@ -264,10 +253,9 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
   defp inside_code do
     """
     <%!-- 1. A dedicated attr --%>
-    <.pp_collapse id="advanced" trigger_class="font-semibold">
-      <:trigger>Advanced options</:trigger>
+    <.pp_menu id="account-menu" trigger_class="ms-auto">
       ...
-    </.pp_collapse>
+    </.pp_menu>
 
     <%!-- 2. Your own markup in a slot --%>
     <.pp_card>

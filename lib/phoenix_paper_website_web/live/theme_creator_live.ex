@@ -19,6 +19,8 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
      |> assign(:page_title, "Theme Creator")
      |> assign(:mode, "light")
      |> assign(:palettes, ThemeTokens.defaults())
+     |> assign(:seed, "#6750a4")
+     |> assign(:variant, "tonal_spot")
      |> assign(:groups, ThemeTokens.groups())}
   end
 
@@ -40,21 +42,37 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
   end
 
   def handle_event("random", _params, socket) do
-    {:noreply, update(socket, :palettes, &ThemeTokens.random/1)}
+    seed = ThemeTokens.random_seed()
+    {:noreply, generate(socket, seed, socket.assigns.variant)}
+  end
+
+  def handle_event("generate", %{"seed" => seed, "variant" => variant}, socket) do
+    seed = if ThemeTokens.hex?(seed), do: String.downcase(seed), else: socket.assigns.seed
+
+    variant =
+      if variant in Enum.map(ThemeTokens.variants(), &to_string/1),
+        do: variant,
+        else: "tonal_spot"
+
+    {:noreply, generate(socket, seed, variant)}
   end
 
   def handle_event("reset", _params, socket) do
     {:noreply, assign(socket, :palettes, ThemeTokens.defaults())}
   end
 
-  def handle_event("noop", _params, socket), do: {:noreply, socket}
+  defp generate(socket, seed, variant) do
+    socket
+    |> assign(seed: seed, variant: variant)
+    |> assign(:palettes, ThemeTokens.generate(seed, String.to_existing_atom(variant)))
+  end
 
   def render(assigns) do
     assigns = assign(assigns, :palette, assigns.palettes[String.to_existing_atom(assigns.mode)])
 
     ~H"""
     <Layouts.app flash={@flash} current_page={:theme_creator}>
-      <.pp_container max_width="xl">
+      <div class="mx-auto w-full px-4 max-w-screen-xl">
         <.page_header eyebrow="Guide" title="Theme Creator">
           Pick a color for every PhoenixPaper token, for light and dark, and watch real
           components repaint. When it looks right, copy the CSS into your app.css. See the
@@ -62,66 +80,95 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
           guide for how the tokens work.
         </.page_header>
 
-        <.pp_grid spacing={:lg} class="mb-16">
-          <.pp_grid_item span={12} md={5}>
+        <div class="grid grid-cols-12 gap-6 mb-16">
+          <div class="col-span-12 md:col-span-5">
             <.pp_card id="theme-editor">
-              <.pp_stack spacing={:md}>
-                <.pp_stack direction="row" spacing={:sm} class="items-center justify-between">
-                  <.pp_button_group>
-                    <.pp_toggle_button
+              <div class="flex flex-col gap-4">
+                <div class="flex flex-row gap-2 items-center justify-between">
+                  <.pp_button_group variant="connected">
+                    <.pp_button
                       :for={mode <- ~w(light dark)}
                       id={"mode-#{mode}"}
-                      pressed={@mode == mode}
+                      variant="outlined"
+                      size="xs"
+                      selected={@mode == mode}
                       phx-click="set_mode"
                       phx-value-mode={mode}
                     >
-                      <.pp_icon
-                        name={if(mode == "light", do: "hero-sun", else: "hero-moon")}
-                        size="sm"
-                      />
+                      <:start_icon>
+                        <.pp_icon
+                          name={if(mode == "light", do: "hero-sun", else: "hero-moon")}
+                          size="sm"
+                        />
+                      </:start_icon>
                       {String.capitalize(mode)}
-                    </.pp_toggle_button>
+                    </.pp_button>
                   </.pp_button_group>
-                  <.pp_stack direction="row" spacing={:xs}>
-                    <.pp_button id="theme-random" variant="outlined" size="small" phx-click="random">
+                  <div class="flex flex-row gap-1">
+                    <.pp_button id="theme-random" variant="tonal" size="xs" phx-click="random">
                       <:start_icon><.pp_icon name="hero-sparkles" size="sm" /></:start_icon>
                       Random
                     </.pp_button>
-                    <.pp_button id="theme-reset" variant="text" size="small" phx-click="reset">
+                    <.pp_button id="theme-reset" variant="text" size="xs" phx-click="reset">
                       Reset
                     </.pp_button>
-                  </.pp_stack>
-                </.pp_stack>
+                  </div>
+                </div>
 
-                <.pp_typography variant="caption">
-                  Editing the {@mode} palette. Random picks new brand hues for both.
+                <form id="theme-seed-form" phx-change="generate" phx-submit="generate">
+                  <.pp_typography variant="label-small" color="on-surface-variant" class="mb-2">
+                    From a seed color
+                  </.pp_typography>
+                  <div class="flex items-center gap-3">
+                    <input
+                      type="color"
+                      id="theme-seed"
+                      name="seed"
+                      value={@seed}
+                      class="size-10 shrink-0 cursor-pointer rounded-pp-md border border-pp-outline-variant bg-transparent p-0.5"
+                    />
+                    <.pp_select
+                      id="theme-variant"
+                      name="variant"
+                      label="Scheme variant"
+                      value={@variant}
+                      options={for v <- ThemeTokens.variants(), do: {variant_label(v), to_string(v)}}
+                      class="flex-1"
+                    />
+                  </div>
+                </form>
+
+                <.pp_typography variant="body-small">
+                  The seed generates every role for light and dark with phoenix_paper's MD3 color
+                  science (the same as mix phoenix_paper.gen.theme). Then fine-tune any token
+                  below; you're editing the {@mode} palette.
                 </.pp_typography>
 
                 <form id="theme-tokens-form" phx-change="set_tokens">
-                  <.pp_stack spacing={:md}>
+                  <div class="flex flex-col gap-4">
                     <div :for={{group, names} <- @groups}>
-                      <.pp_typography variant="overline" color="muted" class="mb-2">
+                      <.pp_typography variant="label-small" color="on-surface-variant" class="mb-2">
                         {group}
                       </.pp_typography>
-                      <.pp_stack spacing={:xs}>
+                      <div class="flex flex-col gap-1">
                         <.token_row
                           :for={name <- names}
                           name={name}
                           palette={@palette}
                           mode={@mode}
                         />
-                      </.pp_stack>
+                      </div>
                     </div>
-                  </.pp_stack>
+                  </div>
                 </form>
-              </.pp_stack>
+              </div>
             </.pp_card>
-          </.pp_grid_item>
+          </div>
 
-          <.pp_grid_item span={12} md={7}>
+          <div class="col-span-12 md:col-span-7">
             <.preview palette={@palette} mode={@mode} />
-          </.pp_grid_item>
-        </.pp_grid>
+          </div>
+        </div>
 
         <.section
           title="Your CSS"
@@ -131,7 +178,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
         >
           <.code text={ThemeTokens.css(@palettes)} language="css" />
         </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
     """
   end
@@ -158,30 +205,31 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
         id={"token-#{@mode}-#{@name}"}
         name={"tokens[#{@name}]"}
         value={@palette[@name]}
-        class="size-8 shrink-0 cursor-pointer rounded-md border border-pp-outline/30 bg-transparent p-0.5"
+        class="size-8 shrink-0 cursor-pointer rounded-pp-sm border border-pp-outline-variant bg-transparent p-0.5"
       />
       <span class="min-w-0 flex-1">
         <.pp_typography variant="code" class="block truncate">{@name}</.pp_typography>
-        <.pp_typography variant="caption">{@palette[@name]}</.pp_typography>
+        <.pp_typography variant="body-small">{@palette[@name]}</.pp_typography>
       </span>
-      <.pp_chip
+      <span
         :if={@ratio}
-        size="small"
-        variant="outlined"
-        color={rating_color(@rating)}
         title={rating_title(@rating)}
         data-contrast={@name}
+        class={["shrink-0 rounded-pp-full px-2 py-0.5", role_classes(rating_color(@rating))]}
       >
-        {@ratio}:1
-      </.pp_chip>
+        <.pp_typography variant="label-small">{@ratio}:1</.pp_typography>
+      </span>
     </label>
     """
   end
 
-  defp rating_color(:aaa), do: "success"
-  defp rating_color(:aa), do: "success"
-  defp rating_color(:large), do: "warning"
-  defp rating_color(:fail), do: "error"
+  defp variant_label(variant),
+    do: variant |> to_string() |> String.replace("_", " ") |> String.capitalize()
+
+  defp rating_color(:aaa), do: "primary-container"
+  defp rating_color(:aa), do: "secondary-container"
+  defp rating_color(:large), do: "tertiary-container"
+  defp rating_color(:fail), do: "error-container"
 
   defp rating_title(:aaa), do: "AAA: readable at any size"
   defp rating_title(:aa), do: "AA: fine for body text"
@@ -198,73 +246,83 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
       id="theme-preview"
       data-theme={@mode}
       style={ThemeTokens.style(@palette)}
-      class="rounded-2xl border border-pp-outline/20 bg-pp-surface p-6 text-pp-on-surface"
+      class="rounded-pp-xl border border-pp-outline-variant bg-pp-surface p-6 text-pp-on-surface"
     >
-      <.pp_stack spacing={:lg}>
-        <.pp_stack direction="row" spacing={:sm} wrap class="items-center">
-          <.pp_button>Primary</.pp_button>
-          <.pp_button color="secondary">Secondary</.pp_button>
-          <.pp_button color="accent">Accent</.pp_button>
-          <.pp_button color="error" variant="outlined">Error</.pp_button>
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-row gap-2 flex-wrap items-center">
+          <.pp_button>Filled</.pp_button>
+          <.pp_button variant="tonal">Tonal</.pp_button>
+          <.pp_button variant="elevated">Elevated</.pp_button>
+          <.pp_button variant="outlined">Outlined</.pp_button>
           <.pp_button variant="text">Text</.pp_button>
-          <.pp_fab size="sm" color="secondary"><.pp_icon name="hero-plus" /></.pp_fab>
-        </.pp_stack>
+          <.pp_button color="tertiary">Tertiary</.pp_button>
+          <.pp_icon_button variant="tonal" icon="hero-heart" label="Like" />
+          <.pp_fab icon="hero-pencil" label="Compose" />
+        </div>
 
-        <.pp_grid spacing={:md}>
-          <.pp_grid_item span={12}>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
               <:title>
-                <.pp_stack direction="row" spacing={:sm} class="items-center">
-                  <.pp_avatar color="primary">AL</.pp_avatar>
+                <div class="flex flex-row gap-2 items-center">
+                  <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container">AL</span>
                   <span>Ada Lovelace</span>
-                </.pp_stack>
+                </div>
               </:title>
-              <.pp_typography variant="body2" color="muted">
-                Surfaces get lighter with elevation in dark mode.
-              </.pp_typography>
-              <.pp_stack direction="row" spacing={:xs} wrap class="mt-3">
-                <.pp_chip color="primary">Elixir</.pp_chip>
-                <.pp_chip color="secondary">Phoenix</.pp_chip>
-                <.pp_chip color="accent" variant="outlined">LiveView</.pp_chip>
-              </.pp_stack>
+              <:subhead>Surface containers, tonal and filled</:subhead>
+              <div class="flex flex-row gap-1 flex-wrap mt-3">
+                <.pp_chip variant="filter" selected>Elixir</.pp_chip>
+                <.pp_chip variant="filter" selected={false}>Phoenix</.pp_chip>
+                <.pp_chip variant="assist">
+                  <:icon><.pp_icon name="hero-calendar" size="sm" /></:icon>
+                  LiveView
+                </.pp_chip>
+              </div>
               <:actions>
-                <.pp_button variant="text" color="secondary">Message</.pp_button>
-                <.pp_button>Follow</.pp_button>
+                <.pp_button variant="text">Message</.pp_button>
+                <.pp_button variant="tonal">Follow</.pp_button>
               </:actions>
             </.pp_card>
-          </.pp_grid_item>
+          </div>
 
-          <.pp_grid_item span={12}>
-            <.pp_card class="h-full">
-              <.pp_stack spacing={:md}>
-                <.pp_input name="preview_email" label="Email" value="ada@example.com" />
-                <.pp_stack direction="row" spacing={:md} wrap>
+          <div class="col-span-12 md:col-span-6">
+            <.pp_card variant="filled" class="h-full">
+              <div class="flex flex-col gap-4">
+                <.pp_text_field name="preview_email" label="Email" value="ada@example.com" />
+                <div class="flex flex-row gap-4 flex-wrap items-center">
                   <.pp_switch name="preview_switch" label="Notifications" checked />
                   <.pp_checkbox name="preview_check" label="Remember me" checked />
-                </.pp_stack>
+                </div>
                 <.pp_slider name="preview_slider" label="Volume" value={60} />
                 <.pp_progress value={72} />
-              </.pp_stack>
+              </div>
             </.pp_card>
-          </.pp_grid_item>
-        </.pp_grid>
+          </div>
+        </div>
 
-        <.pp_stack spacing={:sm}>
-          <.pp_alert severity="success">Your changes were saved.</.pp_alert>
-          <.pp_alert severity="info" variant="outlined">A new version is available.</.pp_alert>
-          <.pp_alert severity="warning" variant="filled">Your trial ends in 3 days.</.pp_alert>
-          <.pp_alert severity="error">Couldn't reach the server.</.pp_alert>
-        </.pp_stack>
+        <.pp_snackbar positioned={false}>
+          Your changes were saved.
+          <:action><.pp_button variant="text">Undo</.pp_button></:action>
+        </.pp_snackbar>
 
-        <.pp_stack direction="row" spacing={:md} wrap class="items-center justify-between">
-          <.pp_pagination page={3} count={8} on_change="noop" />
-          <.pp_stack direction="row" spacing={:xs}>
-            <.pp_chip color="success" size="small">Completed</.pp_chip>
-            <.pp_chip color="warning" size="small">Pending</.pp_chip>
-            <.pp_chip color="info" size="small">Draft</.pp_chip>
-          </.pp_stack>
-        </.pp_stack>
-      </.pp_stack>
+        <div class="flex flex-row gap-4 flex-wrap items-center justify-between">
+          <.pp_button_group variant="connected">
+            <.pp_button
+              :for={v <- ~w(Day Week Month)}
+              variant="tonal"
+              size="sm"
+              selected={v == "Week"}
+            >
+              {v}
+            </.pp_button>
+          </.pp_button_group>
+          <div class="flex items-center gap-6">
+            <.pp_badge content={3}><.pp_icon name="hero-bell" /></.pp_badge>
+            <.pp_badge><.pp_icon name="hero-chat-bubble-left" /></.pp_badge>
+          </div>
+          <.pp_loading_indicator contained />
+        </div>
+      </div>
     </div>
     """
   end

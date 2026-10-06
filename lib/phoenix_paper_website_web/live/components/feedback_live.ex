@@ -2,11 +2,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, page_title: "Feedback", show_backdrop: false)}
-  end
-
-  def handle_event("toggle_backdrop", _params, socket) do
-    {:noreply, update(socket, :show_backdrop, &(!&1))}
+    {:ok, assign(socket, page_title: "Feedback")}
   end
 
   # The Snackbar demos' "Undo" / close button just prove the click reaches
@@ -27,86 +23,57 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     ~H"""
     <Layouts.app flash={@flash} current_page={:feedback} flash_group={false}>
       <Layouts.flash_group flash={@flash} auto_hide_duration={6000} />
-      <.pp_container max_width="lg">
+      <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Feedback">
-          PhoenixPaper.Alert, Backdrop, Dialog, Progress, Skeleton, Snackbar, Flash.
+          PhoenixPaper.Dialog, Progress, LoadingIndicator, Snackbar and Flash. MD3 has no alert
+          banner or skeleton: reach for a snackbar or dialog, and a progress or loading
+          indicator while content loads.
         </.page_header>
 
         <.section
-          title="Alert"
-          description="A colored, icon-led message for status feedback. severity is a distinct color axis from every other component's color: success/info/warning/error status colors, not primary/secondary/accent/error brand colors."
-          props={[
-            {"severity",
-             "success | info | warning | error (default: info), picks the color and icon"},
-            {"variant", "standard (tinted) | outlined | filled (default: standard)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[
-            {":title", "a bold line above the message"},
-            {":action", "a trailing action, e.g. a button"}
-          ]}
-          code={alert_code()}
-        >
-          <.demo_group label="Try it" direction="column">
-            <.pp_alert severity="success">Changes saved.</.pp_alert>
-            <.pp_alert severity="info">A new update is available.</.pp_alert>
-            <.pp_alert severity="warning" variant="outlined">Check your input.</.pp_alert>
-            <.pp_alert severity="error" variant="filled">
-              <:title>Error</:title>
-              Could not save your changes.
-              <:action>
-                <.pp_button variant="text" color="inherit">Retry</.pp_button>
-              </:action>
-            </.pp_alert>
-          </.demo_group>
-        </.section>
-
-        <.section
-          title="Backdrop"
-          description="A full-screen dimming overlay (most often behind a full-page loading spinner, or the piece Dialog composes for its own overlay). Stateless: open just toggles rendering it at all."
-          props={[
-            {"open", "boolean (default: true)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[{":inner_block", "content centered over the dim (e.g. a spinner)"}]}
-          code={backdrop_code()}
-        >
-          <.demo_group label="Try it">
-            <.pp_button phx-click="toggle_backdrop">Show backdrop</.pp_button>
-            <.pp_backdrop open={@show_backdrop} phx-click="toggle_backdrop">
-              <.pp_progress variant="circular" color="secondary" />
-            </.pp_backdrop>
-          </.demo_group>
-        </.section>
-
-        <.section
           title="Dialog"
-          description="A modal, built the same way mix phx.new's generated core_components.ex builds its modal/1: always in the DOM, shown/hidden via Phoenix.LiveView.JS commands, not a server-tracked assign. PhoenixPaper.Dialog.show/1 and .hide/1 return JS commands to wire to whatever should open/close it."
-          props={[
-            {"id", "required: targeted by show/1 and hide/1"},
-            {"show", "boolean (default: false): open immediately when the dialog first mounts"},
-            {"max_width",
-             "xs | sm | md (default) | lg | xl | 2xl | 3xl | 4xl | 5xl | full: the panel's maximum width"},
-            {"on_cancel", "a JS command run (in addition to hiding) on backdrop click/Escape"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[{":title", "optional heading"}, {":actions", "optional trailing buttons"}]}
+          api={[{PhoenixPaper.Dialog, :pp_dialog}]}
+          description={
+            ~S|MD3's dialog: 28dp corners on surface-container-high, a headline, supporting text and actions, with an optional hero icon. Always in the DOM and shown/hidden with the PhoenixPaper.Dialog.show/1 and hide/1 JS commands (like a generated core_components modal); focus is trapped, and Escape or a scrim click dismisses. variant="fullscreen" takes the whole screen; "responsive" is fullscreen on phones only.|
+          }
           code={dialog_code()}
         >
-          <.demo_group label="Try it">
-            <.pp_button phx-click={PhoenixPaper.Dialog.show("confirm-delete-demo")}>
+          <.demo_group label="basic with a hero icon, and fullscreen">
+            <.pp_button
+              id="open-dialog"
+              variant="tonal"
+              phx-click={PhoenixPaper.Dialog.show("confirm-delete-demo")}
+            >
               Delete
             </.pp_button>
-            <.pp_dialog id="confirm-delete-demo">
+            <.pp_dialog id="confirm-delete-demo" icon="hero-trash">
               <:title>Delete this item?</:title>
               This can't be undone.
               <:actions>
                 <.pp_button variant="text" phx-click={PhoenixPaper.Dialog.hide("confirm-delete-demo")}>
                   Cancel
                 </.pp_button>
-                <.pp_button color="error" phx-click={PhoenixPaper.Dialog.hide("confirm-delete-demo")}>
+                <.pp_button variant="text" phx-click={PhoenixPaper.Dialog.hide("confirm-delete-demo")}>
                   Delete
                 </.pp_button>
+              </:actions>
+            </.pp_dialog>
+
+            <.pp_button
+              id="open-fullscreen"
+              variant="outlined"
+              phx-click={PhoenixPaper.Dialog.show("fullscreen-demo")}
+            >
+              New event
+            </.pp_button>
+            <.pp_dialog id="fullscreen-demo" variant="fullscreen">
+              <:title>New event</:title>
+              <div class="flex flex-col gap-4 max-w-md">
+                <.pp_text_field name="event_title" label="Title" />
+                <.pp_text_field name="event_place" label="Location" />
+              </div>
+              <:actions>
+                <.pp_button phx-click={PhoenixPaper.Dialog.hide("fullscreen-demo")}>Save</.pp_button>
               </:actions>
             </.pp_dialog>
           </.demo_group>
@@ -114,106 +81,65 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Progress"
-          description="linear or circular, combined into one component since they share the same value/color contract. value nil renders the indeterminate/animated form."
-          props={[
-            {"variant", "linear | circular (default: linear)"},
-            {"value", "0-100, nil for indeterminate (default: nil)"},
-            {"color", "primary | secondary | accent | error (default: primary)"},
-            {"size", "circular only, diameter in pixels (default: 40)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
+          api={[{PhoenixPaper.Progress, :pp_progress}]}
+          description="MD3 progress indicators, linear or circular (an SVG arc), determinate with a value or indeterminate without one. M3 Expressive adds a wavy track, a thick (8dp) variant, and the stop indicator at the track's end."
           code={progress_code()}
         >
-          <.demo_group label="Linear" direction="column">
-            <div class="max-w-sm">
-              <p class="mb-2 text-xs text-pp-on-surface/60">Determinate (72%)</p>
-              <.pp_progress value={72} />
-            </div>
-            <div class="max-w-sm">
-              <p class="mb-2 text-xs text-pp-on-surface/60">Indeterminate</p>
-              <.pp_progress />
-            </div>
+          <.demo_group label="Linear: determinate, indeterminate, wavy, thick" direction="column">
+            <.pp_progress value={72} class="max-w-sm" label="Determinate" />
+            <.pp_progress class="max-w-sm" label="Indeterminate" />
+            <.pp_progress value={60} wavy class="max-w-sm" label="Wavy" />
+            <.pp_progress value={45} thickness={8} class="max-w-sm" label="Thick" />
           </.demo_group>
-
           <.demo_group label="Circular">
-            <div
-              :for={color <- ~w(primary secondary accent error)}
-              class="flex flex-col items-center gap-2"
-            >
-              <.pp_progress variant="circular" value={65} color={color} />
-              <span class="text-xs text-pp-on-surface/60">{color}</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-              <.pp_progress variant="circular" />
-              <span class="text-xs text-pp-on-surface/60">indeterminate</span>
-            </div>
+            <.pp_progress
+              :for={color <- ~w(primary secondary tertiary error)}
+              variant="circular"
+              value={65}
+              color={color}
+              label={color}
+            />
+            <.pp_progress variant="circular" label="Indeterminate" />
+            <.pp_progress variant="circular" value={70} wavy size={48} label="Wavy" />
           </.demo_group>
         </.section>
 
         <.section
-          title="Skeleton"
-          description="A placeholder loading shape (text, circular, rectangular, or rounded) with a pulsing (default) or shimmering animation while real content loads."
-          props={[
-            {"variant", "text | circular | rectangular | rounded (default: text)"},
-            {"width / height", "an integer (px) or a CSS length string, e.g. \"100%\""},
-            {"animation", "pulse | wave | none (default: pulse)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          code={skeleton_code()}
+          title="Loading Indicator"
+          api={[{PhoenixPaper.LoadingIndicator, :pp_loading_indicator}]}
+          description="M3 Expressive's loading indicator: a shape that morphs through MD3's shape library as it spins, for waits too short for a progress bar (pull to refresh, a card loading). contained sets it on a primary-container circle for indicators over content. Animated in CSS; Safari shows a rotating soft burst unless the JS hook is on."
+          code={loading_indicator_code()}
         >
-          <.demo_group label="Try it" direction="column">
-            <div class="flex max-w-sm flex-col gap-3">
-              <div class="flex items-center gap-3">
-                <.pp_skeleton variant="circular" width={40} height={40} />
-                <div class="flex-1">
-                  <.pp_skeleton />
-                  <.pp_skeleton width="60%" />
-                </div>
-              </div>
-              <.pp_skeleton variant="rectangular" height={80} />
-              <.pp_skeleton variant="rounded" height={80} animation="wave" />
-            </div>
+          <.demo_group label="Plain, contained, colors">
+            <.pp_loading_indicator />
+            <.pp_loading_indicator contained />
+            <.pp_loading_indicator color="tertiary" size={36} />
+            <.pp_loading_indicator color="secondary" contained size={64} />
           </.demo_group>
         </.section>
 
         <.section
           title="Snackbar"
-          description="A brief toast on an inverted-surface chip. Server-owned dismissal (a Process.send_after/3 clearing the open assign, the same mechanism generated flash messages use) is still the default, but on_close + auto_hide_duration add a hook-free client-side auto-dismiss for the no-round-trip case: a visible countdown bar along the chip's bottom edge tracks it. No exit transition, only entrance. For Phoenix flash messages, use Flash below."
-          props={[
-            {"open", "boolean (default: true)"},
-            {"color",
-             "default | primary | secondary | accent | error (default: default, the inverted monochrome Material spec; the others paint a brand-colored chip)"},
-            {"anchor_origin",
-             "bottom-left (default) | bottom-center | bottom-right | top-left | top-center | top-right"},
-            {"transition", "grow (default) | fade | slide | none, mount-in animation only"},
-            {"on_close", "a JS: renders a trailing ✕ button running it (MUI's close-IconButton)"},
-            {"auto_hide_duration",
-             "ms after which the snackbar triggers on_close itself (needs on_close; client-side). Shown as a shrinking countdown bar along the chip's bottom edge"},
-            {"positioned",
-             "boolean (default: true): keep the fixed viewport anchoring, or drop it to place the chip yourself"},
-            {"elevation", "resting elevation, 0-24 (default: 6)"},
-            {"paperize", "boolean (default: true)"}
-          ]}
-          slots={[{":action", "e.g. an \"Undo\" button"}]}
+          api={[{PhoenixPaper.Snackbar, :pp_snackbar}]}
+          description="A brief message on MD3's inverse-surface, always that color, with an optional :action and a close button (on_close). two_line fits a longer message. Dismissal is yours (a Process.send_after/3 clearing the open assign, like generated flash messages), or client-side with on_close + auto_hide_duration. It's fixed at the bottom of the viewport (centered on phones, bottom-start from sm) and enters with MD3's fade-and-expand; positioned={false} drops the fixed placement so you can place it yourself, as these demos do. For Phoenix flash messages, use Flash below."
           code={snackbar_code()}
         >
           <.demo_group label="Try it" direction="column">
-            <div class="relative h-32 rounded-lg border border-pp-outline/20">
-              <.pp_snackbar class="!absolute !inset-x-4 !bottom-4">
+            <div class="flex flex-col items-start gap-3">
+              <.pp_snackbar positioned={false}>
                 Changes saved
                 <:action>
-                  <.pp_button variant="text" color="inherit" phx-click="dismiss">Undo</.pp_button>
+                  <.pp_button variant="text" phx-click="dismiss">Undo</.pp_button>
                 </:action>
               </.pp_snackbar>
-              <.pp_snackbar
-                color="primary"
-                anchor_origin="top-right"
-                transition="slide"
-                on_close={JS.push("dismiss")}
-                auto_hide_duration={5000}
-                class="!absolute !top-4 !right-4"
-              >
+              <.pp_snackbar positioned={false} on_close={JS.push("dismiss")}>
                 Link copied
+              </.pp_snackbar>
+              <.pp_snackbar positioned={false} two_line on_close={JS.push("dismiss")}>
+                Your draft was saved on this device. Sign in to sync it everywhere.
+                <:action>
+                  <.pp_button variant="text" phx-click="dismiss">Sign in</.pp_button>
+                </:action>
               </.pp_snackbar>
             </div>
           </.demo_group>
@@ -221,22 +147,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
 
         <.section
           title="Flash"
-          description="Phoenix's @flash rendered as stacked snackbars: the Material counterpart of a generated core_components' flash_group. Drop pp_flash_group once in the root layout. Dismiss is wired to LiveView's built-in lv:clear-flash (no handler in your LiveView); auto_hide_duration is opt-in. Monochrome by spec: the kind picks a leading icon, not a color."
-          props={[
-            {"flash", "the @flash map"},
-            {"kinds", "flash keys to render, in stacking order (default: [:info, :error])"},
-            {"anchor_origin", "corner/edge of the viewport the stack sits at (default: top-right)"},
-            {"auto_hide_duration",
-             "ms after which each chip clears itself via lv:clear-flash (opt-in)"},
-            {"transition", "grow | fade | slide (default) | none"},
-            {"pp_flash kind / flash",
-             "a single flash key as one chip (what pp_flash_group renders per kind), e.g. to place one inline"},
-            {"connection_notices",
-             "boolean (default: false): also render the hidden \"We can't find the internet\" / \"Something went wrong!\" chips a generated core_components shows while the LiveView socket is disconnected, toggled client-side by phx-disconnected/phx-connected"},
-            {"client_error_title / server_error_title / reconnecting_text",
-             "the connection_notices texts, e.g. to run them through Gettext"},
-            {"paperize", "boolean (default: true)"}
-          ]}
+          api={[{PhoenixPaper.Flash, :pp_flash_group}, {PhoenixPaper.Flash, :pp_flash}]}
+          description="Phoenix's @flash rendered as stacked snackbars: the Material counterpart of a generated core_components' flash_group. Drop pp_flash_group once in the root layout. Dismiss is wired to LiveView's built-in lv:clear-flash (no handler in your LiveView); auto_hide_duration is opt-in. Monochrome and text-only by spec: every kind looks the same, an inverse-surface snackbar."
           code={flash_code()}
         >
           <.demo_group label="Trigger a real flash">
@@ -249,108 +161,81 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
               Trigger error flash
             </.pp_button>
           </.demo_group>
-          <p class="-mt-4 mb-8 text-sm text-pp-on-surface/60">
+          <.pp_typography variant="body-medium" color="on-surface-variant" class="-mt-4 mb-8">
             This whole page renders a pp_flash_group bound to @flash instead of the default
             flash_group. The buttons above call put_flash/3; a real chip slides in at the
             top-right, auto-hides after 6s, or dismiss it with the ✕ (LiveView's built-in
             lv:clear-flash, no handler). It also sets connection_notices: stop the server and
             a "We can't find the internet" chip appears until the socket reconnects.
-          </p>
+          </.pp_typography>
 
           <.demo_group label="Appearance (inline, static)" direction="column">
-            <p class="text-sm text-pp-on-surface/60">
+            <.pp_typography variant="body-medium" color="on-surface-variant">
               The same chips shown inline (each is a pp_snackbar positioned={false}) rather than fixed
               to the viewport corner:
-            </p>
+            </.pp_typography>
             <div class="flex flex-col gap-2">
               <.pp_flash flash={%{"info" => "Workbook saved."}} kind={:info} />
               <.pp_flash flash={%{"error" => "Could not reach the guest agent."}} kind={:error} />
             </div>
           </.demo_group>
         </.section>
-      </.pp_container>
+      </div>
     </Layouts.app>
-    """
-  end
-
-  defp alert_code do
-    """
-    <.pp_alert severity="success">Changes saved.</.pp_alert>
-    <.pp_alert severity="info">A new update is available.</.pp_alert>
-    <.pp_alert severity="warning" variant="outlined">Check your input.</.pp_alert>
-    <.pp_alert severity="error" variant="filled">
-      <:title>Error</:title>
-      Could not save your changes.
-      <:action><.pp_button variant="text" color="inherit">Retry</.pp_button></:action>
-    </.pp_alert>\
-    """
-  end
-
-  defp backdrop_code do
-    """
-    <.pp_button phx-click="toggle_backdrop">Show backdrop</.pp_button>
-
-    <.pp_backdrop open={@show_backdrop} phx-click="toggle_backdrop">
-      <.pp_progress variant="circular" color="secondary" />
-    </.pp_backdrop>\
     """
   end
 
   defp dialog_code do
     """
-    <.pp_button phx-click={PhoenixPaper.Dialog.show("confirm-delete")}>
-      Delete
-    </.pp_button>
+    <.pp_button phx-click={PhoenixPaper.Dialog.show("confirm-delete")}>Delete</.pp_button>
 
-    <%!-- max_width="lg" etc. for a wider panel (default: md) --%>
-    <.pp_dialog id="confirm-delete">
+    <.pp_dialog id="confirm-delete" icon="hero-trash">
       <:title>Delete this item?</:title>
       This can't be undone.
       <:actions>
-        <.pp_button variant="text" phx-click={PhoenixPaper.Dialog.hide("confirm-delete")}>
-          Cancel
-        </.pp_button>
-        <.pp_button color="error" phx-click={PhoenixPaper.Dialog.hide("confirm-delete")}>
+        <.pp_button variant="text" phx-click={PhoenixPaper.Dialog.hide("confirm-delete")}>Cancel</.pp_button>
+        <.pp_button variant="text" phx-click={JS.push("delete") |> PhoenixPaper.Dialog.hide("confirm-delete")}>
           Delete
         </.pp_button>
       </:actions>
-    </.pp_dialog>\
+    </.pp_dialog>
+
+    <%!-- Full screen on every screen, or only on phones --%>
+    <.pp_dialog id="new-event" variant="responsive">...</.pp_dialog>\
     """
   end
 
   defp progress_code do
     """
-    <.pp_progress value={72} />
-    <.pp_progress />
-    <.pp_progress variant="circular" value={72} />
-    <.pp_progress variant="circular" />\
-    """
-  end
+    <.pp_progress value={72} label="Uploading" />
+    <.pp_progress label="Loading" />
+    <.pp_progress value={60} wavy />
+    <.pp_progress value={45} thickness={8} />
 
-  defp skeleton_code do
-    """
-    <.pp_skeleton variant="circular" width={40} height={40} />
-    <.pp_skeleton />
-    <.pp_skeleton width="60%" />
-    <.pp_skeleton variant="rectangular" height={100} />
-    <.pp_skeleton variant="rounded" height={100} animation="wave" />\
+    <.pp_progress variant="circular" value={65} color="tertiary" />
+    <.pp_progress variant="circular" />\
     """
   end
 
   defp snackbar_code do
     """
-    <.pp_snackbar>
-      Changes saved
+    <.pp_snackbar open={@message != nil}>
+      {@message}
       <:action>
-        <.pp_button variant="text" color="inherit" phx-click="dismiss">Undo</.pp_button>
+        <.pp_button variant="text" phx-click="undo">Undo</.pp_button>
       </:action>
     </.pp_snackbar>
 
-    <%!-- on_close renders a trailing ✕; pair with auto_hide_duration for a
-          hook-free client-side auto-dismiss (a no-op CSS animation whose
-          animationend clicks the ✕) --%>
-    <.pp_snackbar anchor_origin="top-right" transition="slide" on_close={JS.push("dismiss")} auto_hide_duration={5000}>
+    <%!-- on_close renders a trailing close button; pair it with auto_hide_duration
+          for a hook-free client-side auto-dismiss --%>
+    <.pp_snackbar on_close={JS.push("dismiss")} auto_hide_duration={5000}>
       Link copied
+    </.pp_snackbar>
+
+    <%!-- two_line: a longer message above its action --%>
+    <.pp_snackbar two_line>
+      Your draft was saved on this device. Sign in to sync it everywhere.
+      <:action><.pp_button variant="text" phx-click="sign_in">Sign in</.pp_button></:action>
     </.pp_snackbar>\
     """
   end
@@ -374,5 +259,13 @@ defmodule PhoenixPaperWebsiteWeb.Components.FeedbackLive do
     def handle_event("flash_error", _params, socket),
       do: {:noreply, put_flash(socket, :error, "Could not reach the guest agent.")}
     ''')
+  end
+
+  defp loading_indicator_code do
+    """
+    <.pp_loading_indicator label="Loading messages" />
+    <.pp_loading_indicator contained />
+    <.pp_loading_indicator color="tertiary" size={36} />\
+    """
   end
 end

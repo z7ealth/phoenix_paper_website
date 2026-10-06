@@ -27,7 +27,6 @@ defmodule PhoenixPaperWebsiteWeb.Router do
       live "/components/actions", Components.ActionsLive
       live "/components/forms", Components.FormsLive
       live "/components/navigation", Components.NavigationLive
-      live "/components/layout", Components.LayoutLive
       live "/components/data-display", Components.DataDisplayLive
       live "/components/surfaces", Components.SurfacesLive
       live "/components/feedback", Components.FeedbackLive
