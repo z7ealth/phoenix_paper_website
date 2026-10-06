@@ -1,15 +1,15 @@
 defmodule PhoenixPaperWebsiteWeb.ThemeDefaultsTest do
   use PhoenixPaperWebsiteWeb.ConnCase, async: true
 
-  # The site's default hues: Violet secondary, Slate tertiary, rendered on
-  # <html>; Primary and Surface stay on the library's baseline (no attribute).
-  test "<html> carries the default role hues", %{conn: conn} do
+  # The site's default colors are the library's whole MD3 baseline scheme:
+  # Baseline for every role and the surface, so <html> carries no hue
+  # attributes until a visitor picks one in the theme picker.
+  test "<html> starts on the library's baseline scheme", %{conn: conn} do
     html = conn |> get("/") |> html_response(200)
     [tag] = Regex.run(~r/<html[^>]*>/, html)
 
-    assert tag =~ ~s(data-pp-secondary="violet")
-    assert tag =~ ~s(data-pp-tertiary="slate")
-    refute tag =~ "data-pp-primary"
-    refute tag =~ "data-pp-neutral"
+    for attr <- ~w(data-pp-primary data-pp-secondary data-pp-tertiary data-pp-neutral) do
+      refute tag =~ attr, "<html> has #{attr}"
+    end
   end
 end

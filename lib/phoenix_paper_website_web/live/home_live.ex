@@ -119,7 +119,9 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <div class="grid grid-cols-12 gap-6 mb-16">
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <.pp_avatar class="mb-3"><.pp_icon name="hero-swatch" /></.pp_avatar>
+              <div class="mb-3">
+                <.pp_avatar><.pp_icon name="hero-swatch" /></.pp_avatar>
+              </div>
               <:title>Tailwind-native theming</:title>
               Colors are Tailwind v4 theme tokens, namespaced
               <.pp_typography variant="code">pp-</.pp_typography>
@@ -131,9 +133,11 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <.pp_avatar class="mb-3"><.pp_icon name="hero-bolt" /></.pp_avatar>
+              <div class="mb-3">
+                <.pp_avatar><.pp_icon name="hero-bolt" /></.pp_avatar>
+              </div>
               <:title>CSS-only interactions</:title>
-              Checkboxes, radios, ratings, accordions, the navigation rail and the FAB menu are all
+              Checkboxes, radios, switches, the navigation rail and the FAB menu are all
               pure CSS:
               <.pp_typography variant="code">peer-checked:</.pp_typography>
               and
@@ -144,9 +148,11 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <.pp_avatar class="mb-3">
-                <.pp_icon name="hero-shield-check" />
-              </.pp_avatar>
+              <div class="mb-3">
+                <.pp_avatar>
+                  <.pp_icon name="hero-shield-check" />
+                </.pp_avatar>
+              </div>
               <:title>The paperize escape hatch</:title>
               Every component accepts a
               <.pp_typography variant="code">paperize</.pp_typography>
@@ -158,9 +164,11 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <.pp_avatar class="mb-3">
-                <.pp_icon name="hero-code-bracket" />
-              </.pp_avatar>
+              <div class="mb-3">
+                <.pp_avatar>
+                  <.pp_icon name="hero-code-bracket" />
+                </.pp_avatar>
+              </div>
               <:title>Idiomatic Phoenix forms</:title>
               Form components accept a
               <.pp_typography variant="code">field</.pp_typography>

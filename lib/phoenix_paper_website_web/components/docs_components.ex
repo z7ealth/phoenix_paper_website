@@ -602,8 +602,8 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   A big, floating, gradient-filled version of `logo_mark/1` for the landing
   hero -- same path data, but filled with `url(#<id>-gradient)` instead
   of `currentColor`, so it reads live off the current
-  `--color-pp-primary`/`--color-pp-secondary`/`--color-pp-tertiary` tokens
-  rather than a single text color. Picking a new primary/secondary/tertiary
+  `--color-pp-primary` to `--color-pp-tertiary` tokens rather than a single
+  text color. Picking a new primary or tertiary
   in `PhoenixPaperWebsiteWeb.ThemePicker` repaints it instantly, no JS of
   its own -- an inline `<svg>`'s `stop-color` resolves CSS custom
   properties from the page same as any other computed style, same reason
@@ -628,8 +628,9 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
           y2="60"
           gradientUnits="userSpaceOnUse"
         >
+          <%!-- primary to tertiary: MD3's secondary is low-chroma by design,
+                so a middle stop on it turns the bird grey --%>
           <stop offset="0%" stop-color="var(--color-pp-primary)" />
-          <stop offset="55%" stop-color="var(--color-pp-secondary)" />
           <stop offset="100%" stop-color="var(--color-pp-tertiary)" />
         </linearGradient>
       </defs>
