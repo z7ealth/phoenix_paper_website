@@ -106,7 +106,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
               </div>
 
               <div class="col-span-12 md:col-span-6">
-                <div class="flex flex-col gap-4 justify-center rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-low p-6">
+                <div class="flex flex-col gap-4 justify-center rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-lowest p-6">
                   <.pp_switch name="notifications" label="Notifications" checked />
                   <.pp_checkbox name="updates" label="Product updates" checked />
                   <.pp_slider name="home-volume" label="Volume" value={60} />
@@ -119,7 +119,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
         <div class="grid grid-cols-12 gap-6 mb-16">
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container mb-3"><.pp_icon name="hero-swatch" /></span>
+              <.pp_avatar class="mb-3"><.pp_icon name="hero-swatch" /></.pp_avatar>
               <:title>Tailwind-native theming</:title>
               Colors are Tailwind v4 theme tokens, namespaced
               <.pp_typography variant="code">pp-</.pp_typography>
@@ -131,7 +131,7 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-secondary-container text-pp-on-secondary-container mb-3"><.pp_icon name="hero-bolt" /></span>
+              <.pp_avatar class="mb-3"><.pp_icon name="hero-bolt" /></.pp_avatar>
               <:title>CSS-only interactions</:title>
               Checkboxes, radios, ratings, accordions, the navigation rail and the FAB menu are all
               pure CSS:
@@ -144,9 +144,9 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-tertiary-container text-pp-on-tertiary-container mb-3">
+              <.pp_avatar class="mb-3">
                 <.pp_icon name="hero-shield-check" />
-              </span>
+              </.pp_avatar>
               <:title>The paperize escape hatch</:title>
               Every component accepts a
               <.pp_typography variant="code">paperize</.pp_typography>
@@ -158,9 +158,9 @@ defmodule PhoenixPaperWebsiteWeb.HomeLive do
 
           <div class="col-span-12 md:col-span-6">
             <.pp_card class="h-full">
-              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-error-container text-pp-on-error-container mb-3">
+              <.pp_avatar class="mb-3">
                 <.pp_icon name="hero-code-bracket" />
-              </span>
+              </.pp_avatar>
               <:title>Idiomatic Phoenix forms</:title>
               Form components accept a
               <.pp_typography variant="code">field</.pp_typography>

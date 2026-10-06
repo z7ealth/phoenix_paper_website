@@ -32,6 +32,36 @@
    is the usual convention for highlighted code blocks. */
 @import "../node_modules/highlight.js/styles/atom-one-dark.css";
 
+/* Fonts: Roboto Flex for the whole site, the system monospace for code.
+   - Roboto Flex is PhoenixPaper's own default: its type roles read
+     --font-pp-brand (display/headline/title) and --font-pp-plain
+     (body/label), which phoenix_paper.css already sets to "Roboto Flex".
+     The library doesn't load the font, so this file does, and the tokens
+     are left alone.
+   - Tailwind's --font-sans (the page default, text outside components)
+     uses it too.
+   - --font-mono is code (PhoenixPaper's code variant and the highlighted
+     code blocks): each platform's own coding font, no file to load, so
+     indentation lines up.
+   Self-hosted from priv/static/fonts/roboto-flex (SIL OFL, see OFL.txt):
+   the variable font's weight and optical-size axes, so the library's
+   400/500/700 are all real weights and each type role gets its size's
+   shapes. */
+@font-face {
+  font-family: "Roboto Flex";
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url("/fonts/roboto-flex/roboto-flex-latin-opsz-normal.woff2") format("woff2-variations");
+}
+
+@theme {
+  --font-sans: var(--font-pp-plain);
+  --font-mono:
+    ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Cascadia Mono",
+    "Liberation Mono", "DejaVu Sans Mono", monospace;
+}
+
 /* daisyUI Tailwind Plugin. */
 @plugin "daisyui/packages/bundle/daisyui" {
   themes: false;

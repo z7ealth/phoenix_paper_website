@@ -19,9 +19,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.IndexLive do
           <div :for={item <- @items} class="col-span-12 md:col-span-6">
             <.pp_card id={"category-#{item.id}"} navigate={item.path} class="h-full">
               <:title>{item.label}</:title>
-              <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container mb-3"><.pp_icon name={
-                item.icon
-              } /></span>
+              <.pp_avatar class="mb-3"><.pp_icon name={item.icon} /></.pp_avatar>
               <.pp_typography variant="body-medium" color="on-surface-variant">
                 {item.blurb}
               </.pp_typography>

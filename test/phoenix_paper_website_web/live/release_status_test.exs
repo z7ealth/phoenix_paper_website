@@ -27,18 +27,11 @@ defmodule PhoenixPaperWebsiteWeb.ReleaseStatusTest do
     end
   end
 
-  # 0.5.0 is MD3-only: none of the components it removed may come back
-  # into the catalog.
-  @removed_in_0_5 ~w(Box Container Stack Grid Paper Table Pagination Breadcrumbs Accordion
-                     Collapse Alert Skeleton Avatar Backdrop Rating Autocomplete Form) ++
-                    [
-                      "Grid & GridItem",
-                      "Image List",
-                      "Table Pagination",
-                      "Number Field",
-                      "Transfer List",
-                      "Power Select"
-                    ]
+  # 0.5.0 is MD3-only: none of the components it removed (and 0.5.2 didn't
+  # bring back) may come back into the catalog.
+  @removed_in_0_5 ~w(Box Container Stack Grid Paper Accordion Collapse Alert Skeleton
+                     Backdrop Rating Form) ++
+                    ["Grid & GridItem", "Image List", "Transfer List", "Power Select"]
 
   test "the catalog lists no component removed in 0.5.0" do
     titles = Enum.flat_map(Nav.component_items(), & &1.components)
@@ -48,6 +41,40 @@ defmodule PhoenixPaperWebsiteWeb.ReleaseStatusTest do
     end
 
     refute Enum.any?(Nav.component_items(), &(&1.id == :layout))
+  end
+
+  test "Pagination demo pages via on_change", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/components/navigation")
+
+    assert has_element?(view, ~s|#pagination-demo [aria-current="page"]|, "5")
+    view |> element(~s|#pagination-demo [aria-label="Go to page 6"]|) |> render_click()
+    assert has_element?(view, ~s|#pagination-demo [aria-current="page"]|, "6")
+  end
+
+  test "Table Pagination demo pages 47 rows and resets on rows per page", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/components/data-display")
+
+    assert has_element?(view, "#tp-table tbody tr", "user1@example.com")
+    view |> element(~s|#tp-pagination button[phx-value-page="2"]|) |> render_click()
+    assert has_element?(view, "#tp-table tbody tr", "user6@example.com")
+    refute has_element?(view, "#tp-table tbody tr", "user1@example.com")
+
+    view |> element(~s|#tp-pagination [phx-value-rows_per_page="10"]|) |> render_click()
+    assert has_element?(view, "#tp-table tbody tr", "user10@example.com")
+    assert has_element?(view, "#tp-table tbody tr", "user1@example.com")
+  end
+
+  test "Table demo's sortable header flips the row order", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/components/data-display")
+
+    assert has_element?(view, "#table-demo tbody tr:first-child", "Cupcake")
+    view |> element("#table-demo thead [phx-click=sort]") |> render_click()
+    assert has_element?(view, "#table-demo tbody tr:first-child", "Ice cream sandwich")
+  end
+
+  test "Autocomplete demo renders as a combobox", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/components/forms")
+    assert has_element?(view, ~s|#country-autocomplete [role="combobox"]|)
   end
 
   test "Show code toggles are native details/summary disclosures", %{conn: conn} do

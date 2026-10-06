@@ -32,6 +32,11 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   attr :title, :string, required: true
   attr :description, :string, default: nil
 
+  attr :component, :boolean,
+    default: true,
+    doc:
+      "false for a guide section (not a component): left out of the sidebar, which lists data-docs-section sections only"
+
   attr :live_component, :boolean,
     default: false,
     doc:
@@ -76,7 +81,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     assigns = assign(assigns, :status, PhoenixPaperWebsiteWeb.Nav.status(assigns.title))
 
     ~H"""
-    <section id={slug(@title)} data-docs-section class="mb-16 scroll-mt-20">
+    <section id={slug(@title)} data-docs-section={@component} class="mb-16 scroll-mt-20">
       <.pp_typography :if={@eyebrow} variant="label-small" color="primary">
         {@eyebrow}
       </.pp_typography>
@@ -147,65 +152,65 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     assigns = assign(assigns, attrs: attrs, slots: slots)
 
     ~H"""
-    <div
+    <.pp_table_container
       :if={@attrs != []}
       id={"#{@id}-options"}
-      class="mt-6 overflow-x-auto rounded-pp-md border border-pp-outline-variant"
+      class="mt-6"
     >
-      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
-        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
-          <tr class="transition-colors hover:bg-pp-on-surface/8">
-            <th class="pp-title-small px-4 text-start">Option</th>
-            <th class="pp-title-small px-4 text-start">Type</th>
-            <th class="pp-title-small px-4 text-start">Default</th>
-            <th class="pp-title-small px-4 text-start">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :for={a <- @attrs} class="transition-colors hover:bg-pp-on-surface/8">
-            <td class="px-4 align-top">
+      <.pp_table>
+        <.pp_table_head>
+          <.pp_table_row>
+            <.pp_table_cell variant="head">Option</.pp_table_cell>
+            <.pp_table_cell variant="head">Type</.pp_table_cell>
+            <.pp_table_cell variant="head">Default</.pp_table_cell>
+            <.pp_table_cell variant="head">Description</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_head>
+        <.pp_table_body>
+          <.pp_table_row :for={a <- @attrs}>
+            <.pp_table_cell>
               <.pp_typography variant="code">{a.name}</.pp_typography>
-            </td>
-            <td class="px-4 align-top">
+            </.pp_table_cell>
+            <.pp_table_cell>
               <.pp_typography variant="code">{a.type}</.pp_typography>
-            </td>
-            <td class="px-4 align-top">
+            </.pp_table_cell>
+            <.pp_table_cell>
               <.pp_typography variant="code">{a.default}</.pp_typography>
-            </td>
-            <td class="px-4 align-top">{a.doc}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div
+            </.pp_table_cell>
+            <.pp_table_cell>{a.doc}</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_body>
+      </.pp_table>
+    </.pp_table_container>
+    <.pp_table_container
       :if={@slots != []}
       id={"#{@id}-slots"}
-      class="mt-4 overflow-x-auto rounded-pp-md border border-pp-outline-variant"
+      class="mt-4"
     >
-      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
-        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
-          <tr class="transition-colors hover:bg-pp-on-surface/8">
-            <th class="pp-title-small px-4 text-start">Slot</th>
-            <th class="pp-title-small px-4 text-start">Attrs</th>
-            <th class="pp-title-small px-4 text-start">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :for={sl <- @slots} class="transition-colors hover:bg-pp-on-surface/8">
-            <td class="px-4 align-top">
+      <.pp_table>
+        <.pp_table_head>
+          <.pp_table_row>
+            <.pp_table_cell variant="head">Slot</.pp_table_cell>
+            <.pp_table_cell variant="head">Attrs</.pp_table_cell>
+            <.pp_table_cell variant="head">Description</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_head>
+        <.pp_table_body>
+          <.pp_table_row :for={sl <- @slots}>
+            <.pp_table_cell>
               <.pp_typography variant="code">{sl.name}</.pp_typography>
               <.pp_typography :if={sl.required} variant="body-small" color="error">
                 required
               </.pp_typography>
-            </td>
-            <td class="px-4 align-top">
+            </.pp_table_cell>
+            <.pp_table_cell>
               <.pp_typography variant="code">{sl.attrs}</.pp_typography>
-            </td>
-            <td class="px-4 align-top">{sl.doc}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            </.pp_table_cell>
+            <.pp_table_cell>{sl.doc}</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_body>
+      </.pp_table>
+    </.pp_table_container>
     """
   end
 
@@ -234,27 +239,27 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
   attr :label, :string, required: true, doc: "the name column's heading"
   attr :rows, :list, required: true, doc: "{name, description} tuples"
 
-  # A section's Options or Slots reference, as a plain table styled with the pp-* tokens.
+  # A section's Options or Slots reference, as a PhoenixPaper.Table.
   defp api_table(assigns) do
     ~H"""
-    <div id={@id} class="mt-6 overflow-x-auto rounded-pp-md border border-pp-outline-variant">
-      <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
-        <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
-          <tr class="transition-colors hover:bg-pp-on-surface/8">
-            <th class="pp-title-small px-4 text-start">{@label}</th>
-            <th class="pp-title-small px-4 text-start">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr :for={{name, desc} <- @rows} class="transition-colors hover:bg-pp-on-surface/8">
-            <td class="px-4 align-top">
+    <.pp_table_container id={@id} class="mt-6">
+      <.pp_table>
+        <.pp_table_head>
+          <.pp_table_row>
+            <.pp_table_cell variant="head">{@label}</.pp_table_cell>
+            <.pp_table_cell variant="head">Description</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_head>
+        <.pp_table_body>
+          <.pp_table_row :for={{name, desc} <- @rows}>
+            <.pp_table_cell>
               <.pp_typography variant="code">{name}</.pp_typography>
-            </td>
-            <td class="px-4 align-top">{desc}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            </.pp_table_cell>
+            <.pp_table_cell>{desc}</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_body>
+      </.pp_table>
+    </.pp_table_container>
     """
   end
 
@@ -404,7 +409,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
         {@label}
       </.pp_typography>
       <div class={[
-        "flex rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-low p-6",
+        "flex rounded-pp-md border border-pp-outline-variant bg-pp-surface-container-lowest p-6",
         if(@direction == "row", do: "flex-row flex-wrap items-center", else: "flex-col"),
         gap(@spacing),
         @class

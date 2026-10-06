@@ -14,7 +14,24 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
      socket
      |> assign(page_title: "Data Display")
      |> assign(chips: ["React", "Elixir", "Phoenix", "LiveView"])
-     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)}
+     |> assign(photo_1: @photo_1, photo_2: @photo_2, photo_3: @photo_3)
+     |> assign(tp_page: 1, tp_rows: 5, sort: "asc")}
+  end
+
+  @tp_users for n <- 1..47, do: %{id: n, name: "User #{n}", email: "user#{n}@example.com"}
+
+  # Table Pagination demo: the events carry phx-value-page / phx-value-rows_per_page.
+  def handle_event("tp_page", %{"page" => page}, socket) do
+    {:noreply, assign(socket, :tp_page, String.to_integer(page))}
+  end
+
+  def handle_event("tp_rows", %{"rows_per_page" => rows}, socket) do
+    {:noreply, assign(socket, tp_rows: String.to_integer(rows), tp_page: 1)}
+  end
+
+  # The Table demo's sortable header flips the order of its rows.
+  def handle_event("sort", _params, socket) do
+    {:noreply, update(socket, :sort, &if(&1 == "asc", do: "desc", else: "asc"))}
   end
 
   def handle_event("delete_chip", %{"chip" => chip}, socket) do
@@ -28,9 +45,8 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
     <Layouts.app flash={@flash} current_page={:data_display}>
       <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Data Display">
-          PhoenixPaper.Card, Badge, Chip, Tooltip, Icon and Carousel. For tabular data, MD3 has no
-          table component: use a plain &lt;table&gt; with the pp-* tokens, like the options
-          tables on these pages.
+          PhoenixPaper.Card, Avatar, Badge, Chip, Tooltip, Icon, Carousel, the Table family and
+          TablePagination. The options tables on these pages are pp_tables too.
         </.page_header>
 
         <.section
@@ -70,6 +86,20 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
                 <.pp_button variant="text" href="/components/feedback">Feedback</.pp_button>
               </:actions>
             </.pp_card>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Avatar"
+          api={[{PhoenixPaper.Avatar, :pp_avatar}]}
+          description="MD3's list leading element: a 40dp primary-container circle holding title-medium initials, an icon, or an image (src). If the image fails to load, the initials show instead. One MD3 size, shape and color; it's most at home in a list item's :leading slot."
+          code={avatar_code()}
+        >
+          <.demo_group label="Initials, icon, image">
+            <.pp_avatar>AL</.pp_avatar>
+            <.pp_avatar><.pp_icon name="hero-user" /></.pp_avatar>
+            <.pp_avatar src={@photo_2} alt="Grace Hopper">GH</.pp_avatar>
+            <.pp_avatar src="/images/missing.jpg" alt="Alan Turing">AT</.pp_avatar>
           </.demo_group>
         </.section>
 
@@ -202,10 +232,173 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             </.pp_carousel>
           </.demo_group>
         </.section>
+
+        <.section
+          title="Table"
+          api={[
+            {PhoenixPaper.TableContainer, :pp_table_container},
+            {PhoenixPaper.Table, :pp_table},
+            {PhoenixPaper.TableHead, :pp_table_head},
+            {PhoenixPaper.TableBody, :pp_table_body},
+            {PhoenixPaper.TableRow, :pp_table_row},
+            {PhoenixPaper.TableCell, :pp_table_cell},
+            {PhoenixPaper.TableFooter, :pp_table_footer}
+          ]}
+          description="A data table from MD3 parts: title-small headers over body-medium rows, outline-variant dividers, the state layer on row hover, and secondary-container for selected rows. A sortable header cell renders an icon arrow with aria-sort. TableContainer is the card surface around it (variant as for Card, outlined by default); sticky_header pins the header while the container scrolls."
+          code={table_code()}
+        >
+          <.demo_group label="Sortable header, a selected row, a footer" direction="column">
+            <.pp_table_container id="table-demo">
+              <.pp_table>
+                <.pp_table_head>
+                  <.pp_table_row>
+                    <.pp_table_cell
+                      variant="head"
+                      sortable
+                      sort_direction={@sort}
+                      phx-click="sort"
+                    >
+                      Dessert
+                    </.pp_table_cell>
+                    <.pp_table_cell variant="head" align="right">Calories</.pp_table_cell>
+                    <.pp_table_cell variant="head" align="right">Protein (g)</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_head>
+                <.pp_table_body>
+                  <.pp_table_row
+                    :for={{name, kcal, protein} <- sorted_desserts(@sort)}
+                    selected={name == "Eclair"}
+                  >
+                    <.pp_table_cell>{name}</.pp_table_cell>
+                    <.pp_table_cell align="right">{kcal}</.pp_table_cell>
+                    <.pp_table_cell align="right">{protein}</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_body>
+                <.pp_table_footer>
+                  <.pp_table_row>
+                    <.pp_table_cell>Total</.pp_table_cell>
+                    <.pp_table_cell align="right">{total_kcal()}</.pp_table_cell>
+                    <.pp_table_cell align="right"></.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_footer>
+              </.pp_table>
+            </.pp_table_container>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Table Pagination"
+          api={[{PhoenixPaper.TablePagination, :pp_table_pagination}]}
+          description="A table footer bar from MD3 parts: a rows-per-page picker (a pp_menu), the range (1–5 of 47) and previous/next icon buttons. count is the total number of rows and page is 1-based. Give path a (page, rows_per_page) function for links, or on_page_change and on_rows_per_page_change event names; picking a new page size goes back to page 1."
+          code={table_pagination_code()}
+        >
+          <.demo_group label="47 rows, events" direction="column">
+            <.pp_table_container id="tp-demo">
+              <.pp_table id="tp-table">
+                <.pp_table_head>
+                  <.pp_table_row>
+                    <.pp_table_cell variant="head">Name</.pp_table_cell>
+                    <.pp_table_cell variant="head">Email</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_head>
+                <.pp_table_body>
+                  <.pp_table_row :for={user <- tp_rows(@tp_page, @tp_rows)}>
+                    <.pp_table_cell>{user.name}</.pp_table_cell>
+                    <.pp_table_cell>{user.email}</.pp_table_cell>
+                  </.pp_table_row>
+                </.pp_table_body>
+              </.pp_table>
+              <.pp_table_pagination
+                id="tp-pagination"
+                page={@tp_page}
+                count={47}
+                rows_per_page={@tp_rows}
+                rows_per_page_options={[5, 10, 25]}
+                on_page_change="tp_page"
+                on_rows_per_page_change="tp_rows"
+              />
+            </.pp_table_container>
+          </.demo_group>
+        </.section>
       </div>
     </Layouts.app>
     """
   end
+
+  defp avatar_code do
+    """
+    <.pp_avatar>AL</.pp_avatar>
+    <.pp_avatar><.pp_icon name="hero-user" /></.pp_avatar>
+
+    <%!-- An image, falling back to the initials if it fails to load --%>
+    <.pp_avatar src={@user.avatar_url} alt={@user.name}>GH</.pp_avatar>\
+    """
+  end
+
+  defp table_code do
+    """
+    <.pp_table_container>
+      <.pp_table>
+        <.pp_table_head>
+          <.pp_table_row>
+            <.pp_table_cell variant="head" sortable sort_direction={@sort} phx-click="sort">
+              Dessert
+            </.pp_table_cell>
+            <.pp_table_cell variant="head" align="right">Calories</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_head>
+        <.pp_table_body>
+          <.pp_table_row :for={d <- @desserts} selected={d.id == @selected_id}>
+            <.pp_table_cell>{d.name}</.pp_table_cell>
+            <.pp_table_cell align="right">{d.calories}</.pp_table_cell>
+          </.pp_table_row>
+        </.pp_table_body>
+      </.pp_table>
+    </.pp_table_container>\
+    """
+  end
+
+  defp table_pagination_code do
+    String.trim_trailing(~S'''
+    <.pp_table_container>
+      <.pp_table>...</.pp_table>
+
+      <%!-- Links: (page, rows_per_page) -> URL --%>
+      <.pp_table_pagination
+        id="users-pagination"
+        page={@page}
+        count={@total_rows}
+        rows_per_page={@per_page}
+        path={&~p"/users?page=#{&1}&per_page=#{&2}"}
+      />
+    </.pp_table_container>
+
+    <%!-- Or events: phx-value-page / phx-value-rows_per_page --%>
+    <.pp_table_pagination
+      id="users-pagination"
+      page={@page}
+      count={@total_rows}
+      rows_per_page={@per_page}
+      on_page_change="page"
+      on_rows_per_page_change="per_page"
+    />
+    ''')
+  end
+
+  @desserts [
+    {"Frozen yoghurt", 159, 4.0},
+    {"Ice cream sandwich", 237, 4.3},
+    {"Eclair", 262, 6.0},
+    {"Cupcake", 305, 4.3},
+    {"Gingerbread", 356, 3.9}
+  ]
+
+  defp sorted_desserts("asc"), do: Enum.sort_by(@desserts, &elem(&1, 0))
+  defp sorted_desserts("desc"), do: Enum.sort_by(@desserts, &elem(&1, 0), :desc)
+
+  defp total_kcal, do: @desserts |> Enum.map(&elem(&1, 1)) |> Enum.sum()
+
+  defp tp_rows(page, per_page), do: Enum.slice(@tp_users, (page - 1) * per_page, per_page)
 
   defp card_code do
     """

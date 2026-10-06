@@ -265,7 +265,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemeCreatorLive do
             <.pp_card class="h-full">
               <:title>
                 <div class="flex flex-row gap-2 items-center">
-                  <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-10 pp-title-medium bg-pp-primary-container text-pp-on-primary-container">AL</span>
+                  <.pp_avatar>AL</.pp_avatar>
                   <span>Ada Lovelace</span>
                 </div>
               </:title>

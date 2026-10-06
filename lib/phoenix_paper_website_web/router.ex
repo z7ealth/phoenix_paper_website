@@ -23,6 +23,7 @@ defmodule PhoenixPaperWebsiteWeb.Router do
       live "/theming", ThemingLive
       live "/customizing", CustomizingLive
       live "/theme-creator", ThemeCreatorLive
+      live "/dashboard", DashboardLive
       live "/components", Components.IndexLive
       live "/components/actions", Components.ActionsLive
       live "/components/forms", Components.FormsLive

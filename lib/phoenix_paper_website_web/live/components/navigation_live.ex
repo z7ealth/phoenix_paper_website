@@ -219,6 +219,35 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
         </.section>
 
         <.section
+          title="Breadcrumbs"
+          api={[{PhoenixPaper.Breadcrumbs, :pp_breadcrumbs}]}
+          description="A trail of :items built from MD3 parts: each linked item is a compact text button in primary, the current page (the item left without a link) is plain on-surface text with aria-current, and chevrons separate them. Long trails wrap instead of collapsing."
+          code={breadcrumbs_code()}
+        >
+          <.demo_group label="Links and the current page">
+            <.pp_breadcrumbs id="breadcrumbs-demo">
+              <:item navigate={~p"/"}>Home</:item>
+              <:item navigate={~p"/components"}>Components</:item>
+              <:item>Navigation</:item>
+            </.pp_breadcrumbs>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Pagination"
+          api={[{PhoenixPaper.Pagination, :pp_pagination}]}
+          description="Page navigation from MD3 standard icon buttons: previous and next around the first and last page, the current page and one on each side, the rest collapsed into an ellipsis (so the control keeps its width as you page). The current page takes secondary-container and aria-current. Pages are 1-based; give path a function for links (patch by default), or on_change an event name."
+          code={pagination_code()}
+        >
+          <.demo_group label={"Events (on_change): page #{@page} of 12"}>
+            <.pp_pagination id="pagination-demo" page={@page} count={12} on_change="set_page" />
+          </.demo_group>
+          <.demo_group label="disabled">
+            <.pp_pagination page={1} count={3} on_change="set_page" disabled />
+          </.demo_group>
+        </.section>
+
+        <.section
           title="Menu"
           description={
             ~S|A trigger that opens an anchored list of actions; closes on selecting an item, clicking outside, or Escape (JS commands and phx-click-away, no hook). The trigger is an icon button (trigger_icon + trigger_label) or your own :trigger content with trigger_variant. Items are pp_menu_item/1: a leading icon, supporting and trailing text, selected. color="vibrant" is the tertiary-container Expressive menu. pp_submenu/1 cascades a submenu beside an item (hover, focus or tap). With the JS hook and an id, menus and submenus flip to the other side when they'd overflow the viewport.|
@@ -280,7 +309,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
             <form id="search-demo" phx-change="search" phx-submit="search" class="w-full max-w-md">
               <.pp_search_bar name="q" value={@query} placeholder="Search folders" phx-debounce="150">
                 <:trailing>
-                  <span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-8 pp-label-medium bg-pp-primary-container text-pp-on-primary-container">AL</span>
+                  <.pp_avatar>AL</.pp_avatar>
                 </:trailing>
                 <:results>
                   <.pp_list>
@@ -316,7 +345,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="List"
-          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or an avatar image, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally."
+          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or a pp_avatar, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally."
           api={[
             {PhoenixPaper.List, :pp_list},
             {PhoenixPaper.ListItem, :pp_list_item}
@@ -360,9 +389,9 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
                   href="#list"
                 >
                   <:leading>
-                    <span class="inline-flex size-10 items-center justify-center rounded-pp-full bg-pp-primary-container pp-title-medium text-pp-on-primary-container">
+                    <.pp_avatar>
                       {initials}
-                    </span>
+                    </.pp_avatar>
                   </:leading>
                   {name}
                   <:secondary>{line}</:secondary>
@@ -483,7 +512,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     """
     <form phx-change="search" phx-submit="search">
       <.pp_search_bar name="q" value={@query} placeholder="Search folders" phx-debounce="150">
-        <:trailing><span class="inline-flex shrink-0 select-none items-center justify-center rounded-pp-full size-8 pp-label-medium bg-pp-primary-container text-pp-on-primary-container">AL</span></:trailing>
+        <:trailing><.pp_avatar>AL</.pp_avatar></:trailing>
         <:results>
           <.pp_list>
             <.pp_list_item :for={hit <- @hits} navigate={hit.path}>{hit.title}</.pp_list_item>
@@ -496,6 +525,30 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
     def handle_event("search", %{"q" => q}, socket),
       do: {:noreply, assign(socket, query: q, hits: MyApp.Search.run(q))}\
     """
+  end
+
+  defp breadcrumbs_code do
+    """
+    <.pp_breadcrumbs>
+      <:item navigate={~p"/"}>Home</:item>
+      <:item navigate={~p"/catalog"}>Catalog</:item>
+      <:item>Current product</:item>
+    </.pp_breadcrumbs>\
+    """
+  end
+
+  defp pagination_code do
+    String.trim_trailing(~S'''
+    <%!-- Links: the page lives in the URL and handle_params/3 loads it --%>
+    <.pp_pagination page={@page} count={@total_pages} path={&~p"/users?page=#{&1}"} />
+
+    <%!-- Events: each button sends phx-value-page --%>
+    <.pp_pagination page={@page} count={@total_pages} on_change="paginate" />
+
+    # In the LiveView
+    def handle_event("paginate", %{"page" => page}, socket),
+      do: {:noreply, assign(socket, :page, String.to_integer(page))}
+    ''')
   end
 
   defp list_code do
@@ -516,10 +569,10 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
       </.pp_list_item>
     </.pp_list>
 
-    <%!-- An avatar is a plain rounded image in :leading --%>
+    <%!-- pp_avatar in :leading: an image, falling back to initials --%>
     <.pp_list>
       <.pp_list_item :for={user <- @users} navigate={~p"/users/\#{user.id}"}>
-        <:leading><img src={user.avatar_url} alt="" class="size-10 rounded-pp-full" /></:leading>
+        <:leading><.pp_avatar src={user.avatar_url}>{user.initials}</.pp_avatar></:leading>
         {user.name}
         <:secondary>{user.email}</:secondary>
       </.pp_list_item>

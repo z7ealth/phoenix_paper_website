@@ -1,16 +1,48 @@
 defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
   use PhoenixPaperWebsiteWeb, :live_view
 
+  @messages [
+    %{
+      id: 1,
+      from: "Ada Lovelace",
+      subject: "Notes on the engine",
+      body:
+        "The engine weaves algebraic patterns the way the Jacquard loom weaves flowers and leaves."
+    },
+    %{
+      id: 2,
+      from: "Grace Hopper",
+      subject: "Found a bug",
+      body: "Literally a moth, taped into the logbook. First actual case of a bug being found."
+    },
+    %{
+      id: 3,
+      from: "Alan Turing",
+      subject: "Can machines think?",
+      body: "I propose to consider the question by replacing it with a game."
+    }
+  ]
+
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, "Surfaces")}
+    {:ok, assign(socket, page_title: "Surfaces", messages: @messages, message: nil)}
   end
+
+  # Pane Layout's list-detail demo: which message the detail pane shows.
+  def handle_event("open_message", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    {:noreply, assign(socket, :message, Enum.find(@messages, &(&1.id == id)))}
+  end
+
+  def handle_event("close_message", _params, socket),
+    do: {:noreply, assign(socket, :message, nil)}
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_page={:surfaces}>
       <div class="mx-auto w-full px-4 max-w-screen-lg">
         <.page_header eyebrow="Components" title="Surfaces">
-          PhoenixPaper.Typography, Divider, BottomSheet and SideSheet. MD3's base container is the Card (on the Data Display page); for any other panel, use the surface-container color roles and the rounded-pp-* corners directly.
+          PhoenixPaper.Typography, Divider, the pane layouts (ListDetail and SupportingPane),
+          BottomSheet and SideSheet. MD3's base container is the Card (on the Data Display page); for any other panel, use the surface-container color roles and the rounded-pp-* corners directly.
         </.page_header>
 
         <.section
@@ -52,6 +84,86 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
             <.pp_typography variant="body-medium" tag="span">Between</.pp_typography>
             <.pp_divider inset />
             <.pp_typography variant="body-medium" tag="span">Below</.pp_typography>
+          </.demo_group>
+        </.section>
+
+        <.section
+          title="Pane Layout"
+          api={[
+            {PhoenixPaper.PaneLayout, :pp_list_detail},
+            {PhoenixPaper.PaneLayout, :pp_supporting_pane}
+          ]}
+          description="MD3's canonical layouts, from its Layout foundations: window size classes (compact under 600dp, medium to 839dp, expanded from 840dp), 16/24dp margins, a 24dp spacer and 360dp fixed panes. pp_list_detail shows both panes on expanded windows and one at a time below, chosen with show_detail (going back is yours to render). pp_supporting_pane puts a 360dp supporting pane beside the main one, or below it on smaller windows. The panes have no surface of their own: put a Card or List inside."
+          code={pane_layout_code()}
+        >
+          <.demo_group
+            label="pp_list_detail (narrow the window to see one pane at a time)"
+            direction="column"
+          >
+            <div
+              id="list-detail-demo"
+              class="overflow-hidden rounded-pp-md border border-pp-outline-variant"
+            >
+              <.pp_list_detail show_detail={@message != nil}>
+                <:list>
+                  <.pp_list>
+                    <.pp_list_item
+                      :for={m <- @messages}
+                      id={"message-#{m.id}"}
+                      phx-click="open_message"
+                      phx-value-id={m.id}
+                      active={@message != nil and @message.id == m.id}
+                    >
+                      <:leading>
+                        <.pp_avatar>{initials(m.from)}</.pp_avatar>
+                      </:leading>
+                      {m.from}
+                      <:secondary>{m.subject}</:secondary>
+                    </.pp_list_item>
+                  </.pp_list>
+                </:list>
+                <:detail>
+                  <.pp_card :if={@message} id="message-detail" variant="filled" class="my-4">
+                    <:title>{@message.subject}</:title>
+                    <:subhead>From {@message.from}</:subhead>
+                    {@message.body}
+                    <:actions>
+                      <.pp_button id="close-message" variant="text" phx-click="close_message">
+                        Back to the list
+                      </.pp_button>
+                    </:actions>
+                  </.pp_card>
+                  <.pp_typography
+                    :if={!@message}
+                    variant="body-medium"
+                    color="on-surface-variant"
+                    class="py-6"
+                  >
+                    Pick a message.
+                  </.pp_typography>
+                </:detail>
+              </.pp_list_detail>
+            </div>
+          </.demo_group>
+
+          <.demo_group label="pp_supporting_pane" direction="column">
+            <div
+              id="supporting-pane-demo"
+              class="overflow-hidden rounded-pp-md border border-pp-outline-variant"
+            >
+              <.pp_supporting_pane class="py-4">
+                <.pp_card variant="outlined">
+                  <:title>The main pane</:title>
+                  Flexible: it takes whatever the supporting pane leaves.
+                </.pp_card>
+                <:supporting>
+                  <.pp_card variant="filled">
+                    <:title>Supporting</:title>
+                    360dp beside the main pane from 840dp, below it before that.
+                  </.pp_card>
+                </:supporting>
+              </.pp_supporting_pane>
+            </div>
           </.demo_group>
         </.section>
 
@@ -141,6 +253,42 @@ defmodule PhoenixPaperWebsiteWeb.Components.SurfacesLive do
     <.pp_typography color="on-surface-variant">Muted text</.pp_typography>\
     """
   end
+
+  defp pane_layout_code do
+    """
+    <.pp_list_detail show_detail={@message != nil}>
+      <:list>
+        <.pp_list>
+          <.pp_list_item :for={m <- @messages} patch={~p"/inbox/\#{m.id}"} active={m.id == @message_id}>
+            {m.subject}
+          </.pp_list_item>
+        </.pp_list>
+      </:list>
+      <:detail>
+        <.pp_card :if={@message} variant="filled">
+          <:title>{@message.subject}</:title>
+          {@message.body}
+          <:actions>
+            <%!-- Below 840dp only one pane shows: going back is yours --%>
+            <.pp_button variant="text" patch={~p"/inbox"}>Back</.pp_button>
+          </:actions>
+        </.pp_card>
+      </:detail>
+    </.pp_list_detail>
+
+    <.pp_supporting_pane>
+      <article>...</article>
+      <:supporting>
+        <.pp_list>
+          <.pp_list_item :for={r <- @related} navigate={r.path}>{r.title}</.pp_list_item>
+        </.pp_list>
+      </:supporting>
+    </.pp_supporting_pane>\
+    """
+  end
+
+  defp initials(name),
+    do: name |> String.split() |> Enum.map_join(&String.first/1)
 
   defp divider_code do
     """

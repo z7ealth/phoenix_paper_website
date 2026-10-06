@@ -152,7 +152,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     # mix.exs
     defp deps do
       [
-        {:phoenix_paper, "~> 0.5.1"}
+        {:phoenix_paper, "~> 0.5.2"}
       ]
     end\
     """

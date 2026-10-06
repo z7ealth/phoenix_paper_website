@@ -81,32 +81,26 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           title="Reach for an attr first"
           description="Most of what people try to override through class has an attr that does it properly, works with dark mode and the theme tokens, and never conflicts. Check the component's options table before writing an override."
         >
-          <div
-            class="overflow-x-auto rounded-pp-md border border-pp-outline-variant"
-            id="customizing-attrs"
-          >
-            <table class="pp-body-medium w-full border-collapse text-start text-pp-on-surface [&_td]:py-1.5 [&_th]:py-1.5">
-              <thead class="[&_th]:border-b [&_th]:border-pp-outline-variant">
-                <tr class="transition-colors hover:bg-pp-on-surface/8">
-                  <th class="pp-title-small px-4 text-start">Instead of class=...</th>
-                  <th class="pp-title-small px-4 text-start">Use</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  :for={{instead, use} <- attr_alternatives()}
-                  class="transition-colors hover:bg-pp-on-surface/8"
-                >
-                  <td class="px-4 align-top">
+          <.pp_table_container id="customizing-attrs">
+            <.pp_table>
+              <.pp_table_head>
+                <.pp_table_row>
+                  <.pp_table_cell variant="head">Instead of class=...</.pp_table_cell>
+                  <.pp_table_cell variant="head">Use</.pp_table_cell>
+                </.pp_table_row>
+              </.pp_table_head>
+              <.pp_table_body>
+                <.pp_table_row :for={{instead, use} <- attr_alternatives()}>
+                  <.pp_table_cell>
                     <.pp_typography variant="code">{instead}</.pp_typography>
-                  </td>
-                  <td class="px-4 align-top">
+                  </.pp_table_cell>
+                  <.pp_table_cell>
                     <.pp_typography variant="code">{use}</.pp_typography>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  </.pp_table_cell>
+                </.pp_table_row>
+              </.pp_table_body>
+            </.pp_table>
+          </.pp_table_container>
         </.section>
 
         <.section

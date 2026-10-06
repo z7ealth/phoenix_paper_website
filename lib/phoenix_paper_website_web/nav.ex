@@ -12,19 +12,21 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
   # Components added or changed in the latest release, keyed by section
   # title: drives the "New"/"Updated" chips on section headers
   # (DocsComponents.section/1) and in the sidebar. Reset it each release.
-  @release "0.5.0"
+  @release "0.5.2"
   @statuses %{
-    # MD3-only options in 0.5.0 (non-MD3 attrs removed)
-    "Badge" => :updated,
-    "Card" => :updated,
-    "Dialog" => :updated,
-    "Snackbar" => :updated,
-    "Flash" => :updated,
-    "Top App Bar" => :updated,
-    "Text Field" => :updated,
-    "Select" => :updated,
-    "List" => :updated,
-    "Theme Toggle" => :updated
+    # back in 0.5.2, rebuilt from MD3 parts
+    "Avatar" => :new,
+    "Table" => :new,
+    "Table Pagination" => :new,
+    "Pagination" => :new,
+    "Breadcrumbs" => :new,
+    "Number Field" => :new,
+    "Autocomplete" => :new,
+    "Password Field" => :new,
+    "Upload" => :new,
+    "Pane Layout" => :new,
+    # gains the :chips and :menu slots
+    "Text Field" => :updated
   }
 
   @doc "The release the New/Updated chips refer to."
@@ -48,6 +50,12 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
             path: "/getting-started",
             icon: "hero-book-open"
           },
+          %{
+            id: :changelog,
+            label: "Changelog",
+            href: @changelog_url,
+            icon: "hero-document-text"
+          },
           %{id: :theming, label: "Theming", path: "/theming", icon: "hero-swatch"},
           %{
             id: :customizing,
@@ -62,10 +70,10 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
             icon: "hero-sparkles"
           },
           %{
-            id: :changelog,
-            label: "Changelog",
-            href: @changelog_url,
-            icon: "hero-document-text"
+            id: :dashboard,
+            label: "Dashboard demo",
+            path: "/dashboard",
+            icon: "hero-chart-bar-square"
           }
         ]
       },
@@ -121,14 +129,18 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         icon: "hero-pencil-square",
         components: [
           "Text Field",
+          "Password Field",
           "Select",
+          "Number Field",
           "Checkbox",
           "Switch",
           "Theme Toggle",
           "Radio Group",
           "Slider",
           "Date Picker",
-          "Time Picker"
+          "Time Picker",
+          "Autocomplete",
+          "Upload"
         ]
       },
       %{
@@ -142,6 +154,8 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
           "Navigation Bar",
           "Toolbar",
           "Tabs",
+          "Breadcrumbs",
+          "Pagination",
           "Menu",
           "Search Bar",
           "List"
@@ -154,11 +168,14 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         icon: "hero-rectangle-group",
         components: [
           "Card",
+          "Avatar",
           "Badge",
           "Chip",
           "Tooltip",
           "Icon",
-          "Carousel"
+          "Carousel",
+          "Table",
+          "Table Pagination"
         ]
       },
       %{
@@ -166,7 +183,7 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
         label: "Surfaces",
         path: "/components/surfaces",
         icon: "hero-square-3-stack-3d",
-        components: ["Typography", "Divider", "Bottom Sheet", "Side Sheet"]
+        components: ["Typography", "Divider", "Pane Layout", "Bottom Sheet", "Side Sheet"]
       },
       %{
         id: :feedback,

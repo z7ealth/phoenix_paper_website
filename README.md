@@ -4,7 +4,7 @@ The showcase site for [PhoenixPaper](https://github.com/z7ealth/phoenix_paper): 
 
 ## Running locally
 
-This app depends on the published [`phoenix_paper`](https://hex.pm/packages/phoenix_paper) hex package (`{:phoenix_paper, "~> 0.5.1"}` in `mix.exs`).
+This app depends on the published [`phoenix_paper`](https://hex.pm/packages/phoenix_paper) hex package (`{:phoenix_paper, "~> 0.5.2"}` in `mix.exs`).
 
 * Run `mix setup` to install and set up dependencies (this includes `npm install` in `assets/` for highlight.js, so Node.js/npm must be installed)
 * Start the server with `mix phx.server` (or `iex -S mix phx.server` from IEx)
@@ -26,7 +26,7 @@ Then in `mix.exs`, comment out the hex line and uncomment the path one right bel
 
 After bumping the version in `mix.exs` and running `mix deps.update phoenix_paper`:
 
-* **Options tables** update themselves: each component section's options and slots tables are generated from the library's own component metadata (`api={[{Module, :function}]}` on `DocsComponents.section/1`). Only the LiveComponents (DatePicker, TimePicker) have hand-written tables.
+* **Options tables** update themselves: each component section's options and slots tables are generated from the library's own component metadata (`api={[{Module, :function}]}` on `DocsComponents.section/1`). Only the LiveComponents (DatePicker, TimePicker, Autocomplete) have hand-written tables.
 * **New/Updated chips**: set `@release` and the `@statuses` map in `lib/phoenix_paper_website_web/nav.ex` for the components the release adds or changes. New components also need a section on their category page and an entry in that category's `components` list (`test/phoenix_paper_website_web/nav_test.exs` checks the two match).
 * **Theme picker colors**: run `mix site.gen.theme_picker_css` to regenerate `assets/css/theme_picker.css` from the new `PhoenixPaper.Theme` (the hues are MD3 tonal sets built by the library's color science).
 * Run `mix precommit`, then `mix assets.build` and look through the pages.
