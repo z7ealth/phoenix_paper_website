@@ -164,17 +164,9 @@ defmodule PhoenixPaperWebsiteWeb.DashboardLive do
           else: "mx-auto max-w-screen-xl px-4"
         )
       ]}>
-        <.page_header eyebrow="Showcase" title="Dashboard">
-          A made-up shop admin, built only from PhoenixPaper components and Tailwind layout
-          classes: everything below is live. Filter and sort the orders, page through them, add
-          one with the button in the corner.
-        </.page_header>
+        <.page_header eyebrow="Showcase" title="Dashboard" />
 
         <div id="dashboard-source" class="-mt-8 mb-8">
-          <.pp_typography variant="body-small" color="on-surface-variant">
-            The whole page is one LiveView. Copy it into your app, then swap this site's
-            Layouts.app and page_header for your own layout and heading.
-          </.pp_typography>
           <.demo_code id="dashboard" text={@source} />
         </div>
 

@@ -10,7 +10,7 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
 
   attr :eyebrow, :string, required: true
   attr :title, :string, required: true
-  slot :inner_block, required: true, doc: "the lead paragraph"
+  slot :inner_block, doc: "the lead paragraph (optional)"
 
   @doc """
   The eyebrow / title / lead paragraph block every page opens with, all
@@ -21,7 +21,12 @@ defmodule PhoenixPaperWebsiteWeb.DocsComponents do
     <div class="flex flex-col gap-2 mb-12">
       <.pp_typography variant="label-small" color="primary">{@eyebrow}</.pp_typography>
       <.pp_typography variant="display-small">{@title}</.pp_typography>
-      <.pp_typography variant="body-large" color="on-surface-variant" class="max-w-2xl">
+      <.pp_typography
+        :if={@inner_block != []}
+        variant="body-large"
+        color="on-surface-variant"
+        class="max-w-2xl"
+      >
         {render_slot(@inner_block)}
       </.pp_typography>
     </div>
