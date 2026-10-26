@@ -18,10 +18,13 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
     LiveView never patches it, and reads the `--color-pp-*` tokens when a
     round starts, so the bird and pipes follow the theme picker and dark
     mode. Best score is kept in `localStorage` (`"paper-bird:best"`).
+  - "Throw flashbang" dispatches `paper-bird:flashbang` to the canvas: it
+    goes white for a few seconds while the round keeps going.
   """
   use Phoenix.Component
   use PhoenixPaper.Components
 
+  alias Phoenix.LiveView.JS
   alias PhoenixPaper.Dialog
 
   @dialog_id "paper-bird-dialog"
@@ -91,6 +94,14 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
         Space, ↑, click or tap to flap. Don't touch the pipes.
       </.pp_typography>
       <:actions>
+        <.pp_button
+          id="paper-bird-flashbang"
+          variant="tonal"
+          phx-click={JS.dispatch("paper-bird:flashbang", to: "#paper-bird-canvas")}
+        >
+          <:start_icon><.pp_icon name="hero-sun" /></:start_icon>
+          Throw flashbang
+        </.pp_button>
         <.pp_button id="paper-bird-close" variant="text" phx-click={Dialog.hide(@id)}>
           Close
         </.pp_button>
@@ -118,6 +129,8 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
       }
       layout(W)
       const BEST_KEY = "paper-bird:best"
+      // Flashbang: a quick ramp to white, a hold, then a slow recovery.
+      const FLASH_IN = 60, FLASH_HOLD = 2500, FLASH_FADE = 1800
 
       // The hero mark's own paths (DocsComponents.hero_mark/1, 64x64 viewBox).
       const BODY = new Path2D("M13 21c1-6 7-10 13-9 6 1 10 6 9 12-1 6-5 10-9 15-3 4-5 9-6 15-4-5-6-11-6-18 0-6 1-11-1-15Z M13 18l-7 4 7 3z M23.8 20a1.8 1.8 0 1 0-3.6 0 1.8 1.8 0 1 0 3.6 0z")
@@ -150,11 +163,13 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           }
           this.onVisibility = () => { if (document.hidden && this.state === "playing") this.state = "paused" }
           this.onResize = () => this.resize()
+          this.onFlashbang = () => this.flashbang()
 
           this.el.addEventListener("pointerdown", this.onPointer)
           window.addEventListener("keydown", this.onKey)
           document.addEventListener("visibilitychange", this.onVisibility)
           window.addEventListener("resize", this.onResize)
+          this.el.addEventListener("paper-bird:flashbang", this.onFlashbang)
 
           // The dialog starts hidden; draw once it's actually on screen.
           this.observer = new IntersectionObserver((entries) => {
@@ -171,6 +186,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           window.removeEventListener("keydown", this.onKey)
           document.removeEventListener("visibilitychange", this.onVisibility)
           window.removeEventListener("resize", this.onResize)
+          this.el.removeEventListener("paper-bird:flashbang", this.onFlashbang)
         },
 
         visible() { return this.el.offsetParent !== null },
@@ -233,8 +249,32 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           this.vy = FLAP
         },
 
+        flashbang() {
+          this.flashAt = performance.now()
+          // Hand focus back so Space flaps instead of throwing another one.
+          this.el.focus({ preventScroll: true })
+          // Outside a round nothing is animating: run frames until it fades.
+          if (this.state !== "playing") {
+            cancelAnimationFrame(this.raf)
+            this.raf = requestAnimationFrame((t) => this.tick(t))
+          }
+        },
+
+        flashAlpha() {
+          if (!this.flashAt) return 0
+          const t = performance.now() - this.flashAt
+          if (t < FLASH_IN) return t / FLASH_IN
+          if (t < FLASH_HOLD) return 1
+          // Eyes recover fast at first, then slowly.
+          return Math.max(0, 1 - (t - FLASH_HOLD) / FLASH_FADE) ** 2
+        },
+
         tick(now) {
-          if (this.state !== "playing") { this.draw(); return }
+          if (this.state !== "playing") {
+            this.draw()
+            if (this.flashAlpha() > 0) this.raf = requestAnimationFrame((t) => this.tick(t))
+            return
+          }
           // The first frame's timestamp can predate the flap: clamp to [0, 1/30s].
           const dt = Math.max(0, Math.min((now - this.last) / 1000, 1 / 30))
           this.last = now
@@ -312,6 +352,16 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
             c.font = `500 16px ${k.font}`
             c.fillText(`Score ${this.score}  ·  Best ${this.best}`, W / 2, H / 2 - 10)
             c.fillText("Tap or press Space to try again", W / 2, H / 2 + 20)
+          }
+
+          // Pure white in every theme: it's a flashbang.
+          const flash = this.flashAlpha()
+          if (flash > 0) {
+            c.save()
+            c.globalAlpha = flash
+            c.fillStyle = "#ffffff"
+            c.fillRect(0, 0, W, H)
+            c.restore()
           }
         },
 
