@@ -52,7 +52,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
         <.section
           title="Card"
           api={[{PhoenixPaper.Card, :pp_card}]}
-          description="MD3's three card styles: elevated (surface-container-low with a level-1 shadow), filled (surface-container-highest) and outlined (outline-variant border). Slots for :media (edge to edge on top), :title, :subhead and :actions. Give it href, navigate or patch and the whole card becomes clickable, with a state layer and focus ring; :actions stay outside the link."
+          description="MD3's three card styles: elevated (surface-container-low with a level-1 shadow), filled (surface-container-highest) and outlined (outline-variant border). Slots for :media (edge to edge on top), :title, :subhead and :actions. Give it href, navigate or patch and the whole card becomes clickable, with a state layer and focus ring; :actions stay outside the link. The card is a flex column that fills its container, so h-full in a grid cell gives equal-height cards; content_class styles the padded content box (make it flex flex-col and mt-auto pushes the last child down). A pp_list placed directly in the content bleeds to the card's edges on its own."
           code={card_code()}
         >
           <.demo_group label="variant" class="items-stretch">
@@ -85,6 +85,30 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
               <:actions>
                 <.pp_button variant="text" href="/components/feedback">Feedback</.pp_button>
               </:actions>
+            </.pp_card>
+          </.demo_group>
+
+          <.demo_group label="h-full with content_class, and a list in a card" class="items-stretch">
+            <div id="card-fill-demo" class="grid w-full grid-cols-1 gap-4 min-[600px]:grid-cols-3">
+              <.pp_card
+                :for={{title, body} <- card_fill_items()}
+                variant="filled"
+                class="h-full"
+                content_class="flex flex-col"
+              >
+                <:title>{title}</:title>
+                {body}
+                <.pp_button variant="text" class="mt-auto self-start">Open</.pp_button>
+              </.pp_card>
+            </div>
+            <.pp_card id="card-list-demo" variant="outlined" class="w-72">
+              <:title>Devices</:title>
+              <.pp_list>
+                <.pp_list_item :for={{icon, name} <- card_list_items()}>
+                  <:leading><.pp_icon name={icon} /></:leading>
+                  {name}
+                </.pp_list_item>
+              </.pp_list>
             </.pp_card>
           </.demo_group>
         </.section>
@@ -423,8 +447,42 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
     <.pp_card variant="outlined" navigate={~p"/components/surfaces"}>
       <:title>Surfaces</:title>
       Typography, Divider and the sheets.
+    </.pp_card>
+
+    <%!-- Equal-height cards in a grid; mt-auto pins the button to the bottom --%>
+    <div class="grid grid-cols-3 gap-4">
+      <.pp_card :for={item <- @items} class="h-full" content_class="flex flex-col">
+        <:title>{item.title}</:title>
+        {item.body}
+        <.pp_button variant="text" class="mt-auto self-start">Open</.pp_button>
+      </.pp_card>
+    </div>
+
+    <%!-- A list directly in the content lines up with the card's edges --%>
+    <.pp_card variant="outlined">
+      <:title>Devices</:title>
+      <.pp_list>
+        <.pp_list_item>Laptop</.pp_list_item>
+        <.pp_list_item>Phone</.pp_list_item>
+      </.pp_list>
     </.pp_card>\
     """
+  end
+
+  defp card_fill_items do
+    [
+      {"Short", "One line."},
+      {"Longer", "A couple of lines of body text, so this card sets the row's height."},
+      {"Medium", "Somewhere in between."}
+    ]
+  end
+
+  defp card_list_items do
+    [
+      {"hero-computer-desktop", "Laptop"},
+      {"hero-device-phone-mobile", "Phone"},
+      {"hero-device-tablet", "Tablet"}
+    ]
   end
 
   defp badge_code do

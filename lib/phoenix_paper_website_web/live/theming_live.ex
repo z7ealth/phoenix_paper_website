@@ -59,7 +59,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
 
         <.section
           title="Generate from a seed color"
-          description="Rather than picking 46 colors, generate them: mix phoenix_paper.gen.theme takes one seed color and writes every role, light and dark, with phoenix_paper's port of Material's HCT color science, the same way Material Theme Builder does. Every role is a fixed tone of a tonal palette, so contrast holds for any hue. Pick a scheme for the palettes' character, pin core colors if your brand has them, then import the file after phoenix_paper.css."
+          description="Rather than picking 46 colors, generate them: mix phoenix_paper.gen.theme takes one seed color and writes every role, light and dark, with phoenix_paper's port of Material's HCT color science, the same way Material Theme Builder does. Every role is a fixed tone of a tonal palette, so contrast holds for any hue. Pick a scheme for the palettes' character, pin core colors if your brand has them, or hand it a named palette (Catppuccin, Nord, ...) with --palette: a JSON file of explicit role values for light and dark that replace the generated ones; with every role given for both modes, --seed is optional. Then import the file after phoenix_paper.css."
           code={gen_theme_code()}
           code_language="css"
         >
@@ -311,6 +311,12 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
        Schemes: tonal_spot (default), neutral, vibrant, expressive, fidelity, monochrome.
        Pin core colors with --secondary / --tertiary / --neutral / --error:
          mix phoenix_paper.gen.theme --seed "#0b57d0" --scheme vibrant --tertiary "#a4407f"
+       Explicit role values from a JSON file replace the generated ones;
+       with every role for both modes, --seed is optional:
+         mix phoenix_paper.gen.theme --palette catppuccin.json
+         mix phoenix_paper.gen.theme --seed "#8839ef" --palette brand.json
+       catppuccin.json: {"light": {"primary": "#8839ef", ...}, "dark": {"primary": "#cba6f7", ...}}
+       The dark values go to both dark blocks, so you write them once.
        It writes assets/css/phoenix_paper_theme.css (--output to change it). */
 
     /* assets/css/app.css */

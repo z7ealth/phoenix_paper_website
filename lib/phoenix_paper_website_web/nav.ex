@@ -12,21 +12,10 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
   # Components added or changed in the latest release, keyed by section
   # title: drives the "New"/"Updated" chips on section headers
   # (DocsComponents.section/1) and in the sidebar. Reset it each release.
-  @release "0.5.2"
+  @release "0.5.3"
   @statuses %{
-    # back in 0.5.2, rebuilt from MD3 parts
-    "Avatar" => :new,
-    "Table" => :new,
-    "Table Pagination" => :new,
-    "Pagination" => :new,
-    "Breadcrumbs" => :new,
-    "Number Field" => :new,
-    "Autocomplete" => :new,
-    "Password Field" => :new,
-    "Upload" => :new,
-    "Pane Layout" => :new,
-    # gains the :chips and :menu slots
-    "Text Field" => :updated
+    # content_class; fills its container; lists in it bleed to its edges
+    "Card" => :updated
   }
 
   @doc "The release the New/Updated chips refer to."

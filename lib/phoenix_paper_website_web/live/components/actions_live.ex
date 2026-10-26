@@ -190,7 +190,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.ActionsLive do
 
         <.section
           title="Button Group"
-          description="Groups related buttons (M3 Expressive). standard keeps them as separate buttons in a row; connected joins them into one segmented control with shared inner corners. Give the buttons a toggle group for a single-select control, like the exclusive view switch below."
+          description="Groups related buttons (M3 Expressive). standard keeps them as separate buttons in a row; connected joins them into one segmented control with shared inner corners: only the group's two outer ends are round and every inner corner is small, as the Expressive spec draws it, not a styling bug. Give the buttons a toggle group for a single-select control, like the exclusive view switch below."
           api={[{PhoenixPaper.ButtonGroup, :pp_button_group}]}
           code={button_group_code()}
         >

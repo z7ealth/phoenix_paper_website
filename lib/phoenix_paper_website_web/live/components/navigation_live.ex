@@ -345,7 +345,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="List"
-          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or a pp_avatar, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally."
+          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or a pp_avatar, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally. Placed directly in a pp_card's content, a list bleeds to the card's edges and drops its own vertical padding, so no -mx-4 !py-0 is needed."
           api={[
             {PhoenixPaper.List, :pp_list},
             {PhoenixPaper.ListItem, :pp_list_item}

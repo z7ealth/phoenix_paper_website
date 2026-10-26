@@ -307,7 +307,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.FormsLive do
         <.section
           title="Switch"
           api={[{PhoenixPaper.Switch, :pp_switch}]}
-          description="An on/off toggle with MD3's track and handle: the handle grows when on and when pressed. icons adds MD3's check/close glyphs inside the handle."
+          description="An on/off toggle with MD3's track and handle: the handle grows when on and when pressed. icons adds MD3's check/close glyphs inside the handle. There's no compact size: MD3 has one switch, and scale-* only shrinks the drawing (the 52×32 box stays) and the touch target. In dense rows use a pp_checkbox or a toggle pp_icon_button instead."
           code={switch_code()}
         >
           <.demo_group label="States">
