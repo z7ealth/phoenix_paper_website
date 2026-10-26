@@ -18,13 +18,12 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
     LiveView never patches it, and reads the `--color-pp-*` tokens when a
     round starts, so the bird and pipes follow the theme picker and dark
     mode. Best score is kept in `localStorage` (`"paper-bird:best"`).
-  - "Throw flashbang" dispatches `paper-bird:flashbang` to the canvas: it
-    goes white for a few seconds while the round keeps going.
+  - Right-click (or F) throws a flashbang: the canvas goes white for a
+    moment while the round keeps going.
   """
   use Phoenix.Component
   use PhoenixPaper.Components
 
-  alias Phoenix.LiveView.JS
   alias PhoenixPaper.Dialog
 
   @dialog_id "paper-bird-dialog"
@@ -86,22 +85,14 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           id="paper-bird-canvas"
           phx-hook=".PaperBird"
           tabindex="0"
-          aria-label="Paper Bird game. Press Space, Arrow Up, click or tap to flap."
+          aria-label="Paper Bird game. Press Space, Arrow Up, click or tap to flap. Right-click or F throws a flashbang."
           class="block aspect-[3/4] w-full cursor-pointer touch-manipulation rounded-pp-sm sm:aspect-[4/3]"
         ></canvas>
       </div>
       <.pp_typography variant="body-small" class="mt-3">
-        Space, ↑, click or tap to flap. Don't touch the pipes.
+        Space, ↑, click or tap to flap. Right-click or F for a flashbang. Don't touch the pipes.
       </.pp_typography>
       <:actions>
-        <.pp_button
-          id="paper-bird-flashbang"
-          variant="tonal"
-          phx-click={JS.dispatch("paper-bird:flashbang", to: "#paper-bird-canvas")}
-        >
-          <:start_icon><.pp_icon name="hero-sun" /></:start_icon>
-          Throw flashbang
-        </.pp_button>
         <.pp_button id="paper-bird-close" variant="text" phx-click={Dialog.hide(@id)}>
           Close
         </.pp_button>
@@ -130,7 +121,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
       layout(W)
       const BEST_KEY = "paper-bird:best"
       // Flashbang: a quick ramp to white, a hold, then a slow recovery.
-      const FLASH_IN = 60, FLASH_HOLD = 2500, FLASH_FADE = 1800
+      const FLASH_IN = 60, FLASH_HOLD = 900, FLASH_FADE = 900
 
       // The hero mark's own paths (DocsComponents.hero_mark/1, 64x64 viewBox).
       const BODY = new Path2D("M13 21c1-6 7-10 13-9 6 1 10 6 9 12-1 6-5 10-9 15-3 4-5 9-6 15-4-5-6-11-6-18 0-6 1-11-1-15Z M13 18l-7 4 7 3z M23.8 20a1.8 1.8 0 1 0-3.6 0 1.8 1.8 0 1 0 3.6 0z")
@@ -150,9 +141,16 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           this.best = readBest()
           this.reset()
 
-          this.onPointer = (e) => { e.preventDefault(); this.flap() }
+          this.onPointer = (e) => {
+            e.preventDefault()
+            if (e.button === 2) this.flashbang()
+            else this.flap()
+          }
+          // Right-click is the flashbang, not the browser's menu.
+          this.onContextMenu = (e) => e.preventDefault()
           this.onKey = (e) => {
             if (!this.visible()) return
+            if ((e.key === "f" || e.key === "F") && !e.repeat) return this.flashbang()
             if (e.key !== " " && e.key !== "ArrowUp") return
             // Holding the key auto-repeats; one press is one flap.
             if (e.repeat) { e.preventDefault(); return }
@@ -163,13 +161,12 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           }
           this.onVisibility = () => { if (document.hidden && this.state === "playing") this.state = "paused" }
           this.onResize = () => this.resize()
-          this.onFlashbang = () => this.flashbang()
 
           this.el.addEventListener("pointerdown", this.onPointer)
           window.addEventListener("keydown", this.onKey)
           document.addEventListener("visibilitychange", this.onVisibility)
           window.addEventListener("resize", this.onResize)
-          this.el.addEventListener("paper-bird:flashbang", this.onFlashbang)
+          this.el.addEventListener("contextmenu", this.onContextMenu)
 
           // The dialog starts hidden; draw once it's actually on screen.
           this.observer = new IntersectionObserver((entries) => {
@@ -186,7 +183,7 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
           window.removeEventListener("keydown", this.onKey)
           document.removeEventListener("visibilitychange", this.onVisibility)
           window.removeEventListener("resize", this.onResize)
-          this.el.removeEventListener("paper-bird:flashbang", this.onFlashbang)
+          this.el.removeEventListener("contextmenu", this.onContextMenu)
         },
 
         visible() { return this.el.offsetParent !== null },
@@ -251,8 +248,6 @@ defmodule PhoenixPaperWebsiteWeb.PaperBird do
 
         flashbang() {
           this.flashAt = performance.now()
-          // Hand focus back so Space flaps instead of throwing another one.
-          this.el.focus({ preventScroll: true })
           // Outside a round nothing is animating: run frames until it fades.
           if (this.state !== "playing") {
             cancelAnimationFrame(this.raf)

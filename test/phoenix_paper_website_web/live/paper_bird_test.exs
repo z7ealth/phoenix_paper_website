@@ -28,8 +28,6 @@ defmodule PhoenixPaperWebsiteWeb.PaperBirdTest do
            )
 
     assert has_element?(view, "#paper-bird-close")
-    # The flashbang is a client-side dispatch to the canvas hook.
-    assert has_element?(view, ~s|#paper-bird-flashbang[phx-click*="paper-bird:flashbang"]|)
 
     # The width lives on the centred container: MD3's basic dialog is w-full
     # up to 560px (0.5.0 dropped max_width), so the canvas, which has no
