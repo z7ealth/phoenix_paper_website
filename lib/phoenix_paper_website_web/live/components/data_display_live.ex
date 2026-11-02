@@ -189,12 +189,12 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
         <.section
           title="Tooltip"
           api={[{PhoenixPaper.Tooltip, :pp_tooltip}]}
-          description="A label shown on hover/focus. plain is MD3's small inverse-surface tooltip for a short title; rich is a surface-container card with a subhead, supporting text and optional :actions, for more context. Pure CSS (group-hover/group-focus-within), no collision detection."
+          description="A label shown on hover/focus. plain is MD3's small inverse-surface tooltip for a short title; rich is a surface-container card with a subhead, supporting text and optional :actions, for more context. Pure CSS (group-hover/group-focus-within), no collision detection. On hover it removes native title attributes from its trigger, so the browser's own tooltip never doubles up (a pp_icon_button's title defaults to its label); titles inside a rich tooltip's bubble are kept."
           code={tooltip_code()}
         >
           <.demo_group label="plain (hover each)">
             <.pp_tooltip title="Delete">
-              <.pp_icon_button icon="hero-trash" label="Delete" title={false} />
+              <.pp_icon_button icon="hero-trash" label="Delete" />
             </.pp_tooltip>
             <.pp_tooltip
               :for={placement <- ~w(bottom left right)}
@@ -268,7 +268,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
             {PhoenixPaper.TableCell, :pp_table_cell},
             {PhoenixPaper.TableFooter, :pp_table_footer}
           ]}
-          description="A data table from MD3 parts: title-small headers over body-medium rows, outline-variant dividers, the state layer on row hover, and secondary-container for selected rows. A sortable header cell renders an icon arrow with aria-sort. TableContainer is the card surface around it (variant as for Card, outlined by default); sticky_header pins the header while the container scrolls."
+          description="A data table from MD3 parts: title-small headers over body-medium rows, outline-variant dividers, the state layer on row hover, and secondary-container for selected rows. A sortable header cell renders an icon arrow with aria-sort. TableContainer is the card surface around it (variant as for Card, outlined by default); sticky_header pins the header while the container scrolls. MD3 has no stacked table pattern: on compact screens (below 600dp), render the rows as a pp_list instead."
           code={table_code()}
         >
           <.demo_group label="Sortable header, a selected row, a footer" direction="column">
@@ -521,7 +521,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.DataDisplayLive do
   defp tooltip_code do
     """
     <.pp_tooltip title="Delete">
-      <.pp_icon_button icon="hero-trash" label="Delete" title={false} />
+      <.pp_icon_button icon="hero-trash" label="Delete" />
     </.pp_tooltip>
 
     <.pp_tooltip title="Bottom" placement="bottom">

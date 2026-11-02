@@ -12,10 +12,12 @@ defmodule PhoenixPaperWebsiteWeb.Nav do
   # Components added or changed in the latest release, keyed by section
   # title: drives the "New"/"Updated" chips on section headers
   # (DocsComponents.section/1) and in the sidebar. Reset it each release.
-  @release "0.5.3"
+  @release "0.5.5"
   @statuses %{
-    # content_class; fills its container; lists in it bleed to its edges
-    "Card" => :updated
+    # scrollable tabs no longer shrink and clip their labels
+    "Tabs" => :updated,
+    # strips native titles from its trigger, so no title={false}
+    "Tooltip" => :updated
   }
 
   @doc "The release the New/Updated chips refer to."

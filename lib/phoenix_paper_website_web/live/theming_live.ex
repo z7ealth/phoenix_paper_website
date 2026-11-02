@@ -127,7 +127,9 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
 
         <.section
           title="Light and dark: how the switch works"
-          description="Three CSS selectors decide which values are live. Light is the unconditional default. An explicit data-theme on the html element (or any ancestor) always wins. A prefers-color-scheme media query is the fallback used only when no explicit choice has been made."
+          description={
+            ~S|Three CSS selectors decide which values are live. Light is the unconditional default. An explicit data-theme on the html element always wins, and data-theme="dark" on any container makes an always-dark region. A prefers-color-scheme media query is the fallback used only when no explicit choice has been made.|
+          }
           code={mechanism_css()}
           code_language="css"
         >
@@ -154,6 +156,15 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
               <:secondary>
                 Light, always: the :not([data-theme="light"]) guard on the media query is what
                 lets an explicit light choice override a dark OS.
+              </:secondary>
+            </.pp_list_item>
+            <.pp_list_item>
+              data-theme="dark" on a container
+              <:secondary>
+                An always-dark region (a hero, a player bar, a code panel): every component inside
+                takes the dark roles, so there's no per-component dark option. One way only: the
+                light values live on :root, so a data-theme="light" region inside a dark page
+                stays dark. On a colored container instead, give buttons color="inherit".
               </:secondary>
             </.pp_list_item>
           </.pp_list>

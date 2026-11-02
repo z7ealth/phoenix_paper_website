@@ -175,7 +175,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
         <.section
           title="Tabs"
           description={
-            ~S|Tabs, Tab and TabPanel switch client-side via Phoenix.LiveView.JS commands, no round trip. primary tabs have an indicator under the label and content; secondary tabs a thinner full-width one. layout="scrollable" scrolls a long row. They follow the ARIA keyboard model: only the selected tab is a Tab stop, and Left/Right (mirrored in RTL), Home and End move between tabs, skipping disabled ones. With the JS hook (Getting Started, step 4) the indicator slides between tabs.|
+            ~S|Tabs, Tab and TabPanel switch client-side via Phoenix.LiveView.JS commands, no round trip. primary tabs have an indicator under the label and content; secondary tabs a thinner full-width one. layout="scrollable" scrolls a long row: its tabs never shrink, so labels stay whole on phones. They follow the ARIA keyboard model: only the selected tab is a Tab stop, and Left/Right (mirrored in RTL), Home and End move between tabs, skipping disabled ones. With the JS hook (Getting Started, step 4) the indicator slides between tabs.|
           }
           api={[
             {PhoenixPaper.Tabs, :pp_tabs},

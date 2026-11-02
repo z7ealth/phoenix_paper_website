@@ -37,6 +37,13 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
             lives (deps/ or a local path: dependency). Upgrading from an older version?
             Your existing @source line is now redundant but harmless.
           </.pp_typography>
+          <.pp_typography variant="body-medium" color="on-surface-variant" class="mt-3">
+            MD3's typeface is Roboto Flex, and PhoenixPaper doesn't load fonts: link it from
+            Google Fonts or self-host an @font-face named "Roboto Flex". Without it nothing
+            breaks, the type falls back to Roboto, then the system UI font. To use your own,
+            override --font-pp-brand (display, headline and title roles) and --font-pp-plain
+            (body and label roles).
+          </.pp_typography>
         </.section>
 
         <.section
@@ -46,6 +53,12 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
           }
         >
           <.code text={hook_js_snippet()} language="javascript" />
+          <.pp_typography variant="body-medium" color="on-surface-variant" class="mt-3">
+            "phoenix_paper" resolves from deps/ through esbuild's NODE_PATH, which Phoenix 1.8
+            apps already set. On an older app the build fails with Could not resolve
+            "phoenix_paper" until you add it to the esbuild profile:
+          </.pp_typography>
+          <.code text={node_path_snippet()} language="elixir" />
         </.section>
 
         <.section
@@ -152,7 +165,7 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     # mix.exs
     defp deps do
       [
-        {:phoenix_paper, "~> 0.5.4"}
+        {:phoenix_paper, "~> 0.5.5"}
       ]
     end\
     """
@@ -332,6 +345,17 @@ defmodule PhoenixPaperWebsiteWeb.GettingStartedLive do
     /* assets/css/app.css */
     @import "tailwindcss";
     @import "../../deps/phoenix_paper/priv/static/phoenix_paper.css";\
+    """
+  end
+
+  defp node_path_snippet do
+    """
+    # config/config.exs
+    config :esbuild,
+      my_app: [
+        # ...
+        env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+      ]\
     """
   end
 
