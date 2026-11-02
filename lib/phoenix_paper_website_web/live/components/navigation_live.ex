@@ -345,7 +345,7 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
 
         <.section
           title="List"
-          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or a pp_avatar, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally. Placed directly in a pp_card's content, a list bleeds to the card's edges and drops its own vertical padding, so no -mx-4 !py-0 is needed."
+          description="MD3 list rows: one line (56dp), or two with :secondary (72dp), in body-large, each line cut with an ellipsis. For longer text, three_line is MD3's three-line item: 88dp, the headline wrapping, :secondary wrapping to up to two lines, and :leading/:trailing aligned to the top. Items render as links, buttons or plain rows depending on their attrs; the active item is secondary-container. :leading holds an icon or a pp_avatar, :trailing a count, icon or action. For a heading over a group, use a title-small pp_typography; to show and hide a group, render its items conditionally. Placed directly in a pp_card's content, a list bleeds to the card's edges and drops its own vertical padding, so no -mx-4 !py-0 is needed."
           api={[
             {PhoenixPaper.List, :pp_list},
             {PhoenixPaper.ListItem, :pp_list_item}
@@ -395,6 +395,19 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
                   </:leading>
                   {name}
                   <:secondary>{line}</:secondary>
+                </.pp_list_item>
+              </.pp_list>
+            </div>
+          </.demo_group>
+
+          <.demo_group label="three_line, for text that doesn't fit on one line" class="items-start">
+            <div class="block bg-pp-surface text-pp-on-surface rounded-pp-md border border-pp-outline-variant w-full max-w-xs overflow-hidden">
+              <.pp_list id="list-three-line-demo">
+                <.pp_list_item :for={{icon, title, line} <- list_settings()} href="#list" three_line>
+                  <:leading><.pp_icon name={icon} /></:leading>
+                  {title}
+                  <:secondary>{line}</:secondary>
+                  <:trailing><.pp_icon name="hero-chevron-right" /></:trailing>
                 </.pp_list_item>
               </.pp_list>
             </div>
@@ -576,8 +589,26 @@ defmodule PhoenixPaperWebsiteWeb.Components.NavigationLive do
         {user.name}
         <:secondary>{user.email}</:secondary>
       </.pp_list_item>
+    </.pp_list>
+
+    <%!-- three_line: the text wraps instead of being cut, top-aligned --%>
+    <.pp_list>
+      <.pp_list_item navigate={~p"/settings/backups"} three_line>
+        <:leading><.pp_icon name="hero-cloud-arrow-up" /></:leading>
+        Automatic backups
+        <:secondary>Copies your files to the cloud every night while your device charges.</:secondary>
+      </.pp_list_item>
     </.pp_list>\
     """
+  end
+
+  defp list_settings do
+    [
+      {"hero-cloud-arrow-up", "Automatic backups",
+       "Copies your files to the cloud every night while your device charges and is on Wi-Fi."},
+      {"hero-bell-alert", "Priority notifications",
+       "Only calls and messages from starred contacts can interrupt you during focus time."}
+    ]
   end
 
   defp list_people do

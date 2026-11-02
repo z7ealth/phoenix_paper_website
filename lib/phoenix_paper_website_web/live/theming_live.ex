@@ -141,24 +141,24 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
             </.pp_button>
           </.demo_group>
           <.pp_list id="theming-mode-rules" class="mt-2">
-            <.pp_list_item>
+            <.pp_list_item three_line>
               No attribute
               <:secondary>
                 Light, unless the OS prefers dark, in which case the media-query block applies.
               </:secondary>
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               data-theme="dark"
               <:secondary>Dark, always, whatever the OS says.</:secondary>
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               data-theme="light"
               <:secondary>
                 Light, always: the :not([data-theme="light"]) guard on the media query is what
                 lets an explicit light choice override a dark OS.
               </:secondary>
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               data-theme="dark" on a container
               <:secondary>
                 An always-dark region (a hero, a player bar, a code panel): every component inside
@@ -201,11 +201,11 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
           description="Before you ship a custom theme:"
         >
           <.pp_list id="theming-checklist">
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               Overrides live in your app.css, after the phoenix_paper import, never in the dep.
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               Two blocks:
               <.pp_typography variant="code">:root</.pp_typography>
@@ -219,18 +219,18 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
               <.pp_typography variant="code">data-theme</.pp_typography>
               and should follow the OS.
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               The page has a
               <.pp_typography variant="code">data-theme</.pp_typography>
               on first paint: hardcode one in root.html.heex, or the two-block setup shows light
               until the toggle is clicked.
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               Every background token you change gets its on- token changed and contrast-checked.
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               The toggle target matches where
               <.pp_typography variant="code">data-theme</.pp_typography>
@@ -238,7 +238,7 @@ defmodule PhoenixPaperWebsiteWeb.ThemingLive do
               <.pp_typography variant="code">html</.pp_typography>
               in root.html.heex).
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-check-circle" /></:leading>
               Test both explicit choices, plus the no-attribute states on a light and a dark OS if
               you keep the fallback.

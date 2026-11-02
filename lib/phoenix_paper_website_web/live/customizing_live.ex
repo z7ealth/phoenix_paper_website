@@ -125,21 +125,21 @@ defmodule PhoenixPaperWebsiteWeb.CustomizingLive do
           code={inside_code()}
         >
           <.pp_list>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-adjustments-horizontal" /></:leading>
               A dedicated attr, where the component has one
               <:secondary>
                 pp_menu's trigger_class, for the element that opens it
               </:secondary>
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-squares-plus" /></:leading>
               Your own markup in a slot
               <:secondary>
                 Slot content is yours: style it directly, or wrap it in an element you style
               </:secondary>
             </.pp_list_item>
-            <.pp_list_item>
+            <.pp_list_item three_line>
               <:leading><.pp_icon name="hero-code-bracket" /></:leading>
               An arbitrary child variant on the root
               <:secondary>
